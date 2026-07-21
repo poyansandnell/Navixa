@@ -1,0 +1,1745 @@
+Klistra in hela instruktionen nedan i Replit Agent. Jag använder arbetsnamnet Fleet Arena – ett globalt ”Sänka skepp” byggt som Chess.com för sjöstrider.
+
+Den ska byggas med Expo SDK 57 och React Native, utan WebView eller inbäddad webbapp. Expo rekommenderar EAS Build och EAS Submit för produktionsbyggen och uppladdning till App Store och Google Play.  
+
+BYGG EN KOMPLETT GLOBAL NATIVE MOBILAPP: FLEET ARENA
+
+Du ska bygga en fullständig, produktionsredo mobilapp för iOS och Android med arbetsnamnet Fleet Arena.
+
+Fleet Arena ska vara ett modernt globalt onlinespel baserat på det klassiska spelet Sänka skepp. Visionen är:
+
+Chess.com för Sänka skepp.
+
+Användaren ska kunna öppna appen, trycka på ”Spela nu” och inom några sekunder möta en riktig spelare någonstans i världen.
+
+Appen ska vara:
+
+* Helt native i React Native.
+* Byggd med Expo och TypeScript.
+* Klar att bygga med EAS Build.
+* Klar att skicka till Apple App Store och Google Play.
+* Anpassad för både iPhone och Android.
+* Snabb, modern och lätt att förstå.
+* Global och flerspråkig.
+* Säker mot fusk och manipulation.
+* Färdig som en verklig produkt, inte en prototyp.
+* Testbar även när bara en testanvändare finns.
+* Byggd utan WebView.
+* Byggd utan att bädda in en vanlig webbplats.
+* Byggd med riktig backend, databas och realtime-kommunikation.
+
+Du ska fatta rimliga tekniska beslut själv och slutföra hela projektet utan att stanna för onödiga frågor.
+
+⸻
+
+1. TEKNISK GRUND
+
+Använd följande teknik:
+
+Mobilapp
+
+* Expo SDK 57 eller senaste stabila kompatibla version.
+* React Native.
+* TypeScript med strict mode.
+* Expo Router.
+* React Native Reanimated.
+* React Native Gesture Handler.
+* React Native Safe Area Context.
+* Expo Haptics.
+* Expo Notifications.
+* Expo SecureStore.
+* Expo Audio för ljudeffekter.
+* Expo Image.
+* Expo Localization.
+* Expo Splash Screen.
+* Expo Updates.
+* Zustand för lokal app-state.
+* TanStack Query för serverdata och cache.
+* Zod för validering.
+* i18next eller motsvarande för översättningar.
+
+Installera paket med:
+
+npx expo install
+
+när paketet har en Expo-kompatibel version.
+
+Backend
+
+Använd Supabase som produktionsbackend:
+
+* Supabase Auth.
+* PostgreSQL.
+* Supabase Realtime.
+* Edge Functions.
+* Row Level Security.
+* Storage.
+* Servergenererad matchmaking.
+* Serververifierade spelresultat.
+* Serverstyrd spelklocka.
+* Push-tokenregistrering.
+
+Ingen hemlig servernyckel får finnas i mobilappen.
+
+Arkitektur
+
+Skapa tydlig struktur:
+
+app/
+components/
+features/
+  auth/
+  game/
+  matchmaking/
+  friends/
+  profile/
+  leaderboard/
+  tournaments/
+  shop/
+  settings/
+hooks/
+lib/
+services/
+store/
+types/
+constants/
+i18n/
+assets/
+supabase/
+  migrations/
+  functions/
+scripts/
+tests/
+
+Separera presentation, spelregler, nätverksanrop och state.
+
+Spelmotorn ska vara fristående och testbar utan gränssnitt.
+
+⸻
+
+2. APPENS IDENTITET
+
+Arbetsnamn:
+
+Fleet Arena
+
+Tagline:
+
+Find. Fire. Sink.
+
+Alternativ svensk tagline:
+
+Hitta. Skjut. Sänk.
+
+Skapa följande preliminära appidentitet:
+
+App name: Fleet Arena
+Slug: fleet-arena
+iOS bundle identifier: com.fleetarena.game
+Android package: com.fleetarena.game
+Scheme: fleetarena
+
+Lägg alla värden centralt i app.config.ts så att de enkelt kan ändras före publicering.
+
+Använd inte ordet ”Battleship” som huvudvarumärke eller appnamn.
+
+⸻
+
+3. DESIGN OCH VISUELL STIL
+
+Appen ska kännas som en blandning av:
+
+* Chess.com.
+* Ett modernt tävlingsspel.
+* Ett stilrent marint kontrollrum.
+* Ett snabbt mobilspel som är lätt att börja använda.
+
+Visuell riktning
+
+* Mörk marinblå bas.
+* Ljusare havsblå ytor.
+* Turkosa accenter.
+* Orange eller korallfärg för viktiga handlingar och träffar.
+* Rött endast för förlust, varningar och förstörda skepp.
+* Grönt för redo, seger och lyckade handlingar.
+* Tydlig kontrast.
+* Stora klickytor.
+* Mjuka animationer.
+* Diskreta sjökortsdetaljer.
+* Ingen överdriven militär eller realistisk krigskänsla.
+* Spelet ska kännas strategiskt, vänligt och globalt.
+
+Skapa ett komplett designsystem:
+
+* Färgvariabler.
+* Typografisk skala.
+* Spacing.
+* Radier.
+* Skuggor.
+* Ikonstorlekar.
+* Animationstider.
+* Ljus och mörk systemanpassning, men mörkt tema som standard.
+* Tillgängliga kontrastnivåer.
+
+Använd inte emojis som huvudsakliga navigationsikoner. Använd konsekventa native-kompatibla ikoner.
+
+⸻
+
+4. NAVIGATION
+
+Använd Expo Router och bygg följande huvudstruktur:
+
+Root
+
+* Splash.
+* Onboarding.
+* Auth.
+* Huvudapp.
+* Aktiva matcher.
+* Modaler.
+* Fel- och underhållslägen.
+
+Bottom tabs
+
+1. Spela
+2. Tävla
+3. Vänner
+4. Ranking
+5. Profil
+
+Tab bar ska respektera safe area på alla enheter.
+
+När en aktiv realtidsmatch pågår ska spelaren enkelt kunna återvända till den.
+
+⸻
+
+5. ONBOARDING
+
+Skapa en snygg onboarding med högst fyra steg:
+
+Sida 1
+
+Rubrik:
+
+Sänk flottor över hela världen
+
+Text:
+
+Möt riktiga spelare i snabba strategiska matcher.
+
+Sida 2
+
+Rubrik:
+
+Klättra i världsrankingen
+
+Text:
+
+Vinn matcher, förbättra din rating och nå högre divisioner.
+
+Sida 3
+
+Rubrik:
+
+Spela på ditt sätt
+
+Text:
+
+Snabbmatcher, klassiskt läge, vänner och turneringar.
+
+Sida 4
+
+* Skapa konto.
+* Logga in.
+* Fortsätt som gäst.
+* Godkännande av villkor och integritetspolicy.
+
+Onboardingstatus ska sparas lokalt.
+
+⸻
+
+6. KONTO OCH AUTENTISERING
+
+Implementera:
+
+* E-post och lösenord.
+* Magic link.
+* Apple Sign In på iOS.
+* Google Sign In.
+* Gästkonto.
+* Uppgradering från gästkonto till fullständigt konto.
+* Glömt lösenord.
+* Logga ut.
+* Radera konto.
+* Exportera mina uppgifter.
+* Hantera visningsnamn.
+* Kontroll av unikt användarnamn.
+* Åldersbekräftelse.
+* Godkännande av användarvillkor.
+* Godkännande av integritetspolicy.
+
+Spara tokens säkert med Expo SecureStore.
+
+Använd skyddade routes så att endast rätt användare kommer åt kontospecifika vyer.
+
+Gästläge
+
+Gäster ska kunna:
+
+* Spela mot bot.
+* Spela ett begränsat antal orankade onlinematcher.
+* Se appens huvudsakliga funktioner.
+
+Gäster ska inte kunna:
+
+* Delta i rankade turneringar.
+* Skapa klaner.
+* Skicka obegränsat antal vänförfrågningar.
+* Köpa produkter innan kontot har uppgraderats.
+
+⸻
+
+7. PROFIL
+
+Varje spelare ska ha:
+
+* Unikt användarnamn.
+* Visningsnamn.
+* Avatar.
+* Land eller valfri flagga.
+* Språk.
+* Global rating.
+* Högsta rating.
+* Division.
+* Antal matcher.
+* Vinster.
+* Förluster.
+* Vinstprocent.
+* Träffprocent.
+* Genomsnittligt antal drag.
+* Aktuell vinstsvit.
+* Bästa vinstsvit.
+* Antal sänkta skepp.
+* Senaste matcher.
+* Utmärkelser.
+* Kontonivå.
+* XP.
+* Titel.
+* Medlemsdatum.
+* Onlinestatus.
+* Senast aktiv, med integritetsinställning.
+
+Spelaren ska kunna välja bland kostnadsfria standardavatarer.
+
+Ingen användare ska behöva ladda upp en riktig bild.
+
+⸻
+
+8. SPELREGLER
+
+Implementera en korrekt, deterministisk och serververifierbar spelmotor.
+
+Standardbräde
+
+* 10 × 10 rutor.
+* Kolumner A–J.
+* Rader 1–10.
+
+Standardflotta
+
+* Hangarfartyg: 5 rutor.
+* Slagskepp: 4 rutor.
+* Kryssare: 3 rutor.
+* Ubåt: 3 rutor.
+* Jagare: 2 rutor.
+
+Gör flottans regler konfigurerbara för framtida spellägen.
+
+Placering
+
+Spelaren ska kunna:
+
+* Dra skepp.
+* Trycka för att välja.
+* Rotera skepp.
+* Placera automatiskt.
+* Slumpa hela flottan.
+* Återställa brädet.
+* Se ogiltiga placeringar direkt.
+* Bekräfta när alla skepp är korrekt placerade.
+
+Skeppen får som standard ligga intill varandra, men aldrig överlappa eller gå utanför brädet.
+
+Bygg stödet så att spellägen senare kan förbjuda att skepp nuddar varandra.
+
+Match
+
+* Spelarna turas om.
+* Ett skott per tur i standardläget.
+* Resultatet är miss, träff eller sänkt.
+* Samma ruta får aldrig beskjutas två gånger.
+* Den som först sänker hela motståndarens flotta vinner.
+* Motståndarens osänkta skepp får inte avslöjas.
+* Efter avslutad match visas båda brädena.
+* Matchen får en verifierad serverstatus.
+* Resultatet ska vara idempotent och inte kunna registreras flera gånger.
+
+⸻
+
+9. SERVERVERIFIERAD SPELMOTOR
+
+Detta är avgörande.
+
+Klienten får aldrig ensam bestämma:
+
+* Var ett skott landar.
+* Om ett skott träffar.
+* Om ett skepp är sänkt.
+* Vem som vann.
+* Ratingförändringen.
+* Spelarens tur.
+* Hur mycket tid som återstår.
+* Om en spelare gav upp.
+* Om en spelare kopplades bort.
+
+Placeringen ska skickas till en säker serverfunktion.
+
+Spara inte motståndarens läsbara skeppspositioner i data som motståndaren kan hämta.
+
+Använd något av följande säkra upplägg:
+
+1. Serverlagrad privat spelstate som endast Edge Functions får läsa.
+2. Krypterad eller hashbaserad representation med serververifiering.
+3. Separat privat tabell utan direkt klientåtkomst.
+
+Rekommenderat upplägg:
+
+* Publik matchtabell med metadata.
+* Privat serverägd tabell med respektive spelares bräde.
+* Klienten anropar Edge Functions för placering och skott.
+* Edge Function validerar draget i en transaktion.
+* Edge Function returnerar endast tillåtet resultat.
+* Realtime används för att meddela matchändringar.
+* RLS förbjuder klienter att läsa privata skeppspositioner.
+
+Skapa databastransaktioner eller säkra lås så att två samtidiga skott inte kan behandlas.
+
+⸻
+
+10. SPELLÄGEN
+
+Implementera följande från start:
+
+Snabbmatch
+
+* Orankad.
+* Standardregler.
+* Kort väntetid.
+* Kan matcha gäster.
+* Ingen ratingförändring.
+
+Rankad
+
+* Påverkar rating.
+* Endast registrerade konton.
+* Matchning baserad på rating och region.
+* Matchningsintervallet breddas gradvis.
+* Serververifierat resultat.
+
+Blitz
+
+* Kort total betänketid.
+* Exempelvis 30 sekunder per spelare eller 10 sekunder per drag.
+* Klockan styrs av servern.
+* Tidsförlust ger motståndaren vinst.
+
+Klassiskt
+
+* Lugnare match.
+* Längre tid per drag.
+* Möjlighet att återvända till matchen.
+
+Spela mot vän
+
+* Skapa privat match.
+* Dela kod.
+* Dela deep link.
+* Acceptera inbjudan.
+* Val av spelläge.
+* Ingen ratingpåverkan som standard.
+
+Träningsmatch
+
+* Spela mot bot.
+* Tre svårighetsgrader.
+* Påverkar inte rating.
+* Fungerar även när backend tillfälligt är otillgänglig.
+
+⸻
+
+11. BOTTAR
+
+Bygg bottar med tre nivåer:
+
+Nybörjare
+
+* Skjuter mest slumpmässigt.
+* Följer ibland upp träffar.
+
+Normal
+
+* Använder hunt-and-target-strategi.
+* Följer systematiskt upp träffar.
+* Förstår sannolika riktningar.
+
+Expert
+
+* Använder probability density.
+* Tar hänsyn till kvarvarande skepp.
+* Prioriterar rutor där kvarvarande skepp kan få plats.
+* Fuskar aldrig och får inte läsa dolda positioner annat än genom samma tillåtna spelstate som en normal motståndare.
+
+Botlogik ska ligga separat och ha automatiska tester.
+
+⸻
+
+12. GLOBAL MATCHMAKING
+
+Bygg en riktig matchmaking-kö.
+
+Användaren väljer:
+
+* Spelläge.
+* Rankad eller orankad.
+* Önskad tidskontroll.
+* Eventuellt brädformat.
+
+Matchmaking ska:
+
+* Söka efter spelare i liknande ratingintervall.
+* Prioritera rimlig nätverksregion.
+* Bredda ratingspannet över tid.
+* Undvika omedelbar rematch mot samma person när andra finns.
+* Förhindra att en användare matchas mot sig själv.
+* Använda serverfunktion och transaktion.
+* Inte tillåta att två klienter skapar dubbla matcher.
+* Kunna avbrytas.
+* Visa söktid.
+* Visa animerad sökskärm.
+* Automatiskt starta botmatch i utvecklingsläge när ingen motspelare finns.
+
+Utvecklings- och testläge
+
+Eftersom projektet i början kan ha få användare ska det finnas:
+
+* ”Simulera motspelare”.
+* Automatisk bot efter konfigurerbar väntetid.
+* Möjlighet att köra två lokala testspelare.
+* Seedade testkonton.
+* Matchsimulator för utveckling.
+* Ingen testfunktion synlig i produktion.
+
+⸻
+
+13. RATING OCH DIVISIONER
+
+Använd Glicko-2 eller en vältestad ELO-modell.
+
+Ratingen får endast räknas på servern.
+
+Startvärde:
+
+1000
+
+Skapa divisioner:
+
+* Recruit: under 800.
+* Sailor: 800–999.
+* Officer: 1000–1199.
+* Commander: 1200–1399.
+* Captain: 1400–1599.
+* Admiral: 1600–1799.
+* Grand Admiral: 1800+.
+
+Gränserna ska vara konfigurerbara.
+
+Visa efter en rankad match:
+
+* Tidigare rating.
+* Förändring.
+* Ny rating.
+* Framsteg till nästa division.
+* Eventuell ny högsta rating.
+* Vinstsvit.
+
+Hantera:
+
+* Avbruten match.
+* Disconnect.
+* Tidsförlust.
+* Uppgiven match.
+* Ogiltig match.
+* Administrativt annullerad match.
+
+⸻
+
+14. HUVUDSKÄRMEN ”SPELA”
+
+Huvudskärmen ska ha:
+
+* Spelarens avatar.
+* Rating.
+* Division.
+* Aktuell vinstsvit.
+* Stor primärknapp: Spela nu.
+* Spelläge.
+* Rankad/orankad-väljare.
+* Kort för aktiv match.
+* Dagligt uppdrag.
+* Pågående turnering.
+* Senaste matchresultat.
+* Vän som är online.
+* Träna mot bot.
+* Privat match.
+
+Tryck på ”Spela nu” ska vara den snabbaste vägen in i en match.
+
+⸻
+
+15. SPELSKÄRM
+
+Spelskärmen ska vara optimerad för en hand och små skärmar.
+
+Visa:
+
+* Motståndarens namn och avatar.
+* Rating.
+* Onlinestatus.
+* Turindikator.
+* Matchklocka.
+* Motståndarens bräde som huvudfokus.
+* Eget kompakt bräde.
+* Kvarvarande skepp.
+* Händelselogg.
+* Knapp för att ge upp.
+* Emoji-reaktioner.
+* Nätverksstatus.
+* Återanslutningsstatus.
+
+Interaktion
+
+För skott:
+
+1. Spelaren trycker på en ruta.
+2. Rutan markeras som vald.
+3. Spelaren bekräftar skottet, eller använder inställningen ”direktskott”.
+4. Haptisk feedback spelas.
+5. Servern validerar.
+6. Resultatet animeras.
+
+Animationer
+
+* Miss: vattenstänk.
+* Träff: kort explosion och vibration.
+* Sänkt skepp: tydligare animation.
+* Seger: konfetti eller marin segeranimation.
+* Förlust: lugn, respektfull animation.
+* Turbyte: diskret puls.
+* Ingen animation får blockera spelet för länge.
+
+Lägg till inställningar för:
+
+* Reducerade animationer.
+* Haptik av/på.
+* Ljud av/på.
+* Direkt skott eller bekräftelse.
+
+⸻
+
+16. ÅTERANSLUTNING OCH OFFLINE
+
+Appen ska tåla:
+
+* Tillfälligt nätverksavbrott.
+* Att appen går till bakgrunden.
+* Att appen stängs.
+* Att användaren byter nätverk.
+* Att realtime-anslutningen bryts.
+
+Vid återkomst:
+
+* Hämta aktuell matchstate från servern.
+* Kontrollera serverversion.
+* Återanslut till realtime.
+* Visa rätt tur och tid.
+* Skicka aldrig automatiskt samma skott två gånger.
+* Använd idempotency key för drag.
+* Visa tydlig reconnect-status.
+
+Ingen pågående match får försvinna bara för att appen startas om.
+
+⸻
+
+17. MATCHHISTORIK OCH REPLAY
+
+Spara matchhistorik.
+
+Varje match ska visa:
+
+* Motståndare.
+* Datum.
+* Spelläge.
+* Resultat.
+* Ratingförändring.
+* Antal drag.
+* Träffprocent.
+* Matchtid.
+* Orsak till avslut.
+* Match-ID internt.
+* Replay.
+
+Replay ska kunna spela upp:
+
+* Skeppsplacering.
+* Skott för skott.
+* Träffar.
+* Sänkningar.
+* Matchens slut.
+
+Skapa tidslinje med:
+
+* Föregående drag.
+* Nästa drag.
+* Spela upp automatiskt.
+* Hastighet.
+* Hoppa till slut.
+
+Privata dolda uppgifter får endast visas efter avslutad match.
+
+⸻
+
+18. VÄNNER OCH SOCIALA FUNKTIONER
+
+Implementera:
+
+* Sök efter användarnamn.
+* Skicka vänförfrågan.
+* Acceptera.
+* Avvisa.
+* Ta bort vän.
+* Blockera.
+* Rapportera.
+* Se online-status.
+* Bjuda in till match.
+* Se gemensam matchhistorik.
+* Dela profil.
+* Deep link till profil.
+* Deep link till privat match.
+
+Chatt
+
+Ha inte fri global chatt i första versionen.
+
+Använd i stället:
+
+* Förvalda emoji-reaktioner.
+* Korta förvalda fraser.
+* Lokaliserade snabbmeddelanden.
+
+Exempel:
+
+* ”Bra spel!”
+* ”Lycka till!”
+* ”Snygg träff!”
+* ”En match till?”
+* ”Tack för matchen!”
+
+Det minskar modereringsrisk och gör spelet barnvänligare.
+
+⸻
+
+19. TOPPLISTOR
+
+Skapa:
+
+* Global topplista.
+* Nationell topplista.
+* Vänlista.
+* Veckans bästa.
+* Månadens bästa.
+* Bästa vinstsvit.
+* Flest segrar.
+* Högsta träffprocent, med minimikrav på antal matcher.
+
+Topplistor ska:
+
+* Vara paginerade.
+* Cachade.
+* Servergenererade.
+* Inte kräva att tusentals profiler laddas till klienten.
+* Visa spelarens egen position även när den ligger utanför aktuell lista.
+
+⸻
+
+20. TURNERINGAR
+
+Bygg en fungerande första turneringsversion.
+
+Stöd:
+
+* Schemalagda turneringar.
+* Registrering.
+* Max antal deltagare.
+* Starttid.
+* Single elimination.
+* Automatisk bracket.
+* Matchdeadline.
+* Automatisk vidaregång.
+* Walkover.
+* Resultat.
+* Prispall.
+* Turneringshistorik.
+
+Skapa även datamodell för framtida:
+
+* Swiss-system.
+* Round robin.
+* Säsonger.
+* Lagturneringar.
+
+Turneringar ska kunna skapas via adminverktyget.
+
+⸻
+
+21. DAGLIGA UPPDRAG OCH XP
+
+Skapa enkla uppdrag:
+
+* Spela en match.
+* Vinn en match.
+* Träffa fem skott.
+* Sänk tre skepp.
+* Spela mot en vän.
+* Spela utan att ge upp.
+
+Belöningar:
+
+* XP.
+* Profilramar.
+* Titlar.
+* Kosmetiska spelbräden.
+* Skeppsteman.
+* Reaktioner.
+
+Ingen belöning får ge en strategisk fördel.
+
+⸻
+
+22. KOSMETIK OCH BUTIK
+
+Bygg datamodell och UI för kosmetiska produkter:
+
+* Brädteman.
+* Skeppsutseenden.
+* Träffanimationer.
+* Profilramar.
+* Avatarer.
+* Titlar.
+* Reaktionspaket.
+
+Produkter ska endast vara kosmetiska.
+
+Appen får aldrig bli pay-to-win.
+
+I första utvecklingsversionen kan produkter låsas upp med testvaluta och XP.
+
+Förbered arkitekturen för framtida:
+
+* Apple In-App Purchase.
+* Google Play Billing.
+* RevenueCat.
+
+Aktivera inte riktiga köp utan korrekta produkter, juridiska texter och butikskonfigurationer.
+
+Visa inga falska köpknappar som låtsas genomföra riktiga betalningar.
+
+⸻
+
+23. PUSHNOTISER
+
+Implementera pushnotiser för:
+
+* Din tur.
+* Privat matchinbjudan.
+* Vänförfrågan.
+* Vänförfrågan accepterad.
+* Turnering börjar snart.
+* Match hittad.
+* Motståndaren har gjort sitt drag i långsamt spelläge.
+* Dagligt uppdrag tillgängligt.
+
+Krav:
+
+* Be inte om notisbehörighet direkt vid första appstart.
+* Fråga först efter att nyttan har förklarats.
+* Spara Expo push token.
+* Hantera tokenuppdatering.
+* Stäng av enskilda notiskategorier.
+* Respektera användarens tidszon.
+* Skicka inte spam.
+
+Pushnotiser ska testas på riktiga development builds, inte förutsätta att allt fungerar i Expo Go.
+
+⸻
+
+24. SPRÅK
+
+Bygg appen från början med i18n.
+
+Inkludera kompletta översättningar för:
+
+* Svenska.
+* Engelska.
+
+Förbered språkfiler för:
+
+* Tyska.
+* Spanska.
+* Franska.
+* Portugisiska.
+* Italienska.
+* Polska.
+* Nederländska.
+* Danska.
+* Norska.
+* Finska.
+* Japanska.
+* Koreanska.
+
+Alla texter ska komma från översättningsfiler.
+
+Inga hårdkodade användartexter i komponenterna.
+
+Använd telefonens språk som standard och engelska som fallback.
+
+⸻
+
+25. TILLGÄNGLIGHET
+
+Implementera:
+
+* Screen reader labels.
+* Screen reader hints.
+* Tillräcklig kontrast.
+* Dynamisk textstorlek där det är rimligt.
+* Stora touchytor.
+* Reducerade rörelser.
+* Färgblindhetsläge.
+* Mönster eller symboler utöver färg.
+* Haptik som komplement, inte enda signal.
+* Tydlig fokusordning.
+* Ingen information som endast kommuniceras med färg.
+
+Brädet ska kunna läsas som exempelvis:
+
+B7, tidigare okänd, vald för skott.
+
+Efter skott:
+
+B7, träff.
+
+⸻
+
+26. SÄKERHET OCH FUSKSKYDD
+
+Implementera:
+
+* Row Level Security på alla relevanta tabeller.
+* Validering i Edge Functions.
+* Rate limiting.
+* Idempotency keys.
+* Servergenererade matchresultat.
+* Serverstyrd rating.
+* Kontroll av turordning.
+* Kontroll av matchstatus.
+* Kontroll av koordinater.
+* Kontroll av att skottet inte redan gjorts.
+* Kontroll av flottplacering.
+* Kontroll av timeout.
+* Säker loggning.
+* Blockering av manipulerade klientförfrågningar.
+* Audit log för kritiska händelser.
+* Rapportfunktion.
+* Blockeringslista.
+* En användare ska inte kunna läsa en annan användares e-post.
+* Privat information ska aldrig finnas i publika profiler.
+
+Lägg inte:
+
+* Service role key.
+* Apple-hemligheter.
+* Google-hemligheter.
+* Signeringsnycklar.
+* API-hemligheter.
+
+i klientkoden eller Git-repot.
+
+Skapa .env.example utan verkliga hemligheter.
+
+⸻
+
+27. MODERERING
+
+Implementera:
+
+* Rapportera användarnamn.
+* Rapportera avatar.
+* Rapportera osportsligt beteende.
+* Blockera användare.
+* Dölj blockerade användare.
+* Modereringsstatus.
+* Avstängning till visst datum.
+* Permanent avstängning.
+* Matchbegränsning.
+* Användarnamnsfilter.
+* Förbjudna ord.
+* Adminanteckningar.
+
+Eftersom fri chatt inte finns i första versionen ska modereringsytan hållas begränsad.
+
+⸻
+
+28. ADMINVERKTYG
+
+Skapa ett separat, säkert adminläge.
+
+Det kan vara ett enkelt skyddat webbgränssnitt eller en skyddad adminsektion, men det får inte exponera service role key i mobilappen.
+
+Administratörer ska kunna:
+
+* Söka användare.
+* Se grundläggande kontostatus.
+* Stänga av konto.
+* Häva avstängning.
+* Se rapporter.
+* Hantera förbjudna användarnamn.
+* Skapa turnering.
+* Ändra turneringsstatus.
+* Skapa dagliga uppdrag.
+* Hantera kosmetiska produkter.
+* Annullera felaktig match.
+* Se driftstatus.
+* Se anonymiserad statistik.
+
+Adminbehörighet ska kontrolleras på servern, inte bara döljas i UI.
+
+⸻
+
+29. DATABASMODELL
+
+Skapa riktiga SQL-migrationsfiler.
+
+Minst följande tabeller behövs:
+
+profiles
+user_settings
+devices
+push_tokens
+friendships
+friend_requests
+blocks
+reports
+matches
+match_players
+private_game_states
+match_moves
+match_events
+matchmaking_queue
+ratings
+rating_history
+leaderboard_snapshots
+tournaments
+tournament_entries
+tournament_rounds
+tournament_matches
+daily_quests
+user_quests
+achievements
+user_achievements
+cosmetic_items
+user_inventory
+equipped_cosmetics
+notifications
+moderation_actions
+audit_logs
+app_config
+
+Lägg till:
+
+* UUID primary keys.
+* Foreign keys.
+* Index.
+* Unika constraints.
+* Check constraints.
+* Created timestamps.
+* Updated timestamps.
+* Soft delete där det är lämpligt.
+* RLS.
+* Policyfiler eller policies i migrationerna.
+
+Skapa databasfunktioner för:
+
+* Ratinguppdatering.
+* Matchmaking.
+* Topplistor.
+* Statistik.
+* Turneringsträd.
+* Säker matchavslutning.
+
+⸻
+
+30. EDGE FUNCTIONS
+
+Skapa minst följande serverfunktioner:
+
+join-matchmaking
+leave-matchmaking
+create-private-match
+join-private-match
+submit-fleet
+fire-shot
+resign-match
+handle-timeout
+reconnect-match
+finalize-match
+update-rating
+register-push-token
+send-turn-notification
+create-tournament-bracket
+advance-tournament
+report-user
+delete-account
+export-user-data
+
+Varje funktion ska:
+
+* Verifiera användaren.
+* Validera payload med tydligt schema.
+* Kontrollera behörighet.
+* Hantera fel konsekvent.
+* Returnera typade svar.
+* Vara idempotent där det behövs.
+* Skriva audit-logg vid kritiska händelser.
+* Inte läcka privata uppgifter.
+
+⸻
+
+31. FELHANTERING
+
+Skapa en central felmodell.
+
+Visa användarvänliga fel:
+
+* Ingen internetanslutning.
+* Kunde inte hitta match.
+* Matchen finns inte längre.
+* Det är inte din tur.
+* Rutan har redan beskjutits.
+* Ogiltig skeppsplacering.
+* Sessionen har gått ut.
+* Servern är tillfälligt upptagen.
+* Uppdatering krävs.
+* Kontot är avstängt.
+
+Visa aldrig tekniska databasfel direkt för användaren.
+
+Logga tekniska fel i utvecklingsläge.
+
+Förbered integration med Sentry, men lägg inte in verklig DSN.
+
+⸻
+
+32. ANALYTICS OCH INTEGRITET
+
+Skapa ett analytics-interface som gör att leverantör kan bytas.
+
+Spåra endast nödvändiga produktdata, exempelvis:
+
+* Onboarding slutförd.
+* Matchmaking startad.
+* Match hittad.
+* Match slutförd.
+* Spelläge.
+* Disconnect.
+* Retur efter pushnotis.
+* Turnering registrerad.
+
+Spåra inte:
+
+* E-post i events.
+* Lösenord.
+* Privata meddelanden.
+* Exakta dolda skeppspositioner.
+* Onödiga personuppgifter.
+
+Appen ska fungera även om användaren nekar valfri analytics.
+
+⸻
+
+33. JURIDISKA SIDOR
+
+Skapa färdiga platshållarsidor i appen för:
+
+* Integritetspolicy.
+* Användarvillkor.
+* Communityregler.
+* Regler för fair play.
+* Information om konto- och dataradering.
+* Support.
+* Kontakt.
+* Licenser för tredjepartsbibliotek.
+
+Lägg URL:er i miljökonfiguration.
+
+Visa tydligt att slutliga bolagsuppgifter, kontaktuppgifter och URL:er måste fyllas i före publicering.
+
+Skapa inga påhittade företagsuppgifter.
+
+⸻
+
+34. INSTÄLLNINGAR
+
+Bygg inställningar för:
+
+* Språk.
+* Mörkt/ljust/systemtema.
+* Ljud.
+* Musik.
+* Haptik.
+* Animationer.
+* Reducerad rörelse.
+* Färgblindhetsläge.
+* Bekräfta skott.
+* Pushnotiser per kategori.
+* Onlinestatus.
+* Visa land.
+* Vänförfrågningar.
+* Blockerade användare.
+* Integritetspolicy.
+* Villkor.
+* Support.
+* Exportera data.
+* Radera konto.
+* Logga ut.
+* Appversion.
+* Buildnummer.
+
+⸻
+
+35. APP STORE-KRAV
+
+Förbered projektet för butikspublicering.
+
+iOS
+
+Konfigurera:
+
+* Bundle identifier.
+* App display name.
+* Build number.
+* Version.
+* iPhone och iPad-stöd.
+* Portrait som primärt läge.
+* Safe areas.
+* Apple Sign In när andra sociala inloggningar erbjuds.
+* Privacy manifest där det behövs.
+* App Transport Security.
+* Push notification capability.
+* Universal/deep links.
+* Account deletion inne i appen.
+* Restore purchases när riktiga köp införs.
+
+Android
+
+Konfigurera:
+
+* Package name.
+* Version code.
+* Adaptive icon.
+* Notification icon.
+* Edge-to-edge.
+* Deep links.
+* Pushbehörigheter.
+* AAB-produktionsbygge.
+* Google Play Data Safety-underlag.
+* Account deletion.
+* Back button-beteende.
+
+Begär endast de behörigheter som verkligen används.
+
+Appen ska inte begära kamera, mikrofon, plats eller kontaktlista.
+
+⸻
+
+36. EXPO-KONFIGURATION
+
+Skapa en komplett app.config.ts.
+
+Den ska innehålla:
+
+* Namn.
+* Slug.
+* Scheme.
+* Version.
+* Orientation.
+* Icons.
+* Splash.
+* iOS bundle identifier.
+* Android package.
+* Runtime version.
+* Updates.
+* Plugins.
+* Notification configuration.
+* Deep links.
+* Environment-baserad konfiguration.
+* Development, preview och production-varianter.
+
+Skapa eas.json med:
+
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development"
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "production": {
+      "autoIncrement": true,
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
+
+Anpassa vid behov efter aktuell stabil EAS-konfiguration.
+
+Skapa scripts:
+
+{
+  "start": "expo start",
+  "android": "expo start --android",
+  "ios": "expo start --ios",
+  "web": "expo start --web",
+  "typecheck": "tsc --noEmit",
+  "lint": "eslint .",
+  "test": "jest",
+  "test:watch": "jest --watch",
+  "doctor": "npx expo-doctor",
+  "build:ios:preview": "eas build --platform ios --profile preview",
+  "build:android:preview": "eas build --platform android --profile preview",
+  "build:ios": "eas build --platform ios --profile production",
+  "build:android": "eas build --platform android --profile production",
+  "submit:ios": "eas submit --platform ios --profile production",
+  "submit:android": "eas submit --platform android --profile production"
+}
+
+⸻
+
+37. ASSETS
+
+Skapa egna preliminära assets som får användas under utveckling:
+
+* Appikon.
+* Android adaptive icon.
+* Splashbild.
+* Notification icon.
+* Standardavatarer.
+* Brädtexturer.
+* Skeppssymboler.
+* Träff- och misssymboler.
+* Resultatillustrationer.
+* Tomlägen.
+
+Använd inte upphovsrättsskyddade bilder från andra spel.
+
+Alla assets ska vara egna, enkla och utbytbara.
+
+Skapa en ASSETS_TO_REPLACE.md som listar vilka assets som bör designas professionellt före lansering.
+
+⸻
+
+38. TESTER
+
+Skriv automatiska tester för spelmotorn.
+
+Minst:
+
+* Skepp kan placeras korrekt.
+* Skepp kan inte överlappa.
+* Skepp kan inte ligga utanför brädet.
+* Automatisk placering ger giltig flotta.
+* Ett skott kan ge miss.
+* Ett skott kan ge träff.
+* Ett skepp blir korrekt sänkt.
+* Match avslutas när alla skepp sänkts.
+* Samma ruta kan inte beskjutas två gånger.
+* Fel spelare kan inte skjuta.
+* Rating räknas korrekt.
+* Matchresultat registreras endast en gång.
+* Bot använder endast tillåten information.
+* Matchmaking matchar inte en användare med sig själv.
+* Blockerade spelare matchas inte i privat flöde.
+* Reconnect återställer korrekt state.
+
+Skriv även tester för viktiga Edge Functions.
+
+⸻
+
+39. DEMODATA
+
+Skapa ett seed-script med:
+
+* 20 demospelare.
+* Olika länder.
+* Olika rating.
+* Matchhistorik.
+* Topplista.
+* Ett par vänskaper.
+* Några achievements.
+* Kosmetiska testprodukter.
+* En kommande turnering.
+* En pågående turnering.
+* Dagliga uppdrag.
+
+Demodata får bara användas i development och preview.
+
+Produktionsdatabasen ska inte fyllas med falska spelare.
+
+⸻
+
+40. PRESTANDA
+
+Optimera:
+
+* Minimera onödiga re-renders.
+* Memoisera brädrutor där det behövs.
+* Använd effektiva listor.
+* Paginera historik och topplistor.
+* Ladda inte hela databasen.
+* Komprimera bilder.
+* Förladda viktiga ljudeffekter.
+* Håll animationer på UI thread där det är lämpligt.
+* Undvik stora globala state-objekt.
+* Använd optimistic UI endast där det är säkert.
+* Skottresultat får aldrig vara optimistic eftersom servern bestämmer utfallet.
+
+Målet är stabilt 60 FPS på moderna telefoner och god funktion på äldre enheter.
+
+⸻
+
+41. RESPONSIVITET
+
+Testa gränssnittet på:
+
+* Mindre iPhone.
+* Stor iPhone.
+* iPhone med Dynamic Island.
+* Android med navigationsfält.
+* Android med gesture navigation.
+* Mindre Androidskärm.
+* Stor Androidskärm.
+* iPad.
+* Android-tablet.
+
+Inga knappar eller bräden får hamna under:
+
+* Notch.
+* Dynamic Island.
+* Statusfält.
+* Home indicator.
+* Android navigation bar.
+* Bottom tab bar.
+
+Brädet måste alltid vara kvadratiskt och fullt användbart.
+
+⸻
+
+42. UTVECKLARVERKTYG
+
+Skapa ett development-only debugläge med:
+
+* Byt testanvändare.
+* Simulera offline.
+* Simulera långsam anslutning.
+* Simulera reconnect.
+* Starta botmatch.
+* Sätt test-rating.
+* Hoppa till matchresultat.
+* Simulera pushnotis.
+* Visa aktuell matchstate.
+* Visa realtime-status.
+* Rensa lokal cache.
+
+Debugläget ska aldrig vara tillgängligt i production.
+
+⸻
+
+43. README OCH DOKUMENTATION
+
+Skapa en komplett README.md med:
+
+1. Vad Fleet Arena är.
+2. Teknikstack.
+3. Projektstruktur.
+4. Lokal installation.
+5. Miljövariabler.
+6. Supabase-setup.
+7. Köra migrationer.
+8. Köra Edge Functions.
+9. Seed av demodata.
+10. Starta Expo.
+11. Skapa development build.
+12. Testa på fysisk iPhone.
+13. Testa på fysisk Android.
+14. Köra tester.
+15. Bygga preview.
+16. Bygga production.
+17. Skicka till TestFlight.
+18. Skicka till Google Play Internal Testing.
+19. Deep link-konfiguration.
+20. Pushnotiser.
+21. Apple Sign In.
+22. Google Sign In.
+23. Säkerhetsmodell.
+24. RLS.
+25. Kända återstående externa steg.
+
+Skapa även:
+
+SETUP_CHECKLIST.md
+APP_STORE_CHECKLIST.md
+GOOGLE_PLAY_CHECKLIST.md
+SUPABASE_SETUP.md
+SECURITY.md
+PRIVACY_DATA_MAP.md
+TEST_PLAN.md
+RELEASE_CHECKLIST.md
+ASSETS_TO_REPLACE.md
+KNOWN_LIMITATIONS.md
+
+⸻
+
+44. MILJÖVARIABLER
+
+Skapa .env.example:
+
+EXPO_PUBLIC_APP_ENV=development
+EXPO_PUBLIC_SUPABASE_URL=
+EXPO_PUBLIC_SUPABASE_ANON_KEY=
+EXPO_PUBLIC_APP_URL=
+EXPO_PUBLIC_PRIVACY_URL=
+EXPO_PUBLIC_TERMS_URL=
+EXPO_PUBLIC_SUPPORT_URL=
+EXPO_PUBLIC_SENTRY_DSN=
+
+Hemliga servervärden ska endast finnas i Supabase Secrets eller motsvarande säker servermiljö.
+
+Kontrollera miljövariabler vid start och visa ett tydligt development-fel om obligatoriska värden saknas.
+
+⸻
+
+45. CI OCH KVALITETSKONTROLL
+
+Skapa GitHub Actions eller motsvarande för:
+
+* Installera dependencies.
+* Typecheck.
+* Lint.
+* Tester.
+* Expo Doctor.
+* Kontroll att inga hemligheter råkat committas.
+* Kontroll att migrationer finns.
+* Kontroll att produktionen inte innehåller debugverktyg.
+
+Använd låst package manager-version och committa lockfilen.
+
+⸻
+
+46. ACCEPTANSKRAV
+
+Projektet är inte klart förrän följande fungerar:
+
+Konto
+
+* Användare kan skapa konto.
+* Användare kan logga in.
+* Gäst kan spela.
+* Gäst kan uppgradera sitt konto.
+* Användare kan radera sitt konto.
+
+Spel
+
+* Flotta kan placeras.
+* Automatisk placering fungerar.
+* Botmatch fungerar helt.
+* Privat match fungerar.
+* Matchmaking fungerar.
+* Rankad match fungerar.
+* Turordning fungerar.
+* Hit, miss och sänkt fungerar.
+* Matchen avslutas korrekt.
+* Replay fungerar.
+* Reconnect fungerar.
+
+Socialt
+
+* Vänförfrågan fungerar.
+* Privat inbjudan fungerar.
+* Blockering fungerar.
+* Rapportering fungerar.
+
+Tävling
+
+* Rating uppdateras.
+* Topplistor fungerar.
+* Turnering kan skapas.
+* Turneringsmatch kan genomföras.
+* Vinnare går vidare.
+
+Mobil
+
+* Appen fungerar på iOS.
+* Appen fungerar på Android.
+* Safe areas fungerar.
+* Tangentbord förstör inte layout.
+* Back button fungerar på Android.
+* Deep links fungerar.
+* Push-token kan registreras.
+* Development build kan skapas.
+* Preview build kan skapas.
+* Production-konfiguration finns.
+
+Kvalitet
+
+Följande kommandon ska lyckas:
+
+npm run typecheck
+npm run lint
+npm test
+npm run doctor
+
+Byggfel får inte döljas genom att stänga av TypeScript eller ESLint.
+
+⸻
+
+47. SLUTLIG LEVERANSRAPPORT
+
+När du är klar ska du lämna en rapport med:
+
+1. Vad som byggts.
+2. Vilka funktioner som fungerar.
+3. Projektets filstruktur.
+4. Databasens tabeller.
+5. Edge Functions.
+6. Säkerhetslösningen.
+7. Hur man startar projektet.
+8. Vilka miljövariabler som behövs.
+9. Hur Supabase kopplas.
+10. Hur appen testas på iPhone.
+11. Hur appen testas på Android.
+12. Hur preview builds skapas.
+13. Hur production builds skapas.
+14. Hur appen skickas till TestFlight.
+15. Hur appen skickas till Google Play Internal Testing.
+16. Exakt vad som fortfarande kräver externa konton eller manuella åtgärder.
+17. Resultatet från typecheck, lint, tester och Expo Doctor.
+18. Eventuella begränsningar som ärligt återstår.
+
+Skriv inte att appen är helt klar om centrala funktioner bara består av statiska skärmar.
+
+⸻
+
+48. ARBETSORDNING
+
+Arbeta i följande ordning:
+
+1. Skapa Expo-projektet.
+2. Skapa designsystem och navigation.
+3. Skapa spelmotorn med tester.
+4. Skapa botmatch.
+5. Skapa Supabase-schema och RLS.
+6. Skapa autentisering.
+7. Skapa serververifierade matcher.
+8. Skapa realtime och reconnect.
+9. Skapa matchmaking.
+10. Skapa rating.
+11. Skapa vänner.
+12. Skapa topplistor.
+13. Skapa turneringar.
+14. Skapa quests och kosmetik.
+15. Skapa notiser.
+16. Skapa adminfunktioner.
+17. Skapa juridiska och kontorelaterade funktioner.
+18. Slutför tillgänglighet.
+19. Kör tester och kvalitetskontroller.
+20. Förbered EAS Build och butikspublicering.
+21. Leverera slutrapport.
+
+Stanna inte efter att endast ha byggt gränssnittet.
+
+Fortsätt tills en fullständig spelbar app med backend, testläge och publiceringsstruktur finns.
+
+⸻
+
+49. VIKTIGA FÖRBUD
+
+Gör inte följande:
+
+* Bygg inte appen som en webbplats i en WebView.
+* Använd inte lokal mockdata som enda backend.
+* Låt inte klienten avgöra vinnaren.
+* Exponera inte motståndarens skeppspositioner.
+* Lägg inte hemliga nycklar i Expo-koden.
+* Använd inte upphovsrättsskyddade assets från andra spel.
+* Skapa inte falska recensioner eller falska spelare i produktion.
+* Lägg inte in pay-to-win.
+* Begär inte onödiga mobilbehörigheter.
+* Hoppa inte över konto- och dataradering.
+* Ignorera inte safe areas.
+* Stäng inte av TypeScript-kontroller för att få bygget att gå igenom.
+* Ersätt inte fungerande onlinefunktioner med statiska demoanimationer.
+* Påstå inte att App Store-publicering är klar innan externa konton, avtal och butikssidor har konfigurerats.
+
+⸻
+
+50. STARTA NU
+
+Börja nu med att:
+
+1. Inspektera aktuell arbetsmapp.
+2. Om den är tom, skapa ett nytt Expo Router-projekt med TypeScript.
+3. Installera kompatibla dependencies.
+4. Skapa den fullständiga projektstrukturen.
+5. Bygg spelmotorn och testerna först.
+6. Bygg därefter den native mobilappen och Supabase-backenden.
+7. Kör alla kvalitetskontroller.
+8. Åtgärda alla fel.
+9. Leverera en spelbar development-version samt fullständig dokumentation för iOS och Android.
+
+Fråga endast efter verkliga externa uppgifter när de absolut behövs, exempelvis Supabase-URL, Supabase anon key, Apple-konto eller Google Play-konto.
+
+Använd platshållare och fortsätt med allt annat under tiden.
+
+Målet är en verklig global mobilapp som kan byggas med Expo EAS och därefter publiceras på både Apple App Store och Google Play.
+
+Replit kan bygga hela kodbasen, men själva publiceringen kräver fortfarande ditt Expo-konto, Apple Developer-konto, Google Play Developer-konto och de slutliga butikstexterna. EAS kan sedan skapa signerade produktionsbyggen och skicka dem till respektive butik.  
