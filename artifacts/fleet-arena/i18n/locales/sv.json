@@ -1,0 +1,300 @@
+{
+  "common": {
+    "appName": "Fleet Arena",
+    "loading": "Laddar…",
+    "retry": "Försök igen",
+    "cancel": "Avbryt",
+    "confirm": "Bekräfta",
+    "save": "Spara",
+    "done": "Klar",
+    "close": "Stäng",
+    "back": "Tillbaka",
+    "seeAll": "Visa alla",
+    "comingSoon": "Kommer snart"
+  },
+  "tabs": {
+    "play": "Spela",
+    "compete": "Tävla",
+    "friends": "Vänner",
+    "leaderboard": "Ranking",
+    "profile": "Profil"
+  },
+  "play": {
+    "title": "Spela",
+    "greeting": "Redo att befäla",
+    "rating": "Rating",
+    "division": "Division",
+    "playNow": "Spela nu",
+    "playNowSubtitle": "Hitta en rankad motståndare",
+    "activeMatch": {
+      "title": "Aktiv match",
+      "empty": "Ingen match pågår",
+      "yourTurn": "Din tur",
+      "opponentTurn": "Motståndarens tur",
+      "resume": "Fortsätt"
+    },
+    "dailyQuest": {
+      "title": "Dagens uppdrag",
+      "description": "Vinn en rankad match idag",
+      "reward": "Belöning: {{amount}} XP",
+      "progress": "{{current}} / {{total}}"
+    },
+    "modes": {
+      "title": "Spellägen",
+      "ranked": "Rankad",
+      "rankedDescription": "Klättra på den globala stegen",
+      "casual": "Vänskaplig",
+      "casualDescription": "Spela utan press",
+      "practice": "Träning",
+      "practiceDescription": "Skärp siktet mot botar"
+    },
+    "trainSubtitle": "Träna mot en bot"
+  },
+  "compete": {
+    "title": "Tävla",
+    "subtitle": "Turneringar och event",
+    "liveTournaments": "Pågående turneringar",
+    "upcoming": "Kommande",
+    "seasonPass": "Säsongspass",
+    "seasonPassDescription": "Tjäna belöningar varje vecka",
+    "empty": "Inga event just nu"
+  },
+  "friends": {
+    "title": "Vänner",
+    "subtitle": "Utmana personer du känner",
+    "online": "Online",
+    "offline": "Offline",
+    "addFriend": "Lägg till vän",
+    "challenge": "Utmana",
+    "requests": "Förfrågningar",
+    "empty": "Inga vänner ännu",
+    "emptyDescription": "Lägg till vänner för att utmana dem direkt"
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "subtitle": "Bästa befälhavarna i världen",
+    "global": "Global",
+    "friends": "Vänner",
+    "regional": "Regional",
+    "rank": "Plats",
+    "player": "Spelare",
+    "yourRank": "Din placering",
+    "empty": "Ingen ranking ännu"
+  },
+  "profile": {
+    "title": "Profil",
+    "guest": "Befälhavare",
+    "editProfile": "Redigera profil",
+    "stats": {
+      "title": "Statistik",
+      "wins": "Vinster",
+      "losses": "Förluster",
+      "winRate": "Vinstprocent",
+      "streak": "Svit"
+    },
+    "achievements": "Prestationer",
+    "matchHistory": "Matchhistorik",
+    "settings": "Inställningar",
+    "account": "Konto",
+    "guestBadge": "Gäst",
+    "guestUpgradeTitle": "Du spelar som gäst",
+    "guestUpgradeBody": "Skapa ett konto för att spara din rating, statistik och matchhistorik på alla enheter.",
+    "logout": "Logga ut",
+    "logoutConfirmTitle": "Logga ut?",
+    "logoutConfirmBody": "Du behöver logga in igen för att fortsätta."
+  },
+  "onboarding": {
+    "skip": "Hoppa över",
+    "next": "Nästa",
+    "slides": {
+      "welcome": {
+        "title": "Sänk flottor över hela världen",
+        "subtitle": "Möt riktiga spelare i snabba strategiska matcher"
+      },
+      "ranking": {
+        "title": "Klättra i världsrankingen",
+        "subtitle": "Vinn matcher, förbättra din rating och nå högre divisioner"
+      },
+      "modes": {
+        "title": "Spela på ditt sätt",
+        "subtitle": "Snabbmatcher, klassiskt läge, vänner och turneringar"
+      }
+    },
+    "getStarted": {
+      "title": "Gå med i flottan",
+      "subtitle": "Skapa ett konto eller hoppa in direkt som gäst.",
+      "createAccount": "Skapa konto",
+      "logIn": "Logga in",
+      "guest": "Fortsätt som gäst",
+      "terms": "Jag accepterar användarvillkoren och integritetspolicyn"
+    }
+  },
+  "auth": {
+    "orContinueWith": "eller fortsätt med",
+    "errors": {
+      "title": "Något gick fel"
+    },
+    "fields": {
+      "email": "E-post",
+      "emailPlaceholder": "du@exempel.se",
+      "password": "Lösenord",
+      "passwordPlaceholder": "Ditt lösenord",
+      "passwordHint": "Minst 8 tecken"
+    },
+    "social": {
+      "apple": "Fortsätt med Apple",
+      "google": "Fortsätt med Google"
+    },
+    "signIn": {
+      "title": "Logga in",
+      "heading": "Välkommen tillbaka",
+      "subtitle": "Logga in för att fortsätta klättra.",
+      "submit": "Logga in",
+      "action": "Logga in",
+      "noAccount": "Ny i Fleet Arena?"
+    },
+    "signUp": {
+      "title": "Skapa konto",
+      "heading": "Skapa ditt konto",
+      "subtitle": "Gå med bland tusentals befälhavare världen över.",
+      "submit": "Skapa konto",
+      "action": "Registrera dig",
+      "haveAccount": "Har du redan ett konto?",
+      "checkEmailTitle": "Kolla din e-post",
+      "checkEmailBody": "Vi skickade en bekräftelselänk till {{email}}. Bekräfta den för att slutföra registreringen."
+    },
+    "magicLink": {
+      "title": "Magisk länk",
+      "action": "Mejla mig en magisk länk",
+      "heading": "Logga in med en magisk länk",
+      "subtitle": "Vi mejlar en länk som loggar in dig — inget lösenord behövs.",
+      "submit": "Skicka magisk länk",
+      "sentTitle": "Länk skickad",
+      "sentBody": "Kolla {{email}} och tryck på länken för att logga in."
+    },
+    "forgotPassword": {
+      "title": "Återställ lösenord",
+      "action": "Glömt lösenordet?",
+      "heading": "Återställ ditt lösenord",
+      "subtitle": "Ange din e-post så skickar vi en återställningslänk.",
+      "submit": "Skicka återställningslänk",
+      "sentTitle": "E-post skickad",
+      "sentBody": "Kolla {{email}} för en länk att återställa ditt lösenord."
+    },
+    "completeProfile": {
+      "title": "Skapa profil",
+      "heading": "Välj ditt befälhavarnamn",
+      "subtitle": "Så här ser andra spelare dig.",
+      "username": "Användarnamn",
+      "usernamePlaceholder": "befalhavare_01",
+      "displayName": "Visningsnamn",
+      "displayNamePlaceholder": "Valfritt",
+      "ageConfirm": "Jag intygar att jag är 13 år eller äldre",
+      "checking": "Kontrollerar tillgänglighet…",
+      "available": "Användarnamnet är ledigt",
+      "taken": "Användarnamnet är upptaget",
+      "invalid": "3–24 bokstäver, siffror eller understreck",
+      "submit": "Gå in i arenan"
+    }
+  },
+  "settings": {
+    "title": "Inställningar",
+    "appearance": "Utseende",
+    "language": "Språk",
+    "theme": "Tema",
+    "themeDark": "Mörkt",
+    "themeLight": "Ljust",
+    "themeSystem": "System",
+    "gameplay": "Spelupplevelse",
+    "sound": "Ljudeffekter",
+    "haptics": "Haptik",
+    "animations": "Animationer",
+    "reducedMotion": "Reducerad rörelse",
+    "colorblindMode": "Färgblindläge",
+    "confirmShot": "Bekräfta varje skott"
+  },
+  "game": {
+    "a11y": {
+      "cell": "{{coord}}, {{state}}",
+      "selected": "markerad",
+      "state": {
+        "hit": "träff",
+        "miss": "miss",
+        "sunk": "sänkt",
+        "unknown": "okänd"
+      }
+    },
+    "difficulty": {
+      "beginner": "Nybörjare",
+      "expert": "Expert",
+      "normal": "Normal"
+    },
+    "difficultyDesc": {
+      "beginner": "Skjuter mest slumpmässigt",
+      "expert": "Skoningslös sannolikhetsjakt",
+      "normal": "Jagar och spårar dina skepp"
+    },
+    "log": {
+      "bot": "Boten",
+      "empty": "Inga skott avlossade ännu.",
+      "hit": "{{who}} träffade på {{coord}}",
+      "miss": "{{who}} missade på {{coord}}",
+      "sunk": "{{who}} sänkte {{ship}} på {{coord}}",
+      "title": "Stridslogg",
+      "you": "Du"
+    },
+    "play": {
+      "botThinking": "Boten tänker…",
+      "botTurn": "Botens tur",
+      "enemyFleet": "Fiendens flotta",
+      "fireAt": "Skjut mot {{coord}}",
+      "opponentBoard": "Fiendens vatten",
+      "resign": "Ge upp",
+      "resignBody": "Du förlorar denna träningsmatch.",
+      "resignTitle": "Ge upp matchen?",
+      "selectTarget": "Välj ett mål",
+      "title": "Träningsmatch",
+      "trainingHint": "Offline-träningsmatch — ingen ratingförändring.",
+      "yourBoard": "Din flotta",
+      "yourFleet": "Din flotta",
+      "yourTurn": "Din tur"
+    },
+    "result": {
+      "boards": "Slutliga planer",
+      "defeat": "Förlust",
+      "defeatSubtitle": "Din flotta sänktes.",
+      "enemyBoard": "Fiendens flotta",
+      "hitPct": "Träff-%",
+      "home": "Till start",
+      "rematch": "Revansch",
+      "shipsSunk": "Sänkta skepp",
+      "shots": "Skott",
+      "title": "Resultat",
+      "victory": "Seger",
+      "victorySubtitle": "Fiendens flotta förstörd."
+    },
+    "setup": {
+      "difficulty": "Botens svårighetsgrad",
+      "invalid": "Skepp överlappar eller hamnar utanför planen — justera placeringen.",
+      "placeFleet": "Placera din flotta",
+      "randomize": "Slumpa",
+      "reset": "Återställ",
+      "rotate": "Rotera",
+      "start": "Starta striden",
+      "title": "Flottuppställning"
+    },
+    "ships": {
+      "battleship": "Slagskepp",
+      "carrier": "Hangarfartyg",
+      "cruiser": "Kryssare",
+      "destroyer": "Jagare",
+      "submarine": "Ubåt"
+    }
+  },
+  "notifications": {
+    "yourTurn": {
+      "title": "Din tur",
+      "body": "Det är din tur att skjuta!"
+    }
+  }
+}

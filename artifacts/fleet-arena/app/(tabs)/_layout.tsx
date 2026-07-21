@@ -7,18 +7,64 @@ import { isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Tabs } from 'expo-router';
 import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 import { SymbolView } from 'expo-symbols';
+import { useTranslation } from 'react-i18next';
 
-// IMPORTANT: iOS 26 uses NativeTabs for native tabs with liquid glass support.
+type SymbolName = React.ComponentProps<typeof SymbolView>['name'];
+type FeatherName = keyof typeof Feather.glyphMap;
+
+interface TabDef {
+  name: string;
+  labelKey: string;
+  sf: { default: SymbolName; selected: SymbolName };
+  feather: FeatherName;
+}
+
+const TAB_DEFS: TabDef[] = [
+  {
+    name: 'index',
+    labelKey: 'tabs.play',
+    sf: { default: 'gamecontroller', selected: 'gamecontroller.fill' },
+    feather: 'play',
+  },
+  {
+    name: 'compete',
+    labelKey: 'tabs.compete',
+    sf: { default: 'trophy', selected: 'trophy.fill' },
+    feather: 'award',
+  },
+  {
+    name: 'friends',
+    labelKey: 'tabs.friends',
+    sf: { default: 'person.2', selected: 'person.2.fill' },
+    feather: 'users',
+  },
+  {
+    name: 'leaderboard',
+    labelKey: 'tabs.leaderboard',
+    sf: { default: 'chart.bar', selected: 'chart.bar.fill' },
+    feather: 'bar-chart-2',
+  },
+  {
+    name: 'profile',
+    labelKey: 'tabs.profile',
+    sf: { default: 'person.crop.circle', selected: 'person.crop.circle.fill' },
+    feather: 'user',
+  },
+];
+
+// iOS 26 uses NativeTabs for native tabs with liquid glass support.
 // NativeTabs intentionally does NOT use custom design tokens — liquid glass
 // is a system-level appearance provided by iOS and cannot be overridden.
-// Custom brand colors are applied only on the ClassicTabLayout path (older iOS / Android / web).
 function NativeTabLayout() {
+  const { t } = useTranslation();
   return (
     <NativeTabs>
-      <NativeTabs.Trigger name="index">
-        <Icon sf={{ default: 'house', selected: 'house.fill' }} />
-        <Label>Home</Label>
-      </NativeTabs.Trigger>
+      {TAB_DEFS.map((tab) => (
+        <NativeTabs.Trigger key={tab.name} name={tab.name}>
+          <Icon sf={tab.sf} />
+          <Label>{t(tab.labelKey)}</Label>
+        </NativeTabs.Trigger>
+      ))}
     </NativeTabs>
   );
 }
@@ -26,7 +72,8 @@ function NativeTabLayout() {
 function ClassicTabLayout() {
   const colors = useColors();
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { t } = useTranslation();
+  const isDark = colorScheme !== 'light';
   const isIOS = Platform.OS === 'ios';
   const isWeb = Platform.OS === 'web';
 
@@ -35,7 +82,7 @@ function ClassicTabLayout() {
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.mutedForeground,
-        headerShown: true,
+        headerShown: false,
         tabBarStyle: {
           position: 'absolute',
           backgroundColor: isIOS ? 'transparent' : colors.background,
@@ -53,26 +100,26 @@ function ClassicTabLayout() {
             />
           ) : isWeb ? (
             <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: colors.background },
-              ]}
+              style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]}
             />
           ) : null,
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="house" tintColor={color} size={24} />
-            ) : (
-              <Feather name="home" size={22} color={color} />
-            ),
-        }}
-      />
+      {TAB_DEFS.map((tab) => (
+        <Tabs.Screen
+          key={tab.name}
+          name={tab.name}
+          options={{
+            title: t(tab.labelKey),
+            tabBarIcon: ({ color }) =>
+              isIOS ? (
+                <SymbolView name={tab.sf.default} tintColor={color} size={24} />
+              ) : (
+                <Feather name={tab.feather} size={22} color={color} />
+              ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

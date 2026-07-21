@@ -1,0 +1,300 @@
+{
+  "common": {
+    "appName": "Fleet Arena",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "done": "Done",
+    "close": "Close",
+    "back": "Back",
+    "seeAll": "See all",
+    "comingSoon": "Coming soon"
+  },
+  "tabs": {
+    "play": "Play",
+    "compete": "Compete",
+    "friends": "Friends",
+    "leaderboard": "Ranking",
+    "profile": "Profile"
+  },
+  "play": {
+    "title": "Play",
+    "greeting": "Ready to command",
+    "rating": "Rating",
+    "division": "Division",
+    "playNow": "Play now",
+    "playNowSubtitle": "Find a ranked opponent",
+    "activeMatch": {
+      "title": "Active match",
+      "empty": "No match in progress",
+      "yourTurn": "Your turn",
+      "opponentTurn": "Opponent's turn",
+      "resume": "Resume"
+    },
+    "dailyQuest": {
+      "title": "Daily quest",
+      "description": "Win a ranked match today",
+      "reward": "Reward: {{amount}} XP",
+      "progress": "{{current}} / {{total}}"
+    },
+    "modes": {
+      "title": "Game modes",
+      "ranked": "Ranked",
+      "rankedDescription": "Climb the global ladder",
+      "casual": "Casual",
+      "casualDescription": "Play without pressure",
+      "practice": "Practice",
+      "practiceDescription": "Sharpen your aim vs bots"
+    },
+    "trainSubtitle": "Train against a bot"
+  },
+  "compete": {
+    "title": "Compete",
+    "subtitle": "Tournaments and events",
+    "liveTournaments": "Live tournaments",
+    "upcoming": "Upcoming",
+    "seasonPass": "Season pass",
+    "seasonPassDescription": "Earn rewards every week",
+    "empty": "No events right now"
+  },
+  "friends": {
+    "title": "Friends",
+    "subtitle": "Challenge people you know",
+    "online": "Online",
+    "offline": "Offline",
+    "addFriend": "Add friend",
+    "challenge": "Challenge",
+    "requests": "Requests",
+    "empty": "No friends yet",
+    "emptyDescription": "Add friends to challenge them directly"
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "subtitle": "Top commanders worldwide",
+    "global": "Global",
+    "friends": "Friends",
+    "regional": "Regional",
+    "rank": "Rank",
+    "player": "Player",
+    "yourRank": "Your rank",
+    "empty": "No rankings yet"
+  },
+  "profile": {
+    "title": "Profile",
+    "guest": "Commander",
+    "editProfile": "Edit profile",
+    "stats": {
+      "title": "Statistics",
+      "wins": "Wins",
+      "losses": "Losses",
+      "winRate": "Win rate",
+      "streak": "Streak"
+    },
+    "achievements": "Achievements",
+    "matchHistory": "Match history",
+    "settings": "Settings",
+    "account": "Account",
+    "guestBadge": "Guest",
+    "guestUpgradeTitle": "You're playing as a guest",
+    "guestUpgradeBody": "Create an account to save your rating, stats and match history across devices.",
+    "logout": "Log out",
+    "logoutConfirmTitle": "Log out?",
+    "logoutConfirmBody": "You'll need to sign in again to continue."
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "slides": {
+      "welcome": {
+        "title": "Sink fleets across the globe",
+        "subtitle": "Face real players in fast, strategic matches"
+      },
+      "ranking": {
+        "title": "Climb the world ranking",
+        "subtitle": "Win matches, improve your rating and reach higher divisions"
+      },
+      "modes": {
+        "title": "Play your way",
+        "subtitle": "Quick matches, classic mode, friends and tournaments"
+      }
+    },
+    "getStarted": {
+      "title": "Join the fleet",
+      "subtitle": "Create an account or jump straight in as a guest.",
+      "createAccount": "Create account",
+      "logIn": "Log in",
+      "guest": "Continue as guest",
+      "terms": "I accept the Terms of Service and Privacy Policy"
+    }
+  },
+  "auth": {
+    "orContinueWith": "or continue with",
+    "errors": {
+      "title": "Something went wrong"
+    },
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Your password",
+      "passwordHint": "At least 8 characters"
+    },
+    "social": {
+      "apple": "Continue with Apple",
+      "google": "Continue with Google"
+    },
+    "signIn": {
+      "title": "Log in",
+      "heading": "Welcome back",
+      "subtitle": "Log in to continue your climb.",
+      "submit": "Log in",
+      "action": "Log in",
+      "noAccount": "New to Fleet Arena?"
+    },
+    "signUp": {
+      "title": "Create account",
+      "heading": "Create your account",
+      "subtitle": "Join thousands of commanders worldwide.",
+      "submit": "Create account",
+      "action": "Sign up",
+      "haveAccount": "Already have an account?",
+      "checkEmailTitle": "Check your email",
+      "checkEmailBody": "We sent a confirmation link to {{email}}. Confirm it to finish creating your account."
+    },
+    "magicLink": {
+      "title": "Magic link",
+      "action": "Email me a magic link",
+      "heading": "Sign in with a magic link",
+      "subtitle": "We'll email you a link that signs you in — no password needed.",
+      "submit": "Send magic link",
+      "sentTitle": "Link sent",
+      "sentBody": "Check {{email}} and tap the link to sign in."
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "action": "Forgot your password?",
+      "heading": "Reset your password",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "submit": "Send reset link",
+      "sentTitle": "Email sent",
+      "sentBody": "Check {{email}} for a link to reset your password."
+    },
+    "completeProfile": {
+      "title": "Set up profile",
+      "heading": "Choose your commander name",
+      "subtitle": "This is how other players will see you.",
+      "username": "Username",
+      "usernamePlaceholder": "commander_01",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Optional",
+      "ageConfirm": "I confirm I am 13 years or older",
+      "checking": "Checking availability…",
+      "available": "Username is available",
+      "taken": "Username is already taken",
+      "invalid": "3–24 letters, numbers or underscores",
+      "submit": "Enter the arena"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "language": "Language",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "themeSystem": "System",
+    "gameplay": "Gameplay",
+    "sound": "Sound effects",
+    "haptics": "Haptics",
+    "animations": "Animations",
+    "reducedMotion": "Reduced motion",
+    "colorblindMode": "Colorblind mode",
+    "confirmShot": "Confirm each shot"
+  },
+  "game": {
+    "a11y": {
+      "cell": "{{coord}}, {{state}}",
+      "selected": "selected",
+      "state": {
+        "hit": "hit",
+        "miss": "miss",
+        "sunk": "sunk",
+        "unknown": "unknown"
+      }
+    },
+    "difficulty": {
+      "beginner": "Beginner",
+      "expert": "Expert",
+      "normal": "Normal"
+    },
+    "difficultyDesc": {
+      "beginner": "Fires mostly at random",
+      "expert": "Ruthless probability targeting",
+      "normal": "Hunts and tracks your ships"
+    },
+    "log": {
+      "bot": "Bot",
+      "empty": "No shots fired yet.",
+      "hit": "{{who}} hit at {{coord}}",
+      "miss": "{{who}} missed at {{coord}}",
+      "sunk": "{{who}} sank the {{ship}} at {{coord}}",
+      "title": "Battle log",
+      "you": "You"
+    },
+    "play": {
+      "botThinking": "Bot is thinking…",
+      "botTurn": "Bot's turn",
+      "enemyFleet": "Enemy fleet",
+      "fireAt": "Fire at {{coord}}",
+      "opponentBoard": "Enemy waters",
+      "resign": "Resign",
+      "resignBody": "You will forfeit this training match.",
+      "resignTitle": "Resign match?",
+      "selectTarget": "Select a target",
+      "title": "Training match",
+      "trainingHint": "Offline training match — no rating change.",
+      "yourBoard": "Your fleet",
+      "yourFleet": "Your fleet",
+      "yourTurn": "Your turn"
+    },
+    "result": {
+      "boards": "Final boards",
+      "defeat": "Defeat",
+      "defeatSubtitle": "Your fleet was sunk.",
+      "enemyBoard": "Enemy fleet",
+      "hitPct": "Hit %",
+      "home": "Back home",
+      "rematch": "Rematch",
+      "shipsSunk": "Ships sunk",
+      "shots": "Shots",
+      "title": "Result",
+      "victory": "Victory",
+      "victorySubtitle": "Enemy fleet destroyed."
+    },
+    "setup": {
+      "difficulty": "Bot difficulty",
+      "invalid": "Ships overlap or run off the board — adjust placement.",
+      "placeFleet": "Place your fleet",
+      "randomize": "Randomize",
+      "reset": "Reset",
+      "rotate": "Rotate",
+      "start": "Start battle",
+      "title": "Fleet setup"
+    },
+    "ships": {
+      "battleship": "Battleship",
+      "carrier": "Carrier",
+      "cruiser": "Cruiser",
+      "destroyer": "Destroyer",
+      "submarine": "Submarine"
+    }
+  },
+  "notifications": {
+    "yourTurn": {
+      "title": "Your turn",
+      "body": "It's your turn to fire!"
+    }
+  }
+}

@@ -1,59 +1,114 @@
 /**
- * Semantic design tokens for the mobile app.
+ * Semantic design tokens for the Fleet Arena mobile app.
  *
- * These tokens mirror the naming conventions used in web artifacts (index.css)
- * so that multi-artifact projects share a cohesive visual identity.
+ * Fleet Arena is a global, competitive Battleship game — "Chess.com for
+ * Battleship". The palette is a deep naval one: dark navy base, lighter
+ * sea-blue surfaces, turquoise accents, a coral-orange primary action /
+ * "hit" color, red reserved strictly for loss/destroyed states, and green
+ * for ready/victory states.
  *
- * Replace the placeholder values below with values that match the project's
- * brand. If a sibling web artifact exists, read its index.css and convert the
- * HSL values to hex so both artifacts use the same palette.
- *
- * To add dark mode, add a `dark` key with the same token names.
- * The useColors() hook will automatically pick it up.
+ * Dark is the DEFAULT theme; a light variant is provided for the "light"
+ * user-interface-style preference. The token names mirror the web
+ * convention (background/foreground/card/primary/etc.) so useColors()
+ * keeps working unchanged.
  */
 
 const colors = {
-  light: {
+  // Dark theme is the default for Fleet Arena.
+  dark: {
     // Legacy aliases (kept for backward compatibility)
-    text: '#0a0a0a',
-    tint: '#2f95dc',
+    text: '#E8F0F7',
+    tint: '#2DD4BF',
 
-    // Core surfaces
-    background: '#ffffff',
-    foreground: '#0a0a0a',
+    // Core surfaces — deep navy sea
+    background: '#0A1628',
+    foreground: '#E8F0F7',
 
-    // Cards / elevated surfaces
-    card: '#f9f9f9',
-    cardForeground: '#0a0a0a',
+    // Cards / elevated surfaces — lighter sea-blue
+    card: '#132840',
+    cardForeground: '#E8F0F7',
 
-    // Primary action color (buttons, links, active states)
-    primary: '#2f95dc',
-    primaryForeground: '#ffffff',
+    // Primary action color (Play button, hit marker, active states) — coral-orange
+    primary: '#FF6B4A',
+    primaryForeground: '#0A1628',
 
-    // Secondary / less-emphasis interactive surfaces
-    secondary: '#f0f0f0',
-    secondaryForeground: '#1a1a1a',
+    // Secondary / less-emphasis interactive surfaces — sea-blue
+    secondary: '#1C3A5C',
+    secondaryForeground: '#E8F0F7',
 
     // Muted / subdued elements (dividers, timestamps, placeholders)
-    muted: '#f0f0f0',
-    mutedForeground: '#737373',
+    muted: '#1C3A5C',
+    mutedForeground: '#8AA6C0',
 
-    // Accent highlights (badges, selected items, focus rings)
-    accent: '#f0f0f0',
-    accentForeground: '#1a1a1a',
+    // Accent highlights (badges, selected items, focus rings) — turquoise
+    accent: '#2DD4BF',
+    accentForeground: '#0A1628',
 
-    // Destructive actions (delete, error states)
-    destructive: '#ef4444',
-    destructiveForeground: '#ffffff',
+    // Destructive / loss / destroyed states — red (loss only)
+    destructive: '#EF4444',
+    destructiveForeground: '#FFFFFF',
+
+    // Success / ready / victory states — green
+    success: '#22C55E',
+    successForeground: '#0A1628',
+
+    // Warning / caution states — amber
+    warning: '#FBBF24',
+    warningForeground: '#0A1628',
 
     // Borders and input outlines
-    border: '#e5e5e5',
-    input: '#e5e5e5',
+    border: '#20415F',
+    input: '#20415F',
   },
 
-  // Border radius (in px). Sync from the sibling web artifact's --radius
-  // CSS variable. This value applies to cards, buttons, inputs, and modals.
-  radius: 8,
+  light: {
+    // Legacy aliases (kept for backward compatibility)
+    text: '#0A1628',
+    tint: '#0E7C7B',
+
+    // Core surfaces
+    background: '#F2F7FB',
+    foreground: '#0A1628',
+
+    // Cards / elevated surfaces
+    card: '#FFFFFF',
+    cardForeground: '#0A1628',
+
+    // Primary action color (Play button, hit marker, active states)
+    primary: '#F0562F',
+    primaryForeground: '#FFFFFF',
+
+    // Secondary / less-emphasis interactive surfaces
+    secondary: '#E1EBF4',
+    secondaryForeground: '#0A1628',
+
+    // Muted / subdued elements
+    muted: '#E1EBF4',
+    mutedForeground: '#5A7186',
+
+    // Accent highlights — turquoise
+    accent: '#0E7C7B',
+    accentForeground: '#FFFFFF',
+
+    // Destructive / loss / destroyed states
+    destructive: '#DC2626',
+    destructiveForeground: '#FFFFFF',
+
+    // Success / ready / victory states
+    success: '#16A34A',
+    successForeground: '#FFFFFF',
+
+    // Warning / caution states
+    warning: '#D97706',
+    warningForeground: '#FFFFFF',
+
+    // Borders and input outlines
+    border: '#CEDBE8',
+    input: '#CEDBE8',
+  },
+
+  // Border radius (in px). Applies to cards, buttons, inputs, and modals.
+  radius: 16,
 };
 
 export default colors;

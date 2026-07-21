@@ -1,0 +1,64 @@
+# Fleet Arena — example GitHub Actions CI workflow.
+#
+# This is a REFERENCE file. The project is developed inside a Replit pnpm
+# workspace that does not (yet) use GitHub Actions, so it lives here rather than
+# at the repo root `.github/workflows/`. To enable it, copy this file to
+# `.github/workflows/ci.yml` at the repository root.
+#
+# It runs the same quality gates used locally: typecheck, lint and the vitest
+# engine tests, scoped to the Fleet Arena artifact.
+
+name: Fleet Arena CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "artifacts/fleet-arena/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "artifacts/fleet-arena/**"
+
+# Placeholder env so `lib/supabase.ts` module-load checks never crash CI steps
+# that import app code. These are NOT secrets — use fake values.
+env:
+  EXPO_PUBLIC_SUPABASE_URL: https://example.supabase.co
+  EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+  EXPO_PUBLIC_APP_ENV: preview
+
+jobs:
+  quality:
+    name: Typecheck, lint & test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: artifacts/fleet-arena
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # Install from the workspace root so the pnpm workspace resolves correctly.
+      - name: Install dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Test (vitest engine suite)
+        run: pnpm run test
