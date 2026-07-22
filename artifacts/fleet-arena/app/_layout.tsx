@@ -79,11 +79,9 @@ function RootLayoutNav() {
   }, [ready]);
 
   return (
-    <Stack screenOptions={{ headerBackTitle: 'Back' }}>
-      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    // Every route group owns its own themed stack header, so the root stack
+    // never renders one (the default white "Back / game" bar was double-header).
+    <Stack screenOptions={{ headerShown: false, headerBackTitle: 'Back' }} />
   );
 }
 

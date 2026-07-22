@@ -17,22 +17,23 @@ interface ShipsTrayProps {
   /** Ids of ships that are sunk. */
   sunkIds: Set<ShipId>;
   title: string;
+  compact?: boolean;
 }
 
-export function ShipsTray({ ships, sunkIds, title }: ShipsTrayProps) {
+export function ShipsTray({ ships, sunkIds, title, compact }: ShipsTrayProps) {
   const colors = useColors();
   const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
-      <Text variant="caption" color="muted">
+      <Text variant={compact ? 'label' : 'caption'} color="muted" numberOfLines={1}>
         {title.toUpperCase()}
       </Text>
-      <View style={styles.list}>
+      <View style={[styles.list, compact && styles.listCompact]}>
         {ships.map((ship) => {
           const sunk = sunkIds.has(ship.id);
           return (
-            <View key={ship.id} style={styles.shipRow}>
+            <View key={ship.id} style={[styles.shipRow, compact && styles.shipRowCompact]}>
               <View style={styles.pips}>
                 {Array.from({ length: ship.length }).map((_, i) => (
                   <View
@@ -47,14 +48,16 @@ export function ShipsTray({ ships, sunkIds, title }: ShipsTrayProps) {
                   />
                 ))}
               </View>
-              <Text
-                variant="caption"
-                color={sunk ? 'destructive' : 'muted'}
-                style={sunk ? styles.struck : undefined}
-              >
-                {sunk ? '✕ ' : ''}
-                {t(`game.ships.${ship.id}`)}
-              </Text>
+              {!compact && (
+                <Text
+                  variant="caption"
+                  color={sunk ? 'destructive' : 'muted'}
+                  style={sunk ? styles.struck : undefined}
+                >
+                  {sunk ? '✕ ' : ''}
+                  {t(`game.ships.${ship.id}`)}
+                </Text>
+              )}
             </View>
           );
         })}
@@ -71,10 +74,18 @@ const styles = StyleSheet.create({
   list: {
     gap: spacing.xs,
   },
+  listCompact: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
   shipRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  shipRowCompact: {
+    gap: 0,
   },
   pips: {
     flexDirection: 'row',
