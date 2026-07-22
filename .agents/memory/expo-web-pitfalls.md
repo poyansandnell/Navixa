@@ -1,5 +1,5 @@
 ---
-name: Expo/RN Web pitfalls (Fleet Arena)
+name: Expo/RN Web pitfalls (Navixa)
 description: Client-side gotchas that broke flows in the Expo web preview
 ---
 

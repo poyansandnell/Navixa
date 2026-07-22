@@ -2,7 +2,7 @@
 # =============================================================================
 # sync-engine.sh — copy the pure game engine into the Edge Functions tree.
 #
-# SOURCE OF TRUTH: artifacts/fleet-arena/lib/engine/*
+# SOURCE OF TRUTH: artifacts/navixa/lib/engine/*
 # The engine is pure TypeScript with zero react/react-native/Node-only deps, so
 # the exact same source runs unchanged inside Deno Edge Functions.
 #
@@ -12,7 +12,7 @@
 # script. NEVER hand-edit files in _shared/engine — edit lib/engine and re-run
 # this script instead.
 #
-# Usage (from artifacts/fleet-arena/):
+# Usage (from artifacts/navixa/):
 #   bash supabase/functions/scripts/sync-engine.sh
 # =============================================================================
 set -euo pipefail

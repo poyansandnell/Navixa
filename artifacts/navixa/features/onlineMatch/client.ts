@@ -242,7 +242,7 @@ export async function getDevBotFallbackMs(): Promise<number> {
 
 /**
  * Extract an invite code from a deep link such as `navixa://join/ABCD` or
- * `fleet-arena://join/ABCD`, a universal link `https://.../join/ABCD`, or a
+ * `navixa://join/ABCD`, a universal link `https://.../join/ABCD`, or a
  * bare code. Returns the trimmed uppercase code, or null when nothing usable
  * is found.
  */

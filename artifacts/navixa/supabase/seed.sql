@@ -62,7 +62,7 @@ with demo (id, uname, display, country, locale, rating, wins, losses) as (
     d.id,
     '00000000-0000-0000-0000-000000000000',
     'authenticated', 'authenticated',
-    d.uname || '@demo.fleet-arena.local',
+    d.uname || '@demo.navixa.local',
     crypt('devpassword', gen_salt('bf')),
     now(), now(), now(),
     '{"provider":"email","providers":["email"]}'::jsonb,

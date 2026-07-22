@@ -220,7 +220,7 @@ importers:
         specifier: 3.1.0
         version: 3.1.0
 
-  artifacts/fleet-arena:
+  artifacts/navixa:
     dependencies:
       '@supabase/supabase-js':
         specifier: ^2.110.7

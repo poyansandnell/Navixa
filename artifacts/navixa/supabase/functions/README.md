@@ -132,7 +132,7 @@ applies them in timestamp order.
 ## Deploy
 
 ```bash
-# From artifacts/fleet-arena/
+# From artifacts/navixa/
 bash supabase/functions/scripts/sync-engine.sh   # refresh the engine copy
 supabase functions deploy                         # deploy all functions
 ```

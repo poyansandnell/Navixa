@@ -65,7 +65,7 @@ export const useSettingsStore = create<SettingsState>()(
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),
     }),
     {
-      name: 'fleet-arena-settings',
+      name: 'navixa-settings',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         language: state.language,

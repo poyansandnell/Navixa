@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
-const ONBOARDING_KEY = 'fleet-arena-onboarding-complete';
+const ONBOARDING_KEY = 'navixa-onboarding-complete';
 
 interface OnboardingState {
   /** True while the persisted flag is being read. */

@@ -27,7 +27,7 @@ match replays — localized in 14 languages.
 ## Project structure
 
 ```
-artifacts/fleet-arena/
+artifacts/navixa/
 ├─ app/                    expo-router routes
 │  ├─ (auth)/              sign-in, sign-up, magic-link, forgot/complete-profile
 │  ├─ (tabs)/              home, compete, friends, leaderboard, profile
@@ -61,7 +61,7 @@ Prerequisites: Node 20+, `pnpm`, and (for backend work) the Supabase CLL.
 pnpm install
 
 # Copy the example env and fill in your Supabase values (see below)
-cp artifacts/fleet-arena/.env.example artifacts/fleet-arena/.env
+cp artifacts/navixa/.env.example artifacts/navixa/.env
 ```
 
 ### Environment variables
@@ -82,7 +82,7 @@ The full backend guide — schema, tables, security model and functions — live
 [SUPABASE_SETUP.md](./SUPABASE_SETUP.md). Quick reference:
 
 ```bash
-cd artifacts/fleet-arena
+cd artifacts/navixa
 
 # Apply migrations to the linked hosted project (does NOT run seed.sql)
 supabase db push
@@ -113,7 +113,7 @@ The pure engine is **copied** into `_shared/engine/` from `lib/engine` — edit 
 source of truth in `lib/engine` and re-sync.
 
 ```bash
-cd artifacts/fleet-arena
+cd artifacts/navixa
 bash supabase/functions/scripts/sync-engine.sh   # refresh the engine copy
 
 # Deploy all functions using the management API (no Docker needed)
@@ -131,7 +131,7 @@ Start Expo via the Replit workflow (the `dev` script wires the Replit proxy
 domains):
 
 ```bash
-pnpm --filter @workspace/fleet-arena run dev
+pnpm --filter @workspace/navixa run dev
 ```
 
 The Replit **Navixa** artifact preview serves the web build at `/`.
@@ -149,7 +149,7 @@ sign-in**. See [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md).
 ## Quality scripts & tests
 
 ```bash
-cd artifacts/fleet-arena
+cd artifacts/navixa
 pnpm run typecheck   # tsc -p tsconfig.json --noEmit (strict)
 pnpm run lint        # expo lint
 pnpm run test        # vitest — pure engine suite (lib/engine/**/*.test.ts)

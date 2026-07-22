@@ -124,7 +124,7 @@ export const useLocalPrivacyStore = create<LocalPrivacyState>()(
       setShowCountry: (showCountry) => set({ showCountry }),
     }),
     {
-      name: 'fleet-arena-privacy',
+      name: 'navixa-privacy',
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

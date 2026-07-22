@@ -40,7 +40,7 @@ each migration.
 
 ### Option A — Supabase CLI (recommended)
 
-From `artifacts/fleet-arena/`:
+From `artifacts/navixa/`:
 
 ```bash
 # Local dev stack (Docker): create the DB, run all migrations, then seed.sql

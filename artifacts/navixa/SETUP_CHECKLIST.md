@@ -1,7 +1,7 @@
 # Navixa — Setup Checklist
 
 Follow top to bottom to go from a fresh clone to a running app. Paths are
-relative to `artifacts/fleet-arena/` unless noted.
+relative to `artifacts/navixa/` unless noted.
 
 ## Prerequisites
 - [ ] Node 20+ and `pnpm` installed.
@@ -26,7 +26,7 @@ relative to `artifacts/fleet-arena/` unless noted.
       **Do NOT seed production.**
 
 ## Run
-- [ ] Start Expo: `pnpm --filter @workspace/fleet-arena run dev`.
+- [ ] Start Expo: `pnpm --filter @workspace/navixa run dev`.
 - [ ] Web preview loads at the Replit **Navixa** artifact (`/`).
 - [ ] On device: open Expo Go, scan the QR code.
 

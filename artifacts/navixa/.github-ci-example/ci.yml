@@ -1,4 +1,4 @@
-# Fleet Arena — example GitHub Actions CI workflow.
+# Navixa — example GitHub Actions CI workflow.
 #
 # This is a REFERENCE file. The project is developed inside a Replit pnpm
 # workspace that does not (yet) use GitHub Actions, so it lives here rather than
@@ -6,19 +6,19 @@
 # `.github/workflows/ci.yml` at the repository root.
 #
 # It runs the same quality gates used locally: typecheck, lint and the vitest
-# engine tests, scoped to the Fleet Arena artifact.
+# engine tests, scoped to the Navixa artifact.
 
-name: Fleet Arena CI
+name: Navixa CI
 
 on:
   push:
     branches: [main]
     paths:
-      - "artifacts/fleet-arena/**"
+      - "artifacts/navixa/**"
       - ".github/workflows/ci.yml"
   pull_request:
     paths:
-      - "artifacts/fleet-arena/**"
+      - "artifacts/navixa/**"
 
 # Placeholder env so `lib/supabase.ts` module-load checks never crash CI steps
 # that import app code. These are NOT secrets — use fake values.
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: artifacts/fleet-arena
+        working-directory: artifacts/navixa
     steps:
       - uses: actions/checkout@v4
 
