@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { STR } from '../i18n';
 
 export default function Scene0({ currentScene }: { currentScene: number }) {
-  // Intro: Fleet Arena logo + Tagline
+  // Intro: Navixa logo + Tagline
   return (
     <motion.div 
       className="absolute inset-0 flex flex-col items-center justify-center z-10"
@@ -26,7 +26,7 @@ export default function Scene0({ currentScene }: { currentScene: number }) {
         />
         <img 
           src={`${import.meta.env.BASE_URL}images/icon.png`}
-          alt="Fleet Arena Logo"
+          alt="Navixa Logo"
           className="w-full h-full object-contain relative z-10 drop-shadow-2xl rounded-[32px]"
         />
       </motion.div>
@@ -38,7 +38,7 @@ export default function Scene0({ currentScene }: { currentScene: number }) {
           animate={{ y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         >
-          FLEET ARENA
+          NAVIXA
         </motion.h1>
       </motion.div>
 

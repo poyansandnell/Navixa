@@ -20,7 +20,7 @@ export default function Scene6({ currentScene }: { currentScene: number }) {
       >
         <img 
           src={`${import.meta.env.BASE_URL}images/icon.png`}
-          alt="Fleet Arena App Icon"
+          alt="Navixa App Icon"
           className="w-full h-full object-contain bg-bg-light"
         />
       </motion.div>
@@ -31,7 +31,7 @@ export default function Scene6({ currentScene }: { currentScene: number }) {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.5, type: "spring" }}
       >
-        FLEET ARENA
+        NAVIXA
       </motion.h1>
 
       <motion.div 
