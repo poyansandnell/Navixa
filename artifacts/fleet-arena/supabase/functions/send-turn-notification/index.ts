@@ -64,7 +64,7 @@ serveJson(async (req) => {
 
   const messages: ExpoPushMessage[] = expoTokens.map((to) => ({
     to,
-    title: 'Fleet Arena',
+    title: 'Navixa',
     body: "It's your turn to fire!",
     sound: 'default',
     priority: 'high',

@@ -1,7 +1,6 @@
-# Fleet Arena
+# Navixa
 
-A global, multiplayer **Battleship** game built for the Expo showcase. Fleet
-Arena is an Expo React Native app (iOS / Android / web) backed by Supabase
+A global, multiplayer **Battleship** game built for the Expo showcase. Navixa is an Expo React Native app (iOS / Android / web) backed by Supabase
 (Postgres + Row Level Security + Edge Functions). It ships offline bot matches,
 online ranked/casual/private play, matchmaking, tournaments, quests,
 achievements, a cosmetics shop (test currency only), friends/leaderboards, and
@@ -135,7 +134,7 @@ domains):
 pnpm --filter @workspace/fleet-arena run dev
 ```
 
-The Replit **Fleet Arena** artifact preview serves the web build at `/`.
+The Replit **Navixa** artifact preview serves the web build at `/`.
 
 ### Testing on a physical device (Expo Go)
 
@@ -165,7 +164,7 @@ root `.github/workflows/ci.yml` to enable it.
 
 `eas.json` defines `development`, `preview` and `production` profiles
 (`cli.version >= 16`, `appVersionSource: remote`). Bundle IDs are
-`com.fleetarena.game` (iOS & Android); URL scheme is `fleetarena`.
+`com.navixa.game` (iOS & Android); URL scheme is `navixa`.
 
 ```bash
 # Reference commands — NOT run inside Replit (see note below)
@@ -182,8 +181,8 @@ eas submit --profile production --platform android  # → Play Internal testing
 
 ## Deep links
 
-The app registers the `fleetarena://` scheme (plus Expo universal links). Private
-match invites resolve to `fleetarena://online/join/<code>` (see
+The app registers the `navixa://` scheme (plus Expo universal links). Private
+match invites resolve to `navixa://online/join/<code>` (see
 `app/online/join/[code].tsx`). `create-private-match` returns both a `deepLink`
 and a `universalLink`.
 

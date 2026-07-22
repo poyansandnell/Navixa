@@ -1,6 +1,6 @@
-# Fleet Arena — Privacy & Data Map
+# Navixa — Privacy & Data Map
 
-What data Fleet Arena collects, where it lives, why, and how users exercise
+What data Navixa collects, where it lives, why, and how users exercise
 their rights. This maps to the store privacy questionnaires (App Store "App
 Privacy" and Google Play "Data safety").
 

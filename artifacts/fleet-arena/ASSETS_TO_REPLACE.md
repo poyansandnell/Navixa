@@ -1,4 +1,4 @@
-# Fleet Arena — Assets To Replace
+# Navixa — Assets To Replace
 
 Placeholder / minimal assets that must be replaced with final production art
 before store submission.

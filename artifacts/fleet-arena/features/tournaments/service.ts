@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — tournament data access.
+ * Navixa — tournament data access.
  *
  * Reads the public tournament tables via the anon Supabase client (RLS allows
  * public read of non-draft tournaments, entries, rounds and matches).

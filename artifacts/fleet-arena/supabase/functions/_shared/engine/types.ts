@@ -1,5 +1,5 @@
 /**
- * Core types for the Fleet Arena game engine.
+ * Core types for the Navixa game engine.
  *
  * Pure TypeScript — ZERO react / react-native imports and no Node-only APIs,
  * so this module also runs unchanged inside Deno Edge Functions.
@@ -58,7 +58,7 @@ export interface Placement {
 /** A full fleet placement for one player. */
 export type Fleet = Placement[];
 
-/** Default fleet configuration used by classic Battleship. */
+/** Default fleet configuration used by the classic naval rules. */
 export const DEFAULT_SHIPS: ShipSpec[] = [
   { id: 'carrier', length: 5 },
   { id: 'battleship', length: 4 },

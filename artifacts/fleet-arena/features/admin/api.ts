@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — admin/moderation client. Thin wrappers around the
+ * Navixa — admin/moderation client. Thin wrappers around the
  * `admin-actions` Edge Function (a single `{ action, payload }` dispatcher)
  * plus a helper to read the caller's own `profiles.is_admin` flag.
  *

@@ -1,4 +1,4 @@
-# Fleet Arena — Setup Checklist
+# Navixa — Setup Checklist
 
 Follow top to bottom to go from a fresh clone to a running app. Paths are
 relative to `artifacts/fleet-arena/` unless noted.
@@ -27,7 +27,7 @@ relative to `artifacts/fleet-arena/` unless noted.
 
 ## Run
 - [ ] Start Expo: `pnpm --filter @workspace/fleet-arena run dev`.
-- [ ] Web preview loads at the Replit **Fleet Arena** artifact (`/`).
+- [ ] Web preview loads at the Replit **Navixa** artifact (`/`).
 - [ ] On device: open Expo Go, scan the QR code.
 
 ## Verify quality gates

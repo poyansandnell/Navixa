@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — authentication service.
+ * Navixa — authentication service.
  *
  * Thin wrappers around the Supabase JS client (anon key only, see
  * lib/supabase.ts) for every auth flow the app needs: email/password sign up
@@ -14,7 +14,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 /** Deep link used for magic-link / password-reset redirects. */
-export const AUTH_REDIRECT_URL = 'fleetarena://auth/callback';
+export const AUTH_REDIRECT_URL = 'navixa://auth/callback';
 
 export interface EmailCredentials {
   email: string;

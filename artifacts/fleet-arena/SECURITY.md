@@ -1,6 +1,6 @@
-# Fleet Arena — Security Model
+# Navixa — Security Model
 
-Fleet Arena is designed so a malicious client cannot cheat, read secret data, or
+Navixa is designed so a malicious client cannot cheat, read secret data, or
 escalate privileges. The client only ever holds the Supabase **anon key**; all
 trust boundaries are enforced by Postgres **Row Level Security (RLS)** and by
 **Edge Functions** that use the **service_role** key server-side.

@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — Supabase Realtime subscriptions for the online-play flow.
+ * Navixa — Supabase Realtime subscriptions for the online-play flow.
  *
  * Two hooks:
  *  - useMatchmakingRealtime: watches the caller's matchmaking_queue row and the

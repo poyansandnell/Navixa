@@ -1,5 +1,5 @@
 /**
- * Built-in preset avatars for Fleet Arena.
+ * Built-in preset avatars for Navixa.
  *
  * No image uploads: an avatar is a colored tile with a naval icon. The set of
  * ~12 presets is stable and referenced by id. A profile stores the chosen id

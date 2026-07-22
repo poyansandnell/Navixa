@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — legal / policy documents.
+ * Navixa — legal / policy documents.
  *
  * One dynamic route renders every legal document (privacy, terms, community
  * rules, fair play, data deletion, support, contact, licenses). Full document

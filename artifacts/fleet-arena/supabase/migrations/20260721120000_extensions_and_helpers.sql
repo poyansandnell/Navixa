@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — 00: Extensions & shared helper functions
+-- Navixa — 00: Extensions & shared helper functions
 -- Postgres 17 / Supabase
 -- =============================================================================
 -- This migration sets up prerequisite extensions, common enum types, and the

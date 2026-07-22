@@ -14,7 +14,7 @@ import {
 } from '@/features/onlineMatch';
 
 /**
- * Join-by-code screen. Reached via the deep link `fleetarena://join/<code>`
+ * Join-by-code screen. Reached via the deep link `navixa://join/<code>`
  * (Expo Router maps the path segment to `code`) or from the Play tab with no
  * code for manual entry.
  */

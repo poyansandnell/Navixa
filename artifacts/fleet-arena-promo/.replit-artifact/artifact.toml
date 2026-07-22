@@ -1,6 +1,6 @@
 kind = "video"
 previewPath = "/fleet-arena-promo/"
-title = "Fleet Arena Promo Video"
+title = "Navixa Promo Video"
 version = "1.0.0"
 id = "artifacts/fleet-arena-promo"
 router = "path"

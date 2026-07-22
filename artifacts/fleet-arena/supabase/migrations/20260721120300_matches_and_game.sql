@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — 03: Matches, players, private game state, moves & events
+-- Navixa — 03: Matches, players, private game state, moves & events
 -- =============================================================================
 -- SECURITY MODEL:
 --   * matches               -> public metadata (spectatable lobby info)

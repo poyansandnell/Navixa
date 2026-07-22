@@ -1,8 +1,8 @@
 /**
- * Semantic design tokens for the Fleet Arena mobile app.
+ * Semantic design tokens for the Navixa mobile app.
  *
- * Fleet Arena is a global, competitive Battleship game — "Chess.com for
- * Battleship". The palette is a deep naval one: dark navy base, lighter
+ * Navixa is a global, competitive naval strategy game — "Chess.com for
+ * sea battles". The palette is a deep naval one: dark navy base, lighter
  * sea-blue surfaces, turquoise accents, a coral-orange primary action /
  * "hit" color, red reserved strictly for loss/destroyed states, and green
  * for ready/victory states.
@@ -14,7 +14,7 @@
  */
 
 const colors = {
-  // Dark theme is the default for Fleet Arena.
+  // Dark theme is the default for Navixa.
   dark: {
     // Legacy aliases (kept for backward compatibility)
     text: '#E8F0F7',

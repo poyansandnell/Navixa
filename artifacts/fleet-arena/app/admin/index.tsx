@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — Admin hub.
+ * Navixa — Admin hub.
  *
  * Reachable via /admin only (no tab). Visible only if profiles.is_admin (gated
  * by AdminGate). Every action re-verifies admin status server-side via the

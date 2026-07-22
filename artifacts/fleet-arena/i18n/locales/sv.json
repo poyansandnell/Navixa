@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Fleet Arena",
+    "appName": "Navixa",
     "loading": "Laddar…",
     "retry": "Försök igen",
     "cancel": "Avbryt",
@@ -151,7 +151,7 @@
       "subtitle": "Logga in för att fortsätta klättra.",
       "submit": "Logga in",
       "action": "Logga in",
-      "noAccount": "Ny i Fleet Arena?"
+      "noAccount": "Ny i Navixa?"
     },
     "signUp": {
       "title": "Skapa konto",

@@ -1,5 +1,5 @@
 /**
- * Scheme-independent design tokens for Fleet Arena: typography, spacing,
+ * Scheme-independent design tokens for Navixa: typography, spacing,
  * radii, shadows, icon sizes, and animation durations.
  *
  * Color tokens live in constants/colors.ts and are consumed via useColors().

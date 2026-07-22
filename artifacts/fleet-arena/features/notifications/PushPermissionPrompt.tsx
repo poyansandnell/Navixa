@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — push opt-in explainer modal.
+ * Navixa — push opt-in explainer modal.
  *
  * Shows the *benefit* of enabling notifications BEFORE we trigger the OS
  * permission prompt (best practice — avoids burning the one-shot iOS prompt).

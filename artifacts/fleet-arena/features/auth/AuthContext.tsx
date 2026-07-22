@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — authentication context.
+ * Navixa — authentication context.
  *
  * Owns the Supabase session lifecycle via supabase.auth.onAuthStateChange and
  * exposes it to the app. Protected routing in app/_layout.tsx reads `session`

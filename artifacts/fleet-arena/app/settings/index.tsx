@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — Settings screen.
+ * Navixa — Settings screen.
  *
  * Centralises every preference: language (all 14 shipped locales), theme,
  * gameplay toggles (store/settings.ts), push notification categories + privacy

@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — SEED DATA (DEV / PREVIEW ONLY)
+-- Navixa — SEED DATA (DEV / PREVIEW ONLY)
 -- =============================================================================
 --  !!! DO NOT RUN AGAINST PRODUCTION !!!
 --  This script inserts 20 fake demo players plus fabricated match history,

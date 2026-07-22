@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Fleet Arena",
+    "appName": "Navixa",
     "loading": "Loading…",
     "retry": "Retry",
     "cancel": "Cancel",
@@ -151,7 +151,7 @@
       "subtitle": "Log in to continue your climb.",
       "submit": "Log in",
       "action": "Log in",
-      "noAccount": "New to Fleet Arena?"
+      "noAccount": "New to Navixa?"
     },
     "signUp": {
       "title": "Create account",

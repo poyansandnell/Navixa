@@ -1,7 +1,7 @@
 /**
  * CORS helpers shared by every Edge Function.
  *
- * The Fleet Arena client is an Expo app (native + web). We allow any origin
+ * The Navixa client is an Expo app (native + web). We allow any origin
  * because auth is enforced by the JWT, not the origin.
  */
 

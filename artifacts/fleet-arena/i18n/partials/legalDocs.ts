@@ -34,11 +34,11 @@ export default {
         sectionCount: '11',
         s1: {
           heading: 'Who we are',
-          body: 'Fleet Arena is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is [COMPANY_NAME], [COMPANY_ADDRESS]. For any privacy question you can reach us at [SUPPORT_EMAIL].',
+          body: 'Navixa is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is [COMPANY_NAME], [COMPANY_ADDRESS]. For any privacy question you can reach us at [SUPPORT_EMAIL].',
         },
         s2: {
           heading: 'Playing as a guest',
-          body: 'You can play Fleet Arena without creating an account. When you play as a guest we generate an anonymous device-scoped identifier so we can save your progress and match you with opponents. A guest identity is not linked to an email address. If you later create an account, your guest progress can be associated with that account.',
+          body: 'You can play Navixa without creating an account. When you play as a guest we generate an anonymous device-scoped identifier so we can save your progress and match you with opponents. A guest identity is not linked to an email address. If you later create an account, your guest progress can be associated with that account.',
         },
         s3: {
           heading: 'Data we collect',
@@ -70,7 +70,7 @@ export default {
         },
         s10: {
           heading: 'Children',
-          body: 'Fleet Arena is a strategy game suitable for a general audience. It contains no targeted advertising and no content directed at children, and it can be played as a guest without providing any personal information. If you believe a child has provided us personal data in a way that requires action, contact us at [SUPPORT_EMAIL] and we will address it.',
+          body: 'Navixa is a strategy game suitable for a general audience. It contains no targeted advertising and no content directed at children, and it can be played as a guest without providing any personal information. If you believe a child has provided us personal data in a way that requires action, contact us at [SUPPORT_EMAIL] and we will address it.',
         },
         s11: {
           heading: 'Changes and contact',
@@ -87,11 +87,11 @@ export default {
         sectionCount: '10',
         s1: {
           heading: 'Acceptance',
-          body: 'By downloading, accessing or playing Fleet Arena you agree to these Terms of Service. If you do not agree, please do not use the app. These Terms are a legal agreement between you and [COMPANY_NAME], [COMPANY_ADDRESS].',
+          body: 'By downloading, accessing or playing Navixa you agree to these Terms of Service. If you do not agree, please do not use the app. These Terms are a legal agreement between you and [COMPANY_NAME], [COMPANY_ADDRESS].',
         },
         s2: {
           heading: 'Licence to use the app',
-          body: 'We grant you a personal, limited, non-exclusive, non-transferable and revocable licence to install and use Fleet Arena for your own non-commercial entertainment. You may not copy, modify, reverse engineer, decompile, resell or distribute the app or any part of it except as permitted by law.',
+          body: 'We grant you a personal, limited, non-exclusive, non-transferable and revocable licence to install and use Navixa for your own non-commercial entertainment. You may not copy, modify, reverse engineer, decompile, resell or distribute the app or any part of it except as permitted by law.',
         },
         s3: {
           heading: 'Your account',
@@ -136,7 +136,7 @@ export default {
         sectionCount: '6',
         s1: {
           heading: 'Be respectful',
-          body: 'Fleet Arena is for everyone. Treat other players with respect, whether you win or lose. Good sportsmanship keeps matches fun and the community welcoming.',
+          body: 'Navixa is for everyone. Treat other players with respect, whether you win or lose. Good sportsmanship keeps matches fun and the community welcoming.',
         },
         s2: {
           heading: 'Zero tolerance for harassment and hate',
@@ -169,7 +169,7 @@ export default {
         sectionCount: '6',
         s1: {
           heading: 'Server-authoritative gameplay',
-          body: 'Fleet Arena runs its core game logic on the server. Moves are validated server-side and secret information — such as your hidden fleet layout — is never sent to other players’ devices. This design keeps matches fair and makes many common cheats ineffective.',
+          body: 'Navixa runs its core game logic on the server. Moves are validated server-side and secret information — such as your hidden fleet layout — is never sent to other players’ devices. This design keeps matches fair and makes many common cheats ineffective.',
         },
         s2: {
           heading: 'What counts as cheating',
@@ -202,7 +202,7 @@ export default {
         sectionCount: '6',
         s1: {
           heading: 'Delete your account in the app',
-          body: 'You can delete your account directly in Fleet Arena. Go to Settings → Account → Delete account and confirm. No email or web form is required — deletion is fully self-service.',
+          body: 'You can delete your account directly in Navixa. Go to Settings → Account → Delete account and confirm. No email or web form is required — deletion is fully self-service.',
         },
         s2: {
           heading: 'What happens when you delete',
@@ -260,7 +260,7 @@ export default {
         sectionCount: '2',
         s1: {
           heading: 'Get in touch',
-          body: 'Fleet Arena is operated by [COMPANY_NAME], [COMPANY_ADDRESS]. For support, feedback, or privacy and legal enquiries, email us at [SUPPORT_EMAIL].',
+          body: 'Navixa is operated by [COMPANY_NAME], [COMPANY_ADDRESS]. For support, feedback, or privacy and legal enquiries, email us at [SUPPORT_EMAIL].',
         },
         s2: {
           heading: 'Privacy and legal requests',
@@ -277,7 +277,7 @@ export default {
         sectionCount: '3',
         s1: {
           heading: 'Acknowledgements',
-          body: 'Fleet Arena is built with the help of open-source software and we are grateful to the maintainers of these projects.',
+          body: 'Navixa is built with the help of open-source software and we are grateful to the maintainers of these projects.',
         },
         s2: {
           heading: 'Libraries we use',
@@ -302,11 +302,11 @@ export default {
         sectionCount: '11',
         s1: {
           heading: 'Vilka vi är',
-          body: 'Fleet Arena är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är [COMPANY_NAME], [COMPANY_ADDRESS]. Vid frågor om integritet når du oss på [SUPPORT_EMAIL].',
+          body: 'Navixa är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är [COMPANY_NAME], [COMPANY_ADDRESS]. Vid frågor om integritet når du oss på [SUPPORT_EMAIL].',
         },
         s2: {
           heading: 'Att spela som gäst',
-          body: 'Du kan spela Fleet Arena utan att skapa ett konto. När du spelar som gäst skapar vi en anonym enhetsbunden identifierare så att vi kan spara dina framsteg och matcha dig med motståndare. En gästidentitet är inte kopplad till en e-postadress. Om du senare skapar ett konto kan dina gästframsteg kopplas till det kontot.',
+          body: 'Du kan spela Navixa utan att skapa ett konto. När du spelar som gäst skapar vi en anonym enhetsbunden identifierare så att vi kan spara dina framsteg och matcha dig med motståndare. En gästidentitet är inte kopplad till en e-postadress. Om du senare skapar ett konto kan dina gästframsteg kopplas till det kontot.',
         },
         s3: {
           heading: 'Uppgifter vi samlar in',
@@ -338,7 +338,7 @@ export default {
         },
         s10: {
           heading: 'Barn',
-          body: 'Fleet Arena är ett strategispel som passar en bred publik. Det innehåller ingen riktad annonsering och inget innehåll riktat till barn, och det kan spelas som gäst utan att lämna några personuppgifter. Om du tror att ett barn har lämnat personuppgifter till oss på ett sätt som kräver åtgärd, kontakta oss på [SUPPORT_EMAIL] så åtgärdar vi det.',
+          body: 'Navixa är ett strategispel som passar en bred publik. Det innehåller ingen riktad annonsering och inget innehåll riktat till barn, och det kan spelas som gäst utan att lämna några personuppgifter. Om du tror att ett barn har lämnat personuppgifter till oss på ett sätt som kräver åtgärd, kontakta oss på [SUPPORT_EMAIL] så åtgärdar vi det.',
         },
         s11: {
           heading: 'Ändringar och kontakt',
@@ -355,11 +355,11 @@ export default {
         sectionCount: '10',
         s1: {
           heading: 'Godkännande',
-          body: 'Genom att ladda ner, öppna eller spela Fleet Arena godkänner du dessa användarvillkor. Om du inte godkänner dem ska du inte använda appen. Villkoren utgör ett juridiskt avtal mellan dig och [COMPANY_NAME], [COMPANY_ADDRESS].',
+          body: 'Genom att ladda ner, öppna eller spela Navixa godkänner du dessa användarvillkor. Om du inte godkänner dem ska du inte använda appen. Villkoren utgör ett juridiskt avtal mellan dig och [COMPANY_NAME], [COMPANY_ADDRESS].',
         },
         s2: {
           heading: 'Licens att använda appen',
-          body: 'Vi ger dig en personlig, begränsad, icke-exklusiv, icke-överlåtbar och återkallelig licens att installera och använda Fleet Arena för din egen icke-kommersiella underhållning. Du får inte kopiera, ändra, bakåtkompilera, dekompilera, sälja vidare eller distribuera appen eller någon del av den, annat än vad lagen tillåter.',
+          body: 'Vi ger dig en personlig, begränsad, icke-exklusiv, icke-överlåtbar och återkallelig licens att installera och använda Navixa för din egen icke-kommersiella underhållning. Du får inte kopiera, ändra, bakåtkompilera, dekompilera, sälja vidare eller distribuera appen eller någon del av den, annat än vad lagen tillåter.',
         },
         s3: {
           heading: 'Ditt konto',
@@ -404,7 +404,7 @@ export default {
         sectionCount: '6',
         s1: {
           heading: 'Visa respekt',
-          body: 'Fleet Arena är till för alla. Behandla andra spelare med respekt, oavsett om du vinner eller förlorar. Gott sportmannaskap gör matcherna roliga och gör communityt välkomnande.',
+          body: 'Navixa är till för alla. Behandla andra spelare med respekt, oavsett om du vinner eller förlorar. Gott sportmannaskap gör matcherna roliga och gör communityt välkomnande.',
         },
         s2: {
           heading: 'Nolltolerans mot trakasserier och hat',
@@ -437,7 +437,7 @@ export default {
         sectionCount: '6',
         s1: {
           heading: 'Serverstyrt spel',
-          body: 'Fleet Arena kör sin centrala spellogik på servern. Drag valideras på serversidan och hemlig information — såsom din dolda flottplacering — skickas aldrig till andra spelares enheter. Denna design håller matcherna rättvisa och gör många vanliga fusk verkningslösa.',
+          body: 'Navixa kör sin centrala spellogik på servern. Drag valideras på serversidan och hemlig information — såsom din dolda flottplacering — skickas aldrig till andra spelares enheter. Denna design håller matcherna rättvisa och gör många vanliga fusk verkningslösa.',
         },
         s2: {
           heading: 'Vad som räknas som fusk',
@@ -470,7 +470,7 @@ export default {
         sectionCount: '6',
         s1: {
           heading: 'Radera ditt konto i appen',
-          body: 'Du kan radera ditt konto direkt i Fleet Arena. Gå till Inställningar → Konto → Radera konto och bekräfta. Ingen e-post eller webbformulär krävs — raderingen sköter du helt själv.',
+          body: 'Du kan radera ditt konto direkt i Navixa. Gå till Inställningar → Konto → Radera konto och bekräfta. Ingen e-post eller webbformulär krävs — raderingen sköter du helt själv.',
         },
         s2: {
           heading: 'Vad som händer när du raderar',
@@ -528,7 +528,7 @@ export default {
         sectionCount: '2',
         s1: {
           heading: 'Kontakta oss',
-          body: 'Fleet Arena drivs av [COMPANY_NAME], [COMPANY_ADDRESS]. För support, återkoppling eller frågor om integritet och juridik, mejla oss på [SUPPORT_EMAIL].',
+          body: 'Navixa drivs av [COMPANY_NAME], [COMPANY_ADDRESS]. För support, återkoppling eller frågor om integritet och juridik, mejla oss på [SUPPORT_EMAIL].',
         },
         s2: {
           heading: 'Integritets- och juridiska ärenden',
@@ -545,7 +545,7 @@ export default {
         sectionCount: '3',
         s1: {
           heading: 'Erkännanden',
-          body: 'Fleet Arena är byggt med hjälp av programvara med öppen källkod och vi är tacksamma mot dem som underhåller dessa projekt.',
+          body: 'Navixa är byggt med hjälp av programvara med öppen källkod och vi är tacksamma mot dem som underhåller dessa projekt.',
         },
         s2: {
           heading: 'Bibliotek vi använder',

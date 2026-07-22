@@ -1,5 +1,5 @@
 /**
- * Fleet Arena game engine — public barrel.
+ * Navixa game engine — public barrel.
  *
  * Pure TypeScript: ZERO react / react-native imports and no Node-only APIs, so
  * every export here can also run inside Deno Edge Functions.

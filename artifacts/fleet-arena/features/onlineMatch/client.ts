@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — thin client wrappers around the deployed Supabase Edge
+ * Navixa — thin client wrappers around the deployed Supabase Edge
  * Functions used by the online-play flow, plus a couple of shared helpers
  * (idempotency keys, app_config fetch, deep-link code parsing).
  *
@@ -241,7 +241,7 @@ export async function getDevBotFallbackMs(): Promise<number> {
 // ---------------------------------------------------------------------------
 
 /**
- * Extract an invite code from a deep link such as `fleetarena://join/ABCD` or
+ * Extract an invite code from a deep link such as `navixa://join/ABCD` or
  * `fleet-arena://join/ABCD`, a universal link `https://.../join/ABCD`, or a
  * bare code. Returns the trimmed uppercase code, or null when nothing usable
  * is found.

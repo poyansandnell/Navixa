@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — 08: Business-logic SQL functions
+-- Navixa — 08: Business-logic SQL functions
 -- =============================================================================
 -- All functions here are intended to be called by Edge Functions using the
 -- service_role key, OR directly by authenticated clients where noted. Functions

@@ -1,15 +1,15 @@
-# Fleet Arena — Google Play Checklist
+# Navixa — Google Play Checklist
 
 Use with [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md).
 
 ## Google accounts
 - [ ] Google Play Console account (Developer registration complete).
 - [ ] App created in Play Console.
-- [ ] Package name `com.fleetarena.game` matches `app.json` (`android.package`).
+- [ ] Package name `com.navixa.game` matches `app.json` (`android.package`).
 
 ## App configuration
-- [ ] `app.json`: name "Fleet Arena", `version` = version name,
-      `android.package` = `com.fleetarena.game`, scheme `fleetarena`.
+- [ ] `app.json`: name "Navixa", `version` = version name,
+      `android.package` = `com.navixa.game`, scheme `navixa`.
 - [ ] Adaptive icon configured (`android.adaptiveIcon`, background `#0A1628`).
 - [ ] `eas.json` production profile (`autoIncrement` handles versionCode);
       preview profile builds an APK for internal sharing.

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Fleet Arena",
-    "slug": "fleet-arena",
+    "name": "Navixa",
+    "slug": "navixa",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fleetarena",
+    "scheme": "navixa",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#0A1628",
     "newArchEnabled": true,
@@ -16,10 +16,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fleetarena.game"
+      "bundleIdentifier": "com.navixa.app"
     },
     "android": {
-      "package": "com.fleetarena.game",
+      "package": "com.navixa.app",
       "backgroundColor": "#0A1628",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",

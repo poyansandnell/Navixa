@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — 12: Admin & moderation support
+-- Navixa — 12: Admin & moderation support
 -- =============================================================================
 -- Adds the schema pieces the admin-actions Edge Function relies on that are not
 -- present in the base schema:
@@ -70,7 +70,7 @@ comment on table public.banned_usernames is
 insert into public.banned_usernames (pattern, reason) values
   ('admin',     'Impersonation of staff'),
   ('moderator', 'Impersonation of staff'),
-  ('fleetarena','Impersonation of the brand'),
+  ('navixa','Impersonation of the brand'),
   ('support',   'Impersonation of staff'),
   ('nigger',    'Hate speech'),
   ('faggot',    'Hate speech')

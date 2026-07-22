@@ -1,10 +1,10 @@
-# Fleet Arena — Supabase Setup
+# Navixa — Supabase Setup
 
 This document explains how to apply the database schema, run the seed data, and
 the security model the schema enforces. The project targets **PostgreSQL 17**
 (see `supabase/config.toml` → `[db] major_version = 17`).
 
-> The Fleet Arena app is an Expo React Native client. It talks to Supabase using
+> The Navixa app is an Expo React Native client. It talks to Supabase using
 > the **anon key** (see `lib/supabase.ts`). Everything sensitive is enforced by
 > Row Level Security (RLS) and by keeping privileged writes inside Edge
 > Functions that use the **service_role key**.

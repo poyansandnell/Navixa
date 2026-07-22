@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — tournament domain types (client-side view models).
+ * Navixa — tournament domain types (client-side view models).
  *
  * These mirror the relevant columns of the `tournaments`, `tournament_entries`,
  * `tournament_rounds` and `tournament_matches` tables (see

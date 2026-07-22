@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — daily/weekly quests data access.
+ * Navixa — daily/weekly quests data access.
  *
  * `daily_quests` is a public catalog (RLS: active rows readable by all).
  * `user_quests` holds per-user progress and is readable by the owner. Writes

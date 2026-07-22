@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — 10: Edge Function support (private codes, clocks, bots)
+-- Navixa — 10: Edge Function support (private codes, clocks, bots)
 -- =============================================================================
 -- Adds the columns and SQL helper functions the trusted Edge Functions rely on
 -- that were not present in the base schema:

@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — drift-corrected turn-clock countdown.
+ * Navixa — drift-corrected turn-clock countdown.
  *
  * Given the match `turn_deadline` (ISO string from the matches row / clock
  * block) and a `clockOffsetMs` (serverNow - deviceNow, measured on reconnect),

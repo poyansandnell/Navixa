@@ -1,4 +1,4 @@
-# Fleet Arena — Known Limitations
+# Navixa — Known Limitations
 
 An honest inventory of what is stubbed, limited, or intentionally out of scope.
 Nothing here is a bug — it is documented so reviewers and future contributors
@@ -52,8 +52,8 @@ for full-fidelity testing of those paths.
 The original spec called for `app.config.ts`. Replit's **Expo Launch** tooling
 requires a **static `app.json`**, so the project uses `app.json` and does **not**
 include `app.config.ts`. This is a deliberate platform constraint, not an
-oversight. All native config (bundle IDs `com.fleetarena.game`, scheme
-`fleetarena`, adaptive icon, plugins) lives in `app.json`.
+oversight. All native config (bundle IDs `com.navixa.game`, scheme
+`navixa`, adaptive icon, plugins) lives in `app.json`.
 
 ## 9. iOS publishing path on Replit
 On Replit, iOS publishing goes through **Replit's Expo Launch** flow. The EAS

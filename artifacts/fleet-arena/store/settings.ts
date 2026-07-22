@@ -10,7 +10,7 @@ export type LanguagePreference = SupportedLanguage | 'system';
 export interface SettingsState {
   /** UI language, or 'system' to follow the device locale. */
   language: LanguagePreference;
-  /** Color theme. Fleet Arena defaults to dark. */
+  /** Color theme. Navixa defaults to dark. */
   theme: ThemePreference;
   /** Sound effects enabled. */
   sound: boolean;

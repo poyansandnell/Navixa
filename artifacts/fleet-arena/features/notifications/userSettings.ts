@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — server-side user settings (privacy + push categories).
+ * Navixa — server-side user settings (privacy + push categories).
  *
  * Backs the Settings screen. Reads/writes the `user_settings` row (1:1 with the
  * profile; owner-managed via RLS). The `on_auth_user_created` trigger seeds a

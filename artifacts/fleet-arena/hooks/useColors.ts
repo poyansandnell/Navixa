@@ -7,7 +7,7 @@ export type ColorTokens = typeof colors.dark & { radius: number };
 /**
  * Returns the design tokens for the resolved color scheme.
  *
- * Fleet Arena defaults to the dark palette. The resolved scheme is driven by
+ * Navixa defaults to the dark palette. The resolved scheme is driven by
  * the user's theme preference in the settings store:
  *   - 'dark'   → always dark
  *   - 'light'  → always light

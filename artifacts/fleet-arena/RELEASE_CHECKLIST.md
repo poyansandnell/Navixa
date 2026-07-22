@@ -1,4 +1,4 @@
-# Fleet Arena — Release Checklist
+# Navixa — Release Checklist
 
 End-to-end steps to cut a release. Store-specific items are in
 [APP_STORE_CHECKLIST.md](./APP_STORE_CHECKLIST.md) and
@@ -14,9 +14,9 @@ Replit; they are not run in this environment.
 - [ ] `pnpm run lint` clean.
 - [ ] `pnpm run test` passes (engine suite).
 - [ ] Manual QA matrix in [TEST_PLAN.md](./TEST_PLAN.md) done on iOS + Android.
-- [ ] `app.json`: `version` bumped, `name` = "Fleet Arena", scheme = `fleetarena`,
-      `ios.bundleIdentifier` = `com.fleetarena.game`, `android.package` =
-      `com.fleetarena.game`.
+- [ ] `app.json`: `version` bumped, `name` = "Navixa", scheme = `navixa`,
+      `ios.bundleIdentifier` = `com.navixa.game`, `android.package` =
+      `com.navixa.game`.
 - [ ] `eas.json`: `cli.version >= 16`, `appVersionSource: remote`, profiles
       present (development / preview / production).
 
@@ -55,7 +55,7 @@ eas submit --profile production --platform android  # → Play Internal testing
 ## 6. Post-release
 - [ ] Tag the release; note the store build numbers.
 - [ ] Monitor crashes (Sentry) and Supabase logs.
-- [ ] Verify deep link `fleetarena://online/join/<code>` opens the app.
+- [ ] Verify deep link `navixa://online/join/<code>` opens the app.
 
 ## Reminders
 - No `app.config.ts` (static `app.json` is a Replit Expo Launch requirement).

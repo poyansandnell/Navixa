@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — developer tools.
+ * Navixa — developer tools.
  *
  * GATED to development builds only via __DEV__ — in production this redirects
  * away immediately so the screen can never be reached. Intentionally simple:

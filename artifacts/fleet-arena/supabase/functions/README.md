@@ -1,4 +1,4 @@
-# Fleet Arena — Supabase Edge Functions
+# Navixa — Supabase Edge Functions
 
 The trusted, server-verified game server. Every function runs in Deno, verifies
 the caller's JWT, zod-validates its payload, enforces permissions / match state

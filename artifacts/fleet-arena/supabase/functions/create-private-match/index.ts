@@ -24,8 +24,8 @@ serveJson(async (req) => {
   const row = match as { id: string; invite_code: string };
   const code = row.invite_code;
   // Deep link consumed by the Expo Router app (see app scheme in app.json).
-  const deepLink = `fleetarena://join/${code}`;
-  const universalLink = `https://fleetarena.app/join/${code}`;
+  const deepLink = `navixa://join/${code}`;
+  const universalLink = `https://navixa.app/join/${code}`;
 
   await writeAudit({
     actorId: user.id,

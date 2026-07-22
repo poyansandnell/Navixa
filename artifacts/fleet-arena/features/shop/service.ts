@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — cosmetics shop data access.
+ * Navixa — cosmetics shop data access.
  *
  * Catalog: `cosmetic_items` (public read of non-deleted rows).
  * Ownership: `user_inventory` (owner read). Equipping: `equipped_cosmetics`

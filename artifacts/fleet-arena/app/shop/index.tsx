@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — cosmetics shop.
+ * Navixa — cosmetics shop.
  *
  * Grid of `cosmetic_items` grouped by category, showing ownership + equip state
  * from `user_inventory` / `equipped_cosmetics`. Equipping upserts the (user,

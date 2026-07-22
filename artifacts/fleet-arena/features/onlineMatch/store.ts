@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — online (server-authoritative) match store.
+ * Navixa — online (server-authoritative) match store.
  *
  * Unlike store/game.ts (offline bot), this store never computes shot results.
  * The server is the single source of truth: every shot goes through fire-shot

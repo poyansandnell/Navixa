@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — social OAuth (Apple / Google) stubs.
+ * Navixa — social OAuth (Apple / Google) stubs.
  *
  * ⚠️ NATIVE OAUTH IS NOT WIRED UP YET.
  *

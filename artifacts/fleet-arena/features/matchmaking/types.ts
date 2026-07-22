@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — online-play shared types.
+ * Navixa — online-play shared types.
  *
  * These mirror the Supabase enums (see supabase/migrations) and the Edge
  * Function payloads (see supabase/functions/README.md). They are intentionally

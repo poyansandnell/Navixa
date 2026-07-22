@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — foreground / connectivity reconnect hook for online matches.
+ * Navixa — foreground / connectivity reconnect hook for online matches.
  *
  * Calls `onReconnect` when the app returns to the foreground (AppState 'active')
  * and, when available, when a NetInfo reconnection is observed. NetInfo is

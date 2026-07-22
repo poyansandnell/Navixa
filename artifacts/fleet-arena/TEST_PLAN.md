@@ -1,4 +1,4 @@
-# Fleet Arena — Test Plan
+# Navixa — Test Plan
 
 Combines automated checks with a manual QA matrix. Run automated gates on every
 change; run the manual matrix before a release build.

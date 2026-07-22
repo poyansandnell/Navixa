@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — dev-only tooling helpers.
+ * Navixa — dev-only tooling helpers.
  *
  * These utilities back app/devtools.tsx and MUST only be reachable in
  * development builds (__DEV__). They are intentionally lightweight and never

@@ -1,4 +1,4 @@
-# Fleet Arena — Apple App Store Checklist
+# Navixa — Apple App Store Checklist
 
 Use with [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md). On Replit, iOS builds &
 submission go through **Replit's Expo Launch**; the `eas` commands are the
@@ -7,11 +7,11 @@ outside-Replit equivalents.
 ## Apple accounts
 - [ ] Apple Developer Program enrollment (active).
 - [ ] App record created in App Store Connect.
-- [ ] Bundle ID `com.fleetarena.game` registered and matches `app.json`.
+- [ ] Bundle ID `com.navixa.game` registered and matches `app.json`.
 
 ## App configuration
-- [ ] `app.json`: name "Fleet Arena", `version` = marketing version,
-      `ios.bundleIdentifier` = `com.fleetarena.game`, scheme `fleetarena`.
+- [ ] `app.json`: name "Navixa", `version` = marketing version,
+      `ios.bundleIdentifier` = `com.navixa.game`, scheme `navixa`.
 - [ ] `eas.json` production profile used; `appVersionSource: remote`,
       `autoIncrement` handles the build number.
 - [ ] `ios.supportsTablet` is `false` (phone-only) — confirm intended.

@@ -1,5 +1,5 @@
 /**
- * Fleet Arena — push notifications client.
+ * Navixa — push notifications client.
  *
  * Handles the Expo push permission flow and token registration. The UX rule is
  * to explain the benefit BEFORE prompting for OS permission (see the small

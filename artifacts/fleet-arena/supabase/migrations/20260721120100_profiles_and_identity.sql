@@ -1,5 +1,5 @@
 -- =============================================================================
--- Fleet Arena — 01: Profiles, settings, devices & push tokens
+-- Navixa — 01: Profiles, settings, devices & push tokens
 -- =============================================================================
 -- NOTE: emails live ONLY in auth.users. The public profiles table must never
 -- store or expose email. Client apps read profiles via the anon/authenticated
