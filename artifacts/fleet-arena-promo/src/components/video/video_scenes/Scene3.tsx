@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene3({ currentScene }: { currentScene: number }) {
   // Sink - Ship silhouette destroyed
   return (
@@ -17,7 +19,7 @@ export default function Scene3({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
         >
-          SÄNK.
+          {STR.s3Title}
         </motion.h2>
       </div>
 
@@ -85,7 +87,7 @@ export default function Scene3({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1 }}
         >
-          SLAGSKEPP SÄNKT
+          {STR.s3Sunk}
         </motion.div>
         <motion.div 
           className="absolute bottom-[-40px] font-mono text-xl text-white tracking-widest"
@@ -93,7 +95,7 @@ export default function Scene3({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
         >
-          +500 XP // MATCH VUNNEN
+          {STR.s3Won}
         </motion.div>
       </div>
 

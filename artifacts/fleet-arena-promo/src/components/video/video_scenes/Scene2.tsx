@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene2({ currentScene }: { currentScene: number }) {
   // Grid board / "Skjut."
   const cols = ["A","B","C","D","E","F","G","H","I","J"];
@@ -21,7 +23,7 @@ export default function Scene2({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          ELDA.
+          {STR.s2Title}
         </motion.h2>
         <motion.p
           className="font-mono text-xl md:text-2xl text-white mt-2 tracking-widest uppercase bg-accent/20 px-4 py-1 inline-block border-l-4 border-accent"
@@ -29,7 +31,7 @@ export default function Scene2({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, width: "auto" }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
-          Klassisk bräda. Ny intensitet.
+          {STR.s2Sub}
         </motion.p>
       </div>
 
@@ -114,7 +116,7 @@ export default function Scene2({ currentScene }: { currentScene: number }) {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 4.2 }}
       >
-        MÅL LÅST: E6
+        {STR.s2TargetLocked}
         <motion.div 
           className="absolute top-0 right-0 w-2 h-full bg-accent"
           animate={{ opacity: [1, 0] }} transition={{ repeat: Infinity, duration: 0.2 }}

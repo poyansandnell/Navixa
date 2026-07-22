@@ -9,7 +9,14 @@ import {
 } from 'lucide-react';
 
 import VideoTemplate, { SCENE_DURATIONS } from './VideoTemplate';
+import { LANG } from './i18n';
 import { useSceneControls } from './useSceneControls';
+
+function switchLang() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', LANG === 'sv' ? 'en' : 'sv');
+  window.location.href = url.toString();
+}
 
 const PROGRESS_TICK_MS = 60;
 
@@ -123,6 +130,15 @@ function ControlBar({
         aria-pressed={!muted}
       >
         {muted ? <VolumeX className="w-8 h-8" /> : <Volume2 className="w-8 h-8" />}
+      </button>
+
+      <button
+        onClick={switchLang}
+        className="h-14 px-4 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors rounded-lg shrink-0 font-mono font-bold text-xl tracking-widest"
+        title={LANG === 'sv' ? 'Switch to English' : 'Byt till svenska'}
+        aria-label={LANG === 'sv' ? 'Switch to English' : 'Byt till svenska'}
+      >
+        {LANG === 'sv' ? 'SV' : 'EN'}
       </button>
 
       <div className="w-px self-stretch bg-white/15" aria-hidden="true" />

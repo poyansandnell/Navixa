@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene6({ currentScene }: { currentScene: number }) {
   // Outro "Ladda ner nu"
   return (
@@ -38,9 +40,9 @@ export default function Scene6({ currentScene }: { currentScene: number }) {
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
       >
-        <span className="block font-display font-bold text-xl md:text-3xl text-primary tracking-[0.2em]">HITTA.</span>
-        <span className="block font-display font-bold text-xl md:text-3xl text-accent tracking-[0.2em]">SKJUT.</span>
-        <span className="block font-display font-bold text-xl md:text-3xl text-primary tracking-[0.2em]">SÄNK.</span>
+        <span className="block font-display font-bold text-xl md:text-3xl text-primary tracking-[0.2em]">{STR.taglineWords[0]}</span>
+        <span className="block font-display font-bold text-xl md:text-3xl text-accent tracking-[0.2em]">{STR.taglineWords[1]}</span>
+        <span className="block font-display font-bold text-xl md:text-3xl text-primary tracking-[0.2em]">{STR.taglineWords[2]}</span>
       </motion.div>
 
       <motion.div 
@@ -49,7 +51,7 @@ export default function Scene6({ currentScene }: { currentScene: number }) {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.5, type: "spring" }}
       >
-        Ladda ner nu
+        {STR.s6Download}
       </motion.div>
       
       <motion.p
@@ -58,7 +60,7 @@ export default function Scene6({ currentScene }: { currentScene: number }) {
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
       >
-        TILLGÄNGLIG PÅ iOS & ANDROID
+        {STR.s6Available}
       </motion.p>
       
       {/* Final dramatic flash before loop */}

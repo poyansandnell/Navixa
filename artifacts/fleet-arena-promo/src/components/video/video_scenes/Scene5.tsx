@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene5({ currentScene }: { currentScene: number }) {
   // Quests & Cosmetics "Uppdrag & Belöningar"
   return (
@@ -18,7 +20,7 @@ export default function Scene5({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          UPPDRAG & BELÖNINGAR
+          {STR.s5Title}
         </motion.h2>
         <motion.p
           className="font-mono text-xl text-white mt-2 tracking-widest uppercase border-r-4 border-warning pr-4 inline-block"
@@ -26,7 +28,7 @@ export default function Scene5({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          Lås upp unika skepp och titlar
+          {STR.s5Sub}
         </motion.p>
       </div>
 
@@ -39,12 +41,12 @@ export default function Scene5({ currentScene }: { currentScene: number }) {
           transition={{ delay: 0.6, duration: 0.6 }}
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-secondary/50" />
-          <h3 className="font-mono font-bold text-secondary mb-8 tracking-widest uppercase">Dagliga Uppdrag</h3>
+          <h3 className="font-mono font-bold text-secondary mb-8 tracking-widest uppercase">{STR.s5Daily}</h3>
           
           <div className="space-y-6">
-            <QuestItem delay={0.8} title="SÄNK 5 UBÅTAR" reward="500 XP" progress="3/5" />
-            <QuestItem delay={1.0} title="VINN 3 RANKADE MATCHER" reward="NY TITEL" progress="1/3" />
-            <QuestItem delay={1.2} title="SPELA MOT EN VÄN" reward="200 COINS" progress="KLAR" done />
+            <QuestItem delay={0.8} title={STR.s5Q1} reward="500 XP" progress="3/5" />
+            <QuestItem delay={1.0} title={STR.s5Q2} reward={STR.s5Q2Reward} progress="1/3" />
+            <QuestItem delay={1.2} title={STR.s5Q3} reward="200 COINS" progress={STR.s5Done} done />
           </div>
         </motion.div>
 
@@ -72,7 +74,7 @@ export default function Scene5({ currentScene }: { currentScene: number }) {
               style={{ filter: "invert(1) drop-shadow(0 0 15px #00F0FF)" }}
             />
             <div className="absolute bottom-4 left-6 font-mono text-sm text-primary font-bold uppercase tracking-widest">
-              Låst upp: Cyber-Hangarfartyg
+              {STR.s5Unlocked}
             </div>
           </motion.div>
 
@@ -106,7 +108,7 @@ function QuestItem({ delay, title, reward, progress, done = false }: any) {
     >
       <div>
         <h4 className={`font-display font-bold text-xl tracking-wider ${done ? 'text-primary' : 'text-white'}`}>{title}</h4>
-        <p className="font-mono text-sm text-white/50 mt-1">Belöning: {reward}</p>
+        <p className="font-mono text-sm text-white/50 mt-1">{STR.s5RewardLabel} {reward}</p>
       </div>
       <div className={`font-mono font-bold ${done ? 'text-primary' : 'text-white'}`}>
         {progress}

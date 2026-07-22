@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene0({ currentScene }: { currentScene: number }) {
   // Intro: Fleet Arena logo + Tagline
   return (
@@ -41,7 +43,7 @@ export default function Scene0({ currentScene }: { currentScene: number }) {
       </motion.div>
 
       <motion.div className="flex gap-4 lg:gap-8 mt-6">
-        {["HITTA.", "SKJUT.", "SÄNK."].map((word, i) => (
+        {STR.taglineWords.map((word, i) => (
           <motion.div
             key={word}
             className="overflow-hidden"

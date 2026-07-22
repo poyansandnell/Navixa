@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene4({ currentScene }: { currentScene: number }) {
   // Ranked / Leaderboards "Klättra i rang"
   return (
@@ -17,7 +19,7 @@ export default function Scene4({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          KLÄTTRA I RANG
+          {STR.s4Title}
         </motion.h2>
         <motion.p
           className="font-mono text-2xl text-secondary mt-2 tracking-widest uppercase border-l-4 border-primary pl-4"
@@ -32,16 +34,16 @@ export default function Scene4({ currentScene }: { currentScene: number }) {
       {/* Ranks visualization */}
       <div className="flex items-end justify-center gap-4 md:gap-8 mt-32 w-full h-[400px]">
         {/* Bronze / Ensign */}
-        <RankBar delay={0.6} height="30%" title="FÄNRIK" color="text-[#CD7F32]" bg="bg-[#CD7F32]" points="1200" />
+        <RankBar delay={0.6} height="30%" title={STR.s4Ranks[0]} color="text-[#CD7F32]" bg="bg-[#CD7F32]" points="1200" />
         
         {/* Silver / Lieutenant */}
-        <RankBar delay={0.8} height="50%" title="LÖJTNANT" color="text-[#C0C0C0]" bg="bg-[#C0C0C0]" points="1500" />
+        <RankBar delay={0.8} height="50%" title={STR.s4Ranks[1]} color="text-[#C0C0C0]" bg="bg-[#C0C0C0]" points="1500" />
         
         {/* Gold / Captain */}
-        <RankBar delay={1.0} height="70%" title="KAPTEN" color="text-warning" bg="bg-warning" points="1800" />
+        <RankBar delay={1.0} height="70%" title={STR.s4Ranks[2]} color="text-warning" bg="bg-warning" points="1800" />
         
         {/* Diamond / Admiral */}
-        <RankBar delay={1.2} height="100%" title="AMIRAL" color="text-primary" bg="bg-primary" points="2200+" isTop />
+        <RankBar delay={1.2} height="100%" title={STR.s4Ranks[3]} color="text-primary" bg="bg-primary" points="2200+" isTop />
       </div>
 
       <motion.div 

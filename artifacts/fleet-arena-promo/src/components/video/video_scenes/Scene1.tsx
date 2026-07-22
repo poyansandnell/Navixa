@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import { STR } from '../i18n';
+
 export default function Scene1({ currentScene }: { currentScene: number }) {
   // Matchmaking
   return (
@@ -17,7 +19,7 @@ export default function Scene1({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          SÖK.
+          {STR.s1Title}
         </motion.h2>
         <motion.p
           className="font-mono text-xl md:text-2xl text-secondary mt-4 tracking-widest uppercase"
@@ -25,7 +27,7 @@ export default function Scene1({ currentScene }: { currentScene: number }) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          Global Matchmaking
+          {STR.s1Sub}
         </motion.p>
       </div>
 
@@ -88,7 +90,7 @@ export default function Scene1({ currentScene }: { currentScene: number }) {
             animate={{ opacity: [1, 0] }}
             transition={{ duration: 0.5, delay: 3.5 }}
           >
-            Söker radar...
+            {STR.s1Searching}
           </motion.div>
         </motion.div>
       </div>
