@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import 'tailwindcss';
+
+:root {
+  --color-primary: #00F0FF;     /* Teal/Cyan Accent */
+  --color-secondary: #0088FF;   /* Deep Blue Accent */
+  --color-accent: #FF3366;      /* Warning Red */
+
+  --color-bg-light: #1A2642;    /* Navy Light */
+  --color-bg-dark: #050A15;     /* Deepest Navy */
+  --color-bg-muted: #0B132B;    /* Navy Base */
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #8AA4D7;
+  --color-text-muted: #4A6394;
+  --color-text-inverse: #050A15;
+
+  --color-success: #00F0FF;
+  --color-warning: #FFD700;
+  --color-error: #FF3366;
+
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Space Mono', monospace;
+  --font-mono: 'Space Mono', monospace;
+}
+
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-bg-light: var(--color-bg-light);
+  --color-bg-dark: var(--color-bg-dark);
+  --color-bg-muted: var(--color-bg-muted);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-inverse: var(--color-text-inverse);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+/* Custom text outline utility */
+.text-outline-cyan {
+  -webkit-text-stroke: 1px var(--color-primary);
+  color: transparent;
+}
+.text-outline-red {
+  -webkit-text-stroke: 1px var(--color-accent);
+  color: transparent;
+}
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.5);
+}
+.text-glow-red {
+  text-shadow: 0 0 10px rgba(255, 51, 102, 0.7), 0 0 20px rgba(255, 51, 102, 0.5);
+}

@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "sJ1-iPJhBIrnQ2nlgmSRq"
+uri = "file://artifacts/fleet-arena-promo/public/audio/bg_music.mp3"
+type = "audio"
+title = "background music"

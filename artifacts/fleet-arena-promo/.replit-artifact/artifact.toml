@@ -1,0 +1,27 @@
+kind = "video"
+previewPath = "/fleet-arena-promo/"
+title = "Fleet Arena Promo Video"
+version = "1.0.0"
+id = "artifacts/fleet-arena-promo"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/fleet-arena-promo/" ]
+localPort = 25735
+
+[services.development]
+run = "pnpm --filter @workspace/fleet-arena-promo run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fleet-arena-promo", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/fleet-arena-promo/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25735"
+BASE_PATH = "/fleet-arena-promo/"
