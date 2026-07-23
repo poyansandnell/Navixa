@@ -6,3 +6,9 @@ id = "sJ1-iPJhBIrnQ2nlgmSRq"
 uri = "file://artifacts/navixa-promo/public/audio/bg_music.mp3"
 type = "audio"
 title = "background music"
+
+[[outputs]]
+id = "XwfHV0NLAxyCBnk4EfSi3"
+uri = "file://attached_assets/navixa-expo-qr.png"
+type = "image"
+title = "Navixa – Expo Go QR-kod"
