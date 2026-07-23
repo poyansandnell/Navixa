@@ -14,6 +14,10 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+// We run behind exactly one Replit proxy hop; trust it so req.ip reflects the
+// real client IP (used by rate limiters) rather than the proxy address.
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,

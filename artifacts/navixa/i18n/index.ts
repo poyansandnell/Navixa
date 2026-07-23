@@ -9,6 +9,7 @@ import socialPartial from './partials/social';
 import metaPartial from './partials/meta';
 import adminPartial from './partials/admin';
 import legalDocsPartial from './partials/legalDocs';
+import supportPartial from './partials/support';
 
 /** Deep-merge translation objects (partials extend, never clobber, base namespaces). */
 function mergeDeep(
@@ -46,6 +47,7 @@ const en = mergeDeep(
   metaPartial.en,
   adminPartial.en,
   legalDocsPartial.en,
+  supportPartial.en,
 );
 const sv = mergeDeep(
   svBase,
@@ -54,6 +56,7 @@ const sv = mergeDeep(
   metaPartial.sv,
   adminPartial.sv,
   legalDocsPartial.sv,
+  supportPartial.sv,
 );
 import de from './locales/de.json';
 import es from './locales/es.json';

@@ -72,8 +72,6 @@ const LEGAL_LINKS: { key: string; page: string }[] = [
   { key: 'legal.communityTitle', page: 'community' },
   { key: 'legal.fairPlayTitle', page: 'fair-play' },
   { key: 'legal.dataDeletionTitle', page: 'data-deletion' },
-  { key: 'legal.supportTitle', page: 'support' },
-  { key: 'legal.contactTitle', page: 'contact' },
   { key: 'legal.licensesTitle', page: 'licenses' },
 ];
 
@@ -414,7 +412,22 @@ export default function SettingsScreen() {
 
       <Spacer size="xl" />
 
-      {/* Legal & support */}
+      {/* Support portal (FAQ + contact form) */}
+      <SectionHeader title={t('support.contactHeading')} />
+      <Card>
+        <Pressable
+          accessibilityRole="button"
+          style={styles.linkRow}
+          onPress={() => router.push('/support')}
+        >
+          <Text variant="body">{t('support.title')}</Text>
+          <Feather name="chevron-right" size={iconSize.sm} color={colors.mutedForeground} />
+        </Pressable>
+      </Card>
+
+      <Spacer size="xl" />
+
+      {/* Legal */}
       <SectionHeader title={t('settingsScreen.legal')} />
       <Card>
         {LEGAL_LINKS.map((link, i) => (

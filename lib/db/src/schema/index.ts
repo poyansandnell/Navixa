@@ -8,3 +8,4 @@ export * from "./tournaments";
 export * from "./quests";
 export * from "./notifications";
 export * from "./admin";
+export * from "./support";

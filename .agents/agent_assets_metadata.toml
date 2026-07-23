@@ -12,3 +12,45 @@ id = "XwfHV0NLAxyCBnk4EfSi3"
 uri = "file://attached_assets/navixa-expo-qr.png"
 type = "image"
 title = "Navixa – Expo Go QR-kod"
+
+[[outputs]]
+id = "ZGqIMRq__OgffFWikd7UQ"
+uri = "file://appstore-assets/iphone-1.jpg"
+type = "image"
+title = "iPhone 1 — Sänk skepp. Klättra i rank."
+
+[[outputs]]
+id = "BxMs3WMWhvTjDxqKxwz0M"
+uri = "file://appstore-assets/iphone-2.jpg"
+type = "image"
+title = "iPhone 2 — Utmana dina vänner"
+
+[[outputs]]
+id = "K-PN7enaed2byksVUzo2o"
+uri = "file://appstore-assets/iphone-3.jpg"
+type = "image"
+title = "iPhone 3 — Din tur när det passar dig"
+
+[[outputs]]
+id = "fSMy1cG1h6ANMmEjeStd1"
+uri = "file://appstore-assets/iphone-4.jpg"
+type = "image"
+title = "iPhone 4 — Klättra på topplistan"
+
+[[outputs]]
+id = "HGTuwCkuX4bliuI858mCr"
+uri = "file://appstore-assets/iphone-5.jpg"
+type = "image"
+title = "iPhone 5 — Turneringar varje vecka"
+
+[[outputs]]
+id = "9i5nksHXPJk-Kx2rsRTKz"
+uri = "file://appstore-assets/ipad-1.jpg"
+type = "image"
+title = "iPad 1 — Hela sjöslaget"
+
+[[outputs]]
+id = "W8-l-BFPxh7u9Yfhohzlo"
+uri = "file://appstore-assets/ipad-2.jpg"
+type = "image"
+title = "iPad 2 — Alla dina matcher"

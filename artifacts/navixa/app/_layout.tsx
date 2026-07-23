@@ -90,6 +90,11 @@ function RootLayoutNav() {
     const inAuthGroup = group === '(auth)';
     const inOnboarding = group === 'onboarding';
     const onCompleteProfile = inAuthGroup && segments[1] === 'complete-profile';
+    // Public pages reachable without a session (e.g. the App Store reviewer's
+    // support URL and legal documents served by the web build).
+    const isPublicPage = group === 'support' || group === 'legal';
+
+    if (isPublicPage) return;
 
     if (!onboardingCompleted) {
       if (!inOnboarding) router.replace('/onboarding');

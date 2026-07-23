@@ -1,0 +1,134 @@
+/**
+ * i18n partial — public support portal (`/support`).
+ *
+ * Top-level `support` namespace to avoid collisions with other partials.
+ * Only `en` and `sv` are authored; the other locales fall back to `en`.
+ *
+ * `faq` is a list of {q, a} entries rendered as collapsible items. The FAQ
+ * answers describe how Navixa actually works (auth, daily matches + push,
+ * private matches + invite links, rating/rank, fair play, account/data
+ * deletion, contacts/privacy). `faqCount` drives how many `q{n}`/`a{n}` pairs
+ * the screen reads.
+ */
+export default {
+  en: {
+    support: {
+      title: 'Support & help',
+      subtitle: 'Find answers fast, or send us a message — we read every ticket.',
+      faqHeading: 'Frequently asked questions',
+      contactHeading: 'Contact us',
+      contactIntro:
+        'Can’t find what you need? Send us a message and we’ll get back to you by email.',
+      faqCount: '9',
+      faq: {
+        q1: 'How do I sign in or create an account?',
+        a1: 'Navixa uses a secure sign-in with your email (and optional Google sign-in where available). On first launch you complete onboarding, sign in, and pick a username to finish your profile. Your session stays signed in on the device until you log out from Settings.',
+        q2: 'How do daily matches and notifications work?',
+        a2: 'Daily matches are slow-paced games where each player has a long window (not a live clock) to take their turn. When it becomes your turn — or a match ends — we send a push notification. Tapping it opens the app straight to that match. You can turn match and turn notifications on or off under Settings → Notifications.',
+        q3: 'How do private matches and invite links work?',
+        a3: 'Open Play → Private match to create a game. You get a short code plus a shareable link. Send the link (or code) to a friend with “Share link”; when they open it, Navixa joins them straight into your match. If they aren’t signed in yet, the invite resumes automatically after they log in. Friends can also join manually by entering the code.',
+        q4: 'What’s the difference between blitz and daily pace?',
+        a4: 'Blitz matches run on a live per-turn clock for a fast back-and-forth in one sitting. Daily matches give each side a long time to move, so you can play several games in parallel over the day. You pick the pace when you start matchmaking or create a private match.',
+        q5: 'How does rating and rank work?',
+        a5: 'Ranked online matches update your rating based on the result and your opponent’s strength — win and it goes up, lose and it goes down. Your rating maps to a rank/division shown on your profile and the leaderboard. Casual, private and bot matches don’t affect your rating.',
+        q6: 'How do you keep matches fair and prevent cheating?',
+        a6: 'Every online match is server-authoritative: the server owns the board, validates each shot, and never reveals your opponent’s ship positions to your device. Turn timers, move validation and idempotent shots stop tampering and duplicate moves. If you spot suspicious behaviour, report it from the match or contact us here.',
+        q7: 'How do I delete my account and data?',
+        a7: 'Go to Settings → Account. “Export data” gives you a copy of your data, and “Delete account” permanently removes your account and associated data. Deletion is irreversible. You can also read the full details on the Data deletion page under Settings → Legal.',
+        q8: 'How does contact matching and privacy work?',
+        a8: 'Finding friends from your contacts is opt-in. If you allow it, contact email addresses are hashed on your device and only the hashes are sent to match against existing players — the raw addresses never leave your phone in plain text. You can invite contacts who don’t have Navixa yet with a share link.',
+        q9: 'The app isn’t working as expected — what should I do?',
+        a9: 'First, make sure you’re on the latest version and have a stable connection; online matches reconnect automatically when your network returns. If a problem persists, send us a message below with your username and a short description (and screenshots if you can) so we can investigate.',
+      },
+      form: {
+        name: 'Your name',
+        namePlaceholder: 'Admiral Nelson',
+        email: 'Email',
+        emailPlaceholder: 'you@example.com',
+        category: 'Category',
+        subject: 'Subject',
+        subjectPlaceholder: 'Short summary',
+        message: 'Message',
+        messagePlaceholder: 'Describe your question or issue…',
+        submit: 'Send message',
+        sending: 'Sending…',
+        categories: {
+          account: 'Account & sign-in',
+          gameplay: 'Gameplay & matches',
+          billing: 'Purchases & billing',
+          bug: 'Bug report',
+          privacy: 'Privacy & data',
+          other: 'Something else',
+        },
+        errorEmail: 'Please enter a valid email address.',
+        errorMessage: 'Please enter a message (at least a few words).',
+        successTitle: 'Message sent',
+        successBody:
+          'Thanks — we’ve received your message and will reply to your email as soon as we can.',
+        errorTitle: 'Couldn’t send',
+        errorBody: 'Something went wrong sending your message. Please try again in a moment.',
+        sendAnother: 'Send another message',
+      },
+    },
+  },
+  sv: {
+    support: {
+      title: 'Support & hjälp',
+      subtitle: 'Hitta svar snabbt, eller skicka ett meddelande — vi läser varje ärende.',
+      faqHeading: 'Vanliga frågor',
+      contactHeading: 'Kontakta oss',
+      contactIntro:
+        'Hittar du inte det du söker? Skicka ett meddelande så återkommer vi via e-post.',
+      faqCount: '9',
+      faq: {
+        q1: 'Hur loggar jag in eller skapar ett konto?',
+        a1: 'Navixa använder en säker inloggning med din e-post (och Google-inloggning där det finns). Vid första starten går du igenom introduktionen, loggar in och väljer ett användarnamn för att slutföra din profil. Din session förblir inloggad på enheten tills du loggar ut under Inställningar.',
+        q2: 'Hur fungerar dagliga matcher och notiser?',
+        a2: 'Dagliga matcher är lugna spel där varje spelare har ett långt tidsfönster (ingen live-klocka) för att göra sitt drag. När det blir din tur — eller när en match avslutas — skickar vi en notis. Trycker du på den öppnas appen direkt i matchen. Du kan slå på eller av match- och tur-notiser under Inställningar → Notiser.',
+        q3: 'Hur fungerar privata matcher och inbjudningslänkar?',
+        a3: 'Öppna Spela → Privat match för att skapa ett spel. Du får en kort kod och en delbar länk. Skicka länken (eller koden) till en vän med ”Dela länk”; när de öppnar den ansluter Navixa dem direkt till din match. Om de inte är inloggade ännu återupptas inbjudan automatiskt efter inloggning. Vänner kan också ansluta manuellt genom att ange koden.',
+        q4: 'Vad är skillnaden mellan blixt- och dagligt tempo?',
+        a4: 'Blixtmatcher har en live-klocka per drag för ett snabbt spel i en och samma session. Dagliga matcher ger varje sida lång tid att dra, så du kan spela flera matcher parallellt under dagen. Du väljer tempo när du startar matchning eller skapar en privat match.',
+        q5: 'Hur fungerar rating och rank?',
+        a5: 'Rankade onlinematcher uppdaterar din rating utifrån resultatet och motståndarens styrka — vinner du går den upp, förlorar du går den ner. Din rating motsvarar en rank/division som visas på din profil och topplistan. Vänskaps-, privata och botmatcher påverkar inte din rating.',
+        q6: 'Hur håller ni matcherna rättvisa och motverkar fusk?',
+        a6: 'Varje onlinematch styrs av servern: servern äger spelplanen, validerar varje skott och avslöjar aldrig motståndarens skeppspositioner för din enhet. Turtimers, dragvalidering och idempotenta skott hindrar manipulation och dubbla drag. Ser du misstänkt beteende kan du rapportera det från matchen eller kontakta oss här.',
+        q7: 'Hur raderar jag mitt konto och min data?',
+        a7: 'Gå till Inställningar → Konto. ”Exportera data” ger dig en kopia av din data, och ”Radera konto” tar permanent bort ditt konto och tillhörande data. Raderingen kan inte ångras. Du kan även läsa alla detaljer på sidan Radering av data under Inställningar → Juridik.',
+        q8: 'Hur fungerar kontaktmatchning och integritet?',
+        a8: 'Att hitta vänner via dina kontakter är frivilligt. Om du tillåter det hashas kontakternas e-postadresser på din enhet och endast hasharna skickas för att matchas mot befintliga spelare — de råa adresserna lämnar aldrig din telefon i klartext. Du kan bjuda in kontakter som inte har Navixa än med en delningslänk.',
+        q9: 'Appen fungerar inte som väntat — vad gör jag?',
+        a9: 'Kontrollera först att du har senaste versionen och en stabil anslutning; onlinematcher återansluter automatiskt när nätet kommer tillbaka. Kvarstår problemet, skicka ett meddelande nedan med ditt användarnamn och en kort beskrivning (gärna skärmbilder) så att vi kan undersöka.',
+      },
+      form: {
+        name: 'Ditt namn',
+        namePlaceholder: 'Amiral Nelson',
+        email: 'E-post',
+        emailPlaceholder: 'du@exempel.se',
+        category: 'Kategori',
+        subject: 'Ämne',
+        subjectPlaceholder: 'Kort sammanfattning',
+        message: 'Meddelande',
+        messagePlaceholder: 'Beskriv din fråga eller ditt problem…',
+        submit: 'Skicka meddelande',
+        sending: 'Skickar…',
+        categories: {
+          account: 'Konto & inloggning',
+          gameplay: 'Spel & matcher',
+          billing: 'Köp & betalning',
+          bug: 'Buggrapport',
+          privacy: 'Integritet & data',
+          other: 'Något annat',
+        },
+        errorEmail: 'Ange en giltig e-postadress.',
+        errorMessage: 'Skriv ett meddelande (åtminstone några ord).',
+        successTitle: 'Meddelande skickat',
+        successBody:
+          'Tack — vi har tagit emot ditt meddelande och svarar via din e-post så snart vi kan.',
+        errorTitle: 'Kunde inte skicka',
+        errorBody: 'Något gick fel när meddelandet skulle skickas. Försök igen om en stund.',
+        sendAnother: 'Skicka ett till meddelande',
+      },
+    },
+  },
+} as const;

@@ -11,6 +11,7 @@ import tournamentsRouter from "./tournaments";
 import notificationsRouter from "./notifications";
 import accountRouter from "./account";
 import adminRouter from "./admin";
+import supportRouter from "./support";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use("/tournaments", tournamentsRouter);
 router.use("/notifications", notificationsRouter);
 router.use("/account", accountRouter);
 router.use("/admin", adminRouter);
+router.use("/support", supportRouter);
 
 export default router;

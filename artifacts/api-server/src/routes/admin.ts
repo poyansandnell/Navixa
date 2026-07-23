@@ -17,6 +17,7 @@ import {
   dailyQuestsTable,
   cosmeticItemsTable,
   matchesTable,
+  supportTicketsTable,
 } from "@workspace/db";
 import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
 import { asyncHandler, parseBody } from "../lib/http";
@@ -48,6 +49,15 @@ const handlers: Record<string, Handler> = {
       .where(ilike(profilesTable.username, `%${query}%`))
       .limit(limit);
     return { users };
+  },
+
+  async list_support_tickets() {
+    const tickets = await db
+      .select()
+      .from(supportTicketsTable)
+      .orderBy(desc(supportTicketsTable.createdAt))
+      .limit(100);
+    return { tickets };
   },
 
   async get_user_status(payload) {

@@ -36,20 +36,31 @@ Replit; they are not run in this environment.
 - [ ] (Optional) Sentry DSN set.
 
 ### 3a. Production URLs (web build @ `https://sanka-skepp.replit.app`)
-Legal/support pages are served by the Expo **web** build via the dynamic route
-`app/legal/[page].tsx`. Exact URLs:
+The **marketing URL** and **support URL** below are the App Store Connect /
+Play Console fields.
+- **Marketing URL:** `https://sanka-skepp.replit.app`
+- **Support URL:** `https://sanka-skepp.replit.app/support`
+  (public **support portal** — FAQ + contact form served by the Expo web build
+  at `app/support.tsx`; posts to `POST /api/support/tickets`).
+
+Support is handled entirely through the **support portal form** — no support
+mailbox is required. The old `/legal/support` and `/legal/contact` URLs now
+**redirect to `/support`**, so existing links keep working.
+
+Legal/policy pages are served by the web build via `app/legal/[page].tsx`:
 - Privacy policy: `https://sanka-skepp.replit.app/legal/privacy`
 - Terms of service: `https://sanka-skepp.replit.app/legal/terms`
 - Community rules: `https://sanka-skepp.replit.app/legal/community`
 - Fair play: `https://sanka-skepp.replit.app/legal/fair-play`
 - Data deletion: `https://sanka-skepp.replit.app/legal/data-deletion`
-- Support: `https://sanka-skepp.replit.app/legal/support`
-- Contact: `https://sanka-skepp.replit.app/legal/contact`
 - Licenses: `https://sanka-skepp.replit.app/legal/licenses`
-- [ ] Support contact e-mail: set `EXPO_PUBLIC_SUPPORT_EMAIL`
-      (**placeholder** today: `support@example.com` — replace before submission).
-- [ ] Set `EXPO_PUBLIC_WEBSITE_URL=https://sanka-skepp.replit.app` so
-      support/contact/licenses actions resolve to the live domain.
+- Support (redirects → `/support`): `https://sanka-skepp.replit.app/legal/support`
+- Contact (redirects → `/support`): `https://sanka-skepp.replit.app/legal/contact`
+- [ ] Support: **portal (form) — no mailbox needed**. Ensure the api-server
+      exposes `POST /api/support/tickets` (`{ email, subject, message, category }`)
+      and routes tickets somewhere the team monitors.
+- [ ] Set `EXPO_PUBLIC_WEBSITE_URL=https://sanka-skepp.replit.app` so the
+      licenses action resolves to the live domain.
 
 ### 3b. Invite / universal links
 - Server (`artifacts/api-server`) emits per-match links:
@@ -108,8 +119,10 @@ These require accounts/artwork and cannot be done from code:
       Launch flow for iOS.
 - [ ] **App Store Connect** app record: name, subtitle, description, keywords,
       category, age rating, privacy "nutrition labels" (contacts are hashed
-      on-device; declare accordingly), support + marketing URLs (use the §3a
-      legal URLs).
+      on-device; declare accordingly). Set **Marketing URL** =
+      `https://sanka-skepp.replit.app` and **Support URL** =
+      `https://sanka-skepp.replit.app/support` (see §3a). The support portal
+      includes a FAQ + contact form, so no support mailbox is needed.
 - [ ] **Screenshots** for required device sizes (6.7"/6.5" iPhone, iPad if
       later enabled; Play phone/tablet) — **not generated; needs real artwork.**
 - [ ] Serve the **AASA** + **assetlinks.json** files on the web deployment

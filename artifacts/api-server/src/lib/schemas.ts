@@ -151,6 +151,15 @@ export const contactMatchSchema = z.object({
     .max(500),
 });
 
+export const supportTicketSchema = z.object({
+  email: z.string().trim().email().max(320),
+  subject: z.string().trim().min(1).max(120),
+  message: z.string().trim().min(1).max(2000),
+  category: z
+    .enum(["question", "bug", "account", "payment", "other"])
+    .default("other"),
+});
+
 export const searchUsersQuerySchema = z.object({
   q: z.string().trim().min(1).max(48),
   limit: z.coerce.number().int().min(1).max(50).default(20),

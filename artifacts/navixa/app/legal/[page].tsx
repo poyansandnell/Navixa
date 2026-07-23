@@ -17,7 +17,7 @@
 import React from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { useColors } from '@/hooks/useColors';
@@ -75,6 +75,12 @@ export default function LegalPageScreen() {
   const { page } = useLocalSearchParams<{ page: string }>();
   const { t } = useTranslation();
   const colors = useColors();
+
+  // The old support/contact pages now live in the dedicated /support portal
+  // (FAQ + contact form). Redirect so existing links keep working.
+  if (page === 'support' || page === 'contact') {
+    return <Redirect href="/support" />;
+  }
 
   const config = (page && PAGES[page as LegalPage]) || null;
 
