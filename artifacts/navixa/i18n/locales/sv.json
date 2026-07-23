@@ -96,9 +96,6 @@
     "matchHistory": "Matchhistorik",
     "settings": "Inställningar",
     "account": "Konto",
-    "guestBadge": "Gäst",
-    "guestUpgradeTitle": "Du spelar som gäst",
-    "guestUpgradeBody": "Skapa ett konto för att spara din rating, statistik och matchhistorik på alla enheter.",
     "logout": "Logga ut",
     "logoutConfirmTitle": "Logga ut?",
     "logoutConfirmBody": "Du behöver logga in igen för att fortsätta."
@@ -122,10 +119,9 @@
     },
     "getStarted": {
       "title": "Gå med i flottan",
-      "subtitle": "Skapa ett konto eller hoppa in direkt som gäst.",
+      "subtitle": "Skapa ett gratis konto för att börja spela.",
       "createAccount": "Skapa konto",
       "logIn": "Logga in",
-      "guest": "Fortsätt som gäst",
       "terms": "Jag accepterar användarvillkoren och integritetspolicyn"
     }
   },
@@ -162,15 +158,6 @@
       "haveAccount": "Har du redan ett konto?",
       "checkEmailTitle": "Kolla din e-post",
       "checkEmailBody": "Vi skickade en bekräftelselänk till {{email}}. Bekräfta den för att slutföra registreringen."
-    },
-    "magicLink": {
-      "title": "Magisk länk",
-      "action": "Mejla mig en magisk länk",
-      "heading": "Logga in med en magisk länk",
-      "subtitle": "Vi mejlar en länk som loggar in dig — inget lösenord behövs.",
-      "submit": "Skicka magisk länk",
-      "sentTitle": "Länk skickad",
-      "sentBody": "Kolla {{email}} och tryck på länken för att logga in."
     },
     "verify": {
       "heading": "Verifiera din e-post",

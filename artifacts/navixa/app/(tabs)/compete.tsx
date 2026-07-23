@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { useColors } from '@/hooks/useColors';
 import { iconSize, radii, spacing } from '@/constants/theme';
 import { useAuth } from '@/features/auth';
-import { useIsGuest } from '@/hooks/useIsGuest';
 import {
   Badge,
   Button,
@@ -59,7 +58,6 @@ export default function CompeteScreen() {
   const { t } = useTranslation();
   const colors = useColors();
   const { user } = useAuth();
-  const isGuest = useIsGuest();
 
   const [loading, setLoading] = useState(true);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -108,13 +106,7 @@ export default function CompeteScreen() {
   );
 
   const handleRegister = async (tn: Tournament) => {
-    if (isGuest || !user) {
-      showAlert(t('competeMeta.guestBlockedTitle'), t('competeMeta.guestBlockedBody'), [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('onboarding.getStarted.createAccount'), onPress: () => router.push('/(auth)/sign-up') },
-      ]);
-      return;
-    }
+    if (!user) return;
     setBusyId(tn.id);
     try {
       if (isRegistered(tn.id)) {
@@ -251,11 +243,9 @@ export default function CompeteScreen() {
           <Spacer size="xl" />
 
           <SectionHeader title={t('competeMeta.dailyQuests')} />
-          {isGuest || !user ? (
+          {!user ? (
             <Card>
-              <Text variant="subhead" color="muted">
-                {t('competeMeta.guestBlockedBody')}
-              </Text>
+              <EmptyState icon="target" title={t('competeMeta.noQuests')} />
             </Card>
           ) : allQuests.length > 0 ? (
             <View style={styles.list}>

@@ -7,8 +7,8 @@
  * `session` / `initializing` (and `hasProfile`) to decide between the
  * onboarding/auth stack and the (tabs) stack.
  *
- * Guest / anonymous sessions are no longer supported, so `isGuest` is always
- * false; it is retained only to avoid churning every consumer.
+ * Authentication is account-only: email/password or Google via Clerk. Guest /
+ * anonymous sessions and magic-link sign-in are not supported.
  */
 import React, {
   createContext,
@@ -37,8 +37,6 @@ interface AuthContextValue {
   user: AuthUser | null;
   /** True while Clerk is loading or the profile is being restored. */
   initializing: boolean;
-  /** Retained for compatibility — always false (guest sessions removed). */
-  isGuest: boolean;
   /** The app profile from GET /api/profile/me, or null when not bootstrapped. */
   profile: ProfileRow | null;
   /** True once the profile has been fetched (created via bootstrap). */
@@ -101,7 +99,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session: isSignedIn && userId ? { userId } : null,
       user: isSignedIn && userId ? { id: userId, email } : null,
       initializing: !isLoaded || (isSignedIn ? !profileChecked : false),
-      isGuest: false,
       profile,
       hasProfile: profile !== null,
       profileLoading,

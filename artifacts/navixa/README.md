@@ -180,9 +180,9 @@ development / standalone build** — it is a safe no-op in Expo Go and on web.
 
 Auth is handled by **Clerk** (Replit-managed tenant) with custom in-app
 sign-in/sign-up screens. **Email/password and Google** (Clerk SSO, gated by
-`SOCIAL_AUTH_ENABLED = true` in `features/auth/oauth.ts`) work today.
-**Apple Sign-In is not wired up**, and **anonymous/guest and magic-link login
-were removed**. In Expo Go the Google SSO redirect works via the Expo auth
+`SOCIAL_AUTH_ENABLED = true` in `features/auth/oauth.ts`) are the **only**
+supported sign-in methods — a real account is always required. **Apple Sign-In
+is not wired up.** In Expo Go the Google SSO redirect works via the Expo auth
 proxy; a standalone build needs the app scheme registered as a Clerk redirect
 URL.
 

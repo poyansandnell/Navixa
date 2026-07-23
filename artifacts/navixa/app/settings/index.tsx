@@ -25,7 +25,6 @@ import { SUPPORTED_LANGUAGES } from '@/i18n';
 import { useAuth as useClerkAuth } from '@clerk/expo';
 import { authService, useAuth } from '@/features/auth';
 import { disconnectSocket } from '@/lib/socket';
-import { useIsGuest } from '@/hooks/useIsGuest';
 import {
   Badge,
   Button,
@@ -121,7 +120,6 @@ export default function SettingsScreen() {
   const colors = useColors();
   const { user } = useAuth();
   const { signOut } = useClerkAuth();
-  const isGuest = useIsGuest();
   const settings = useSettingsStore();
   const { showCountry, setShowCountry } = useLocalPrivacyStore();
 
@@ -130,14 +128,14 @@ export default function SettingsScreen() {
   const [busy, setBusy] = useState<'export' | 'delete' | 'logout' | null>(null);
 
   const load = useCallback(async () => {
-    if (!user || isGuest) return;
+    if (!user) return;
     const [s, b] = await Promise.all([
       fetchUserSettings(user.id),
       fetchBlockedUsers(user.id),
     ]);
     setServerSettings(s);
     setBlocked(b);
-  }, [user, isGuest]);
+  }, [user]);
 
   useEffect(() => {
     void load();
@@ -320,95 +318,82 @@ export default function SettingsScreen() {
         <SwitchRow label={t('settingsScreen.confirmShot')} value={settings.confirmShot} onValueChange={settings.setConfirmShot} />
       </Card>
 
-      {isGuest ? (
-        <>
-          <Spacer size="lg" />
-          <Card>
-            <Text variant="subhead" color="muted">
-              {t('settingsScreen.guestNotice')}
-            </Text>
-          </Card>
-        </>
-      ) : (
-        <>
-          <Spacer size="xl" />
+      <Spacer size="xl" />
 
-          {/* Push notifications */}
-          <SectionHeader title={t('settingsScreen.notifications')} />
-          <Card>
-            <SwitchRow
-              label={t('settingsScreen.pushMatches')}
-              value={serverSettings?.push_matches ?? true}
-              onValueChange={(v) => updateServer('push_matches', v)}
-            />
-            <Divider />
-            <SwitchRow
-              label={t('settingsScreen.pushTurns')}
-              value={serverSettings?.push_turns ?? true}
-              onValueChange={(v) => updateServer('push_turns', v)}
-            />
-            <Divider />
-            <SwitchRow
-              label={t('settingsScreen.pushSocial')}
-              value={serverSettings?.push_social ?? true}
-              onValueChange={(v) => updateServer('push_social', v)}
-            />
-            <Divider />
-            <SwitchRow
-              label={t('settingsScreen.pushMarketing')}
-              value={serverSettings?.push_marketing ?? false}
-              onValueChange={(v) => updateServer('push_marketing', v)}
-            />
-          </Card>
+      {/* Push notifications */}
+      <SectionHeader title={t('settingsScreen.notifications')} />
+      <Card>
+        <SwitchRow
+          label={t('settingsScreen.pushMatches')}
+          value={serverSettings?.push_matches ?? true}
+          onValueChange={(v) => updateServer('push_matches', v)}
+        />
+        <Divider />
+        <SwitchRow
+          label={t('settingsScreen.pushTurns')}
+          value={serverSettings?.push_turns ?? true}
+          onValueChange={(v) => updateServer('push_turns', v)}
+        />
+        <Divider />
+        <SwitchRow
+          label={t('settingsScreen.pushSocial')}
+          value={serverSettings?.push_social ?? true}
+          onValueChange={(v) => updateServer('push_social', v)}
+        />
+        <Divider />
+        <SwitchRow
+          label={t('settingsScreen.pushMarketing')}
+          value={serverSettings?.push_marketing ?? false}
+          onValueChange={(v) => updateServer('push_marketing', v)}
+        />
+      </Card>
 
-          <Spacer size="xl" />
+      <Spacer size="xl" />
 
-          {/* Privacy */}
-          <SectionHeader title={t('settingsScreen.privacy')} />
-          <Card>
-            <SwitchRow
-              label={t('settingsScreen.showOnlineStatus')}
-              value={serverSettings?.show_online_status ?? true}
-              onValueChange={(v) => updateServer('show_online_status', v)}
-            />
-            <Divider />
-            <SwitchRow
-              label={t('settingsScreen.showCountry')}
-              value={showCountry}
-              onValueChange={setShowCountry}
-            />
-          </Card>
+      {/* Privacy */}
+      <SectionHeader title={t('settingsScreen.privacy')} />
+      <Card>
+        <SwitchRow
+          label={t('settingsScreen.showOnlineStatus')}
+          value={serverSettings?.show_online_status ?? true}
+          onValueChange={(v) => updateServer('show_online_status', v)}
+        />
+        <Divider />
+        <SwitchRow
+          label={t('settingsScreen.showCountry')}
+          value={showCountry}
+          onValueChange={setShowCountry}
+        />
+      </Card>
 
-          <Spacer size="xl" />
+      <Spacer size="xl" />
 
-          {/* Blocked users */}
-          <SectionHeader title={t('settingsScreen.blockedUsers')} />
-          <Card>
-            {blocked.length === 0 ? (
-              <Text variant="subhead" color="muted">
-                {t('settingsScreen.noBlockedUsers')}
-              </Text>
-            ) : (
-              blocked.map((b, i) => (
-                <View key={b.blocked_id}>
-                  {i > 0 ? <Divider /> : null}
-                  <View style={styles.settingRow}>
-                    <Text variant="body">
-                      {b.display_name ?? b.username ?? b.blocked_id.slice(0, 8)}
-                    </Text>
-                    <Button
-                      label={t('settingsScreen.unblock')}
-                      size="sm"
-                      variant="ghost"
-                      onPress={() => handleUnblock(b)}
-                    />
-                  </View>
-                </View>
-              ))
-            )}
-          </Card>
-        </>
-      )}
+      {/* Blocked users */}
+      <SectionHeader title={t('settingsScreen.blockedUsers')} />
+      <Card>
+        {blocked.length === 0 ? (
+          <Text variant="subhead" color="muted">
+            {t('settingsScreen.noBlockedUsers')}
+          </Text>
+        ) : (
+          blocked.map((b, i) => (
+            <View key={b.blocked_id}>
+              {i > 0 ? <Divider /> : null}
+              <View style={styles.settingRow}>
+                <Text variant="body">
+                  {b.display_name ?? b.username ?? b.blocked_id.slice(0, 8)}
+                </Text>
+                <Button
+                  label={t('settingsScreen.unblock')}
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => handleUnblock(b)}
+                />
+              </View>
+            </View>
+          ))
+        )}
+      </Card>
 
       <Spacer size="xl" />
 
@@ -449,19 +434,15 @@ export default function SettingsScreen() {
 
       {/* Account */}
       <SectionHeader title={t('settingsScreen.account')} />
-      {!isGuest ? (
-        <>
-          <Button
-            label={t('settingsScreen.exportData')}
-            icon="download"
-            variant="ghost"
-            fullWidth
-            loading={busy === 'export'}
-            onPress={handleExport}
-          />
-          <Spacer size="sm" />
-        </>
-      ) : null}
+      <Button
+        label={t('settingsScreen.exportData')}
+        icon="download"
+        variant="ghost"
+        fullWidth
+        loading={busy === 'export'}
+        onPress={handleExport}
+      />
+      <Spacer size="sm" />
       <Button
         testID="settings-logout"
         label={t('settingsScreen.logout')}
@@ -471,20 +452,16 @@ export default function SettingsScreen() {
         loading={busy === 'logout'}
         onPress={handleLogout}
       />
-      {!isGuest ? (
-        <>
-          <Spacer size="sm" />
-          <Button
-            testID="settings-delete"
-            label={t('settingsScreen.deleteAccount')}
-            icon="trash-2"
-            variant="ghost"
-            fullWidth
-            loading={busy === 'delete'}
-            onPress={handleDelete}
-          />
-        </>
-      ) : null}
+      <Spacer size="sm" />
+      <Button
+        testID="settings-delete"
+        label={t('settingsScreen.deleteAccount')}
+        icon="trash-2"
+        variant="ghost"
+        fullWidth
+        loading={busy === 'delete'}
+        onPress={handleDelete}
+      />
 
       <Spacer size="xl" />
 

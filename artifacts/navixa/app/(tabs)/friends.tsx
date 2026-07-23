@@ -14,7 +14,6 @@ import { useTranslation } from 'react-i18next';
 import { useColors } from '@/hooks/useColors';
 import { iconSize, radii, spacing } from '@/constants/theme';
 import { useAuth } from '@/features/auth';
-import { useIsGuest } from '@/hooks/useIsGuest';
 import {
   Badge,
   Button,
@@ -48,7 +47,6 @@ export default function FriendsScreen() {
   const { t } = useTranslation();
   const colors = useColors();
   const { user, profile } = useAuth();
-  const isGuest = useIsGuest();
   const selfId = user?.id ?? null;
 
   const [friends, setFriends] = useState<FriendEntry[]>([]);
@@ -81,11 +79,11 @@ export default function FriendsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (selfId && !isGuest) {
+      if (selfId) {
         void touchPresence(selfId);
         void load();
       }
-    }, [selfId, isGuest, load]),
+    }, [selfId, load]),
   );
 
   // Debounced search.
@@ -207,31 +205,6 @@ export default function FriendsScreen() {
       },
     ]);
   };
-
-  if (isGuest) {
-    return (
-      <Screen testID="friends-screen">
-        <Text variant="h1">{t('friends.title')}</Text>
-        <Text variant="subhead" color="muted">
-          {t('friends.subtitle')}
-        </Text>
-        <Spacer size="xl" />
-        <Card>
-          <Text variant="title">{t('profile.guestUpgradeTitle')}</Text>
-          <Spacer size="xs" />
-          <Text variant="subhead" color="muted">
-            {t('profile.guestUpgradeBody')}
-          </Text>
-          <Spacer size="md" />
-          <Button
-            label={t('onboarding.getStarted.createAccount')}
-            fullWidth
-            onPress={() => router.push('/(auth)/sign-up')}
-          />
-        </Card>
-      </Screen>
-    );
-  }
 
   return (
     <Screen testID="friends-screen">

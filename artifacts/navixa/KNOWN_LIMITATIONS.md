@@ -13,13 +13,14 @@ receipt validation. See `features/shop/service.ts`.
 
 ## 2. Apple Sign-In is not wired up
 Auth is handled by **Clerk**. **Email/password and Google** (Clerk SSO, gated by
-`SOCIAL_AUTH_ENABLED = true` in `features/auth/oauth.ts`) work today. **Apple
-Sign-In is not implemented** (`oauth.ts` handles Google only). Enabling Apple
-would require: (a) a custom **development build** with the native auth module,
-(b) Apple provider config in the Clerk dashboard, and (c) native entitlements /
-URL schemes in `app.json`. **Anonymous/guest and magic-link login were
-removed.** In Expo Go the Google SSO redirect works via the Expo auth proxy; a
-standalone build needs the app scheme registered as a Clerk redirect URL.
+`SOCIAL_AUTH_ENABLED = true` in `features/auth/oauth.ts`) are the **only**
+supported sign-in methods — a real account is always required (no guest/anonymous
+mode, no magic-link sign-in). **Apple Sign-In is not implemented** (`oauth.ts`
+handles Google only). Enabling Apple would require: (a) a custom **development
+build** with the native auth module, (b) Apple provider config in the Clerk
+dashboard, and (c) native entitlements / URL schemes in `app.json`. In Expo Go
+the Google SSO redirect works via the Expo auth proxy; a standalone build needs
+the app scheme registered as a Clerk redirect URL.
 
 ## 3. Push notifications require a development build
 Remote push (`features/notifications/`) needs a custom dev/standalone build.

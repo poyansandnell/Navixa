@@ -96,9 +96,6 @@
     "matchHistory": "Match history",
     "settings": "Settings",
     "account": "Account",
-    "guestBadge": "Guest",
-    "guestUpgradeTitle": "You're playing as a guest",
-    "guestUpgradeBody": "Create an account to save your rating, stats and match history across devices.",
     "logout": "Log out",
     "logoutConfirmTitle": "Log out?",
     "logoutConfirmBody": "You'll need to sign in again to continue."
@@ -122,10 +119,9 @@
     },
     "getStarted": {
       "title": "Join the fleet",
-      "subtitle": "Create an account or jump straight in as a guest.",
+      "subtitle": "Create a free account to start playing.",
       "createAccount": "Create account",
       "logIn": "Log in",
-      "guest": "Continue as guest",
       "terms": "I accept the Terms of Service and Privacy Policy"
     }
   },
@@ -162,15 +158,6 @@
       "haveAccount": "Already have an account?",
       "checkEmailTitle": "Check your email",
       "checkEmailBody": "We sent a confirmation link to {{email}}. Confirm it to finish creating your account."
-    },
-    "magicLink": {
-      "title": "Magic link",
-      "action": "Email me a magic link",
-      "heading": "Sign in with a magic link",
-      "subtitle": "We'll email you a link that signs you in — no password needed.",
-      "submit": "Send magic link",
-      "sentTitle": "Link sent",
-      "sentBody": "Check {{email}} and tap the link to sign in."
     },
     "verify": {
       "heading": "Verify your email",

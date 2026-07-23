@@ -37,12 +37,12 @@ export default {
           body: 'Navixa is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is [COMPANY_NAME], [COMPANY_ADDRESS]. For any privacy question you can reach us at [SUPPORT_EMAIL].',
         },
         s2: {
-          heading: 'Playing as a guest',
-          body: 'You can play Navixa without creating an account. When you play as a guest we generate an anonymous device-scoped identifier so we can save your progress and match you with opponents. A guest identity is not linked to an email address. If you later create an account, your guest progress can be associated with that account.',
+          heading: 'Accounts and sign-in',
+          body: 'Playing Navixa requires an account. You sign in with an email address and password, or with Google, through our authentication provider (Clerk). We use your account identifier to save your progress, match you with opponents and keep you signed in across devices. There is no guest or anonymous mode.',
         },
         s3: {
           heading: 'Data we collect',
-          body: 'Account: your email address (only if you register — it is stored by our authentication provider and is never shown to other players). Profile: display name and, optionally, a country and short bio, plus a chosen avatar or cosmetic. Gameplay: matches, moves, results, ratings and rating history, quests, achievements and cosmetic inventory. Settings: your preferences such as sound, music, haptics, motion, language and notification opt-ins. Technical: anonymous or account identifiers, session tokens stored on your device to keep you signed in, and — only if you opt in — a push notification token for your device.',
+          body: 'Account: your email address (stored by our authentication provider and never shown to other players). Profile: display name and, optionally, a country and short bio, plus a chosen avatar or cosmetic. Gameplay: matches, moves, results, ratings and rating history, quests, achievements and cosmetic inventory. Settings: your preferences such as sound, music, haptics, motion, language and notification opt-ins. Technical: your account identifier, session tokens stored on your device to keep you signed in, and — only if you opt in — a push notification token for your device.',
         },
         s4: {
           heading: 'What we do NOT collect',
@@ -70,7 +70,7 @@ export default {
         },
         s10: {
           heading: 'Children',
-          body: 'Navixa is a strategy game suitable for a general audience. It contains no targeted advertising and no content directed at children, and it can be played as a guest without providing any personal information. If you believe a child has provided us personal data in a way that requires action, contact us at [SUPPORT_EMAIL] and we will address it.',
+          body: 'Navixa is a strategy game suitable for a general audience. It contains no targeted advertising and no content directed at children. If you believe a child has provided us personal data in a way that requires action, contact us at [SUPPORT_EMAIL] and we will address it.',
         },
         s11: {
           heading: 'Changes and contact',
@@ -95,7 +95,7 @@ export default {
         },
         s3: {
           heading: 'Your account',
-          body: 'You may create one account and are responsible for keeping access to it secure. Do not share your account or your sign-in credentials, and do not use another player’s account. You must provide accurate information and are responsible for activity that occurs under your account. You can also play as a guest without an account.',
+          body: 'An account is required to play. You may create one account and are responsible for keeping access to it secure. Do not share your account or your sign-in credentials, and do not use another player’s account. You must provide accurate information and are responsible for activity that occurs under your account.',
         },
         s4: {
           heading: 'In-game items and virtual currency',
@@ -221,8 +221,8 @@ export default {
           body: 'Deletion of your account and personal data begins immediately when you confirm. Any residual copies in backups or short-term security logs are removed within 30 days.',
         },
         s6: {
-          heading: 'Guest accounts and export',
-          body: 'Guest play is tied to an anonymous device identifier rather than an email; clearing the app’s data or uninstalling removes the local guest session. Before deleting, you can download a copy of your data with Settings → Export data. Questions: [SUPPORT_EMAIL].',
+          heading: 'Export your data',
+          body: 'Before deleting, you can download a copy of your data with Settings → Export data. Questions: [SUPPORT_EMAIL].',
         },
       },
 
@@ -305,12 +305,12 @@ export default {
           body: 'Navixa är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är [COMPANY_NAME], [COMPANY_ADDRESS]. Vid frågor om integritet når du oss på [SUPPORT_EMAIL].',
         },
         s2: {
-          heading: 'Att spela som gäst',
-          body: 'Du kan spela Navixa utan att skapa ett konto. När du spelar som gäst skapar vi en anonym enhetsbunden identifierare så att vi kan spara dina framsteg och matcha dig med motståndare. En gästidentitet är inte kopplad till en e-postadress. Om du senare skapar ett konto kan dina gästframsteg kopplas till det kontot.',
+          heading: 'Konton och inloggning',
+          body: 'För att spela Navixa krävs ett konto. Du loggar in med en e-postadress och lösenord, eller med Google, via vår autentiseringsleverantör (Clerk). Vi använder din kontoidentifierare för att spara dina framsteg, matcha dig med motståndare och hålla dig inloggad på alla enheter. Det finns inget gäst- eller anonymt läge.',
         },
         s3: {
           heading: 'Uppgifter vi samlar in',
-          body: 'Konto: din e-postadress (endast om du registrerar dig — den lagras av vår autentiseringsleverantör och visas aldrig för andra spelare). Profil: visningsnamn och, valfritt, land och en kort presentation, samt en vald avatar eller kosmetik. Spel: matcher, drag, resultat, ratingar och ratinghistorik, uppdrag, prestationer och kosmetiskt innehav. Inställningar: dina preferenser såsom ljud, musik, haptik, rörelse, språk och aviseringsval. Tekniskt: anonyma identifierare eller kontoidentifierare, sessionstoken som lagras på din enhet för att hålla dig inloggad och — endast om du väljer det — en push-token för din enhet.',
+          body: 'Konto: din e-postadress (den lagras av vår autentiseringsleverantör och visas aldrig för andra spelare). Profil: visningsnamn och, valfritt, land och en kort presentation, samt en vald avatar eller kosmetik. Spel: matcher, drag, resultat, ratingar och ratinghistorik, uppdrag, prestationer och kosmetiskt innehav. Inställningar: dina preferenser såsom ljud, musik, haptik, rörelse, språk och aviseringsval. Tekniskt: din kontoidentifierare, sessionstoken som lagras på din enhet för att hålla dig inloggad och — endast om du väljer det — en push-token för din enhet.',
         },
         s4: {
           heading: 'Vad vi INTE samlar in',
@@ -338,7 +338,7 @@ export default {
         },
         s10: {
           heading: 'Barn',
-          body: 'Navixa är ett strategispel som passar en bred publik. Det innehåller ingen riktad annonsering och inget innehåll riktat till barn, och det kan spelas som gäst utan att lämna några personuppgifter. Om du tror att ett barn har lämnat personuppgifter till oss på ett sätt som kräver åtgärd, kontakta oss på [SUPPORT_EMAIL] så åtgärdar vi det.',
+          body: 'Navixa är ett strategispel som passar en bred publik. Det innehåller ingen riktad annonsering och inget innehåll riktat till barn. Om du tror att ett barn har lämnat personuppgifter till oss på ett sätt som kräver åtgärd, kontakta oss på [SUPPORT_EMAIL] så åtgärdar vi det.',
         },
         s11: {
           heading: 'Ändringar och kontakt',
@@ -363,7 +363,7 @@ export default {
         },
         s3: {
           heading: 'Ditt konto',
-          body: 'Du får skapa ett konto och ansvarar för att hålla åtkomsten till det säker. Dela inte ditt konto eller dina inloggningsuppgifter och använd inte en annan spelares konto. Du ska lämna korrekta uppgifter och ansvarar för aktivitet som sker under ditt konto. Du kan även spela som gäst utan konto.',
+          body: 'Ett konto krävs för att spela. Du får skapa ett konto och ansvarar för att hålla åtkomsten till det säker. Dela inte ditt konto eller dina inloggningsuppgifter och använd inte en annan spelares konto. Du ska lämna korrekta uppgifter och ansvarar för aktivitet som sker under ditt konto.',
         },
         s4: {
           heading: 'Föremål i spelet och virtuell valuta',
@@ -489,8 +489,8 @@ export default {
           body: 'Raderingen av ditt konto och dina personuppgifter påbörjas omedelbart när du bekräftar. Eventuella kvarvarande kopior i säkerhetskopior eller kortsiktiga säkerhetsloggar tas bort inom 30 dagar.',
         },
         s6: {
-          heading: 'Gästkonton och export',
-          body: 'Gästspel är kopplat till en anonym enhetsidentifierare i stället för en e-postadress; att rensa appens data eller avinstallera tar bort den lokala gästsessionen. Innan du raderar kan du ladda ner en kopia av dina uppgifter via Inställningar → Exportera data. Frågor: [SUPPORT_EMAIL].',
+          heading: 'Exportera dina uppgifter',
+          body: 'Innan du raderar kan du ladda ner en kopia av dina uppgifter via Inställningar → Exportera data. Frågor: [SUPPORT_EMAIL].',
         },
       },
 

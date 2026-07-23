@@ -13,7 +13,6 @@ import {
 } from '@/store/settings';
 import { useAuth as useClerkAuth } from '@clerk/expo';
 import { useAuth } from '@/features/auth';
-import { useIsGuest } from '@/hooks/useIsGuest';
 import { disconnectSocket } from '@/lib/socket';
 import {
   Badge,
@@ -77,7 +76,6 @@ export default function ProfileScreen() {
   const colors = useColors();
   const { user } = useAuth();
   const { signOut } = useClerkAuth();
-  const isGuest = useIsGuest();
   const selfId = user?.id ?? null;
 
   const settings = useSettingsStore();
@@ -89,7 +87,7 @@ export default function ProfileScreen() {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const load = useCallback(async () => {
-    if (!selfId || isGuest) return;
+    if (!selfId) return;
     try {
       const [p, s, hist] = await Promise.all([
         fetchProfile(selfId),
@@ -102,7 +100,7 @@ export default function ProfileScreen() {
     } catch {
       // Non-fatal: keep whatever we have.
     }
-  }, [selfId, isGuest]);
+  }, [selfId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -167,16 +165,13 @@ export default function ProfileScreen() {
       {/* Identity header */}
       <View style={styles.identity}>
         <Pressable
-          onPress={() => !isGuest && setPickerOpen((o) => !o)}
+          onPress={() => setPickerOpen((o) => !o)}
           accessibilityRole="button"
-          disabled={isGuest}
         >
           <Avatar avatarUrl={profile?.avatar_url} name={profile?.username ?? displayName} size={72} />
-          {!isGuest ? (
-            <View style={[styles.editBadge, { backgroundColor: colors.primary, borderColor: colors.background }]}>
-              <Feather name="edit-2" size={12} color={colors.primaryForeground} />
-            </View>
-          ) : null}
+          <View style={[styles.editBadge, { backgroundColor: colors.primary, borderColor: colors.background }]}>
+            <Feather name="edit-2" size={12} color={colors.primaryForeground} />
+          </View>
         </Pressable>
         <View style={styles.identityBody}>
           <Text variant="h2">{displayName}</Text>
@@ -185,14 +180,11 @@ export default function ProfileScreen() {
               {countryFlag(profile.country_code)} @{profile.username}
             </Text>
           ) : null}
-          <Badge
-            label={isGuest ? t('profile.guestBadge') : t(`social.divisions.${division.key}`)}
-            tone={isGuest ? 'warning' : 'accent'}
-          />
+          <Badge label={t(`social.divisions.${division.key}`)} tone="accent" />
         </View>
       </View>
 
-      {!isGuest && pickerOpen ? (
+      {pickerOpen ? (
         <>
           <Spacer size="md" />
           <SectionHeader title={t('profile.chooseAvatar')} />
@@ -202,7 +194,7 @@ export default function ProfileScreen() {
         </>
       ) : null}
 
-      {!isGuest && profile ? (
+      {profile ? (
         <>
           <Spacer size="md" />
           <Text variant="caption" color="muted">
@@ -212,25 +204,6 @@ export default function ProfileScreen() {
             {'  ·  '}
             {t('profile.xp', { xp: profile.xp })}
           </Text>
-        </>
-      ) : null}
-
-      {isGuest ? (
-        <>
-          <Spacer size="lg" />
-          <Card>
-            <Text variant="title">{t('profile.guestUpgradeTitle')}</Text>
-            <Spacer size="xs" />
-            <Text variant="subhead" color="muted">
-              {t('profile.guestUpgradeBody')}
-            </Text>
-            <Spacer size="md" />
-            <Button
-              label={t('onboarding.getStarted.createAccount')}
-              fullWidth
-              onPress={() => router.push('/(auth)/sign-up')}
-            />
-          </Card>
         </>
       ) : null}
 
@@ -284,39 +257,35 @@ export default function ProfileScreen() {
         </View>
       </Card>
 
-      {!isGuest ? (
-        <>
-          <Spacer size="xl" />
-          <View style={styles.sectionHeaderRow}>
-            <SectionHeader title={t('profile.recentMatches')} />
-            <Pressable onPress={() => router.push('/history')} accessibilityRole="button">
-              <Text variant="callout" color="accent">
-                {t('common.seeAll')}
-              </Text>
-            </Pressable>
-          </View>
-          {recent.length === 0 ? (
-            <Card>
-              <Text variant="subhead" color="muted" center>
-                {t('history.empty')}
-              </Text>
-            </Card>
-          ) : (
-            <Card padded={false}>
-              {recent.map((m, i) => (
-                <HistoryRow
-                  key={m.id}
-                  match={m}
-                  result={myResult(m)}
-                  durationMs={matchDurationMs(m)}
-                  divider={i < recent.length - 1}
-                  onPress={() => router.push(`/history/${m.id}`)}
-                />
-              ))}
-            </Card>
-          )}
-        </>
-      ) : null}
+      <Spacer size="xl" />
+      <View style={styles.sectionHeaderRow}>
+        <SectionHeader title={t('profile.recentMatches')} />
+        <Pressable onPress={() => router.push('/history')} accessibilityRole="button">
+          <Text variant="callout" color="accent">
+            {t('common.seeAll')}
+          </Text>
+        </Pressable>
+      </View>
+      {recent.length === 0 ? (
+        <Card>
+          <Text variant="subhead" color="muted" center>
+            {t('history.empty')}
+          </Text>
+        </Card>
+      ) : (
+        <Card padded={false}>
+          {recent.map((m, i) => (
+            <HistoryRow
+              key={m.id}
+              match={m}
+              result={myResult(m)}
+              durationMs={matchDurationMs(m)}
+              divider={i < recent.length - 1}
+              onPress={() => router.push(`/history/${m.id}`)}
+            />
+          ))}
+        </Card>
+      )}
 
       <Spacer size="xl" />
 

@@ -43,7 +43,7 @@ export default function DevToolsScreen() {
 function DevTools() {
   const { t } = useTranslation();
   const colors = useColors();
-  const { user, session, isGuest } = useAuth();
+  const { user, session } = useAuth();
   const { simulateOffline, setSimulateOffline, testRating, setTestRating } =
     useDevToolsStore();
   const initMatch = useOnlineMatchStore((s) => s.init);
@@ -109,7 +109,6 @@ function DevTools() {
       <Card>
         <Row label={t('devtools.userId')} value={user?.id ?? t('devtools.none')} />
         <Row label={t('devtools.email')} value={user?.email ?? t('devtools.none')} />
-        <Row label={t('devtools.isGuest')} value={isGuest ? 'true' : 'false'} />
         <Row
           label="session"
           value={session?.userId ? 'active' : t('devtools.none')}

@@ -57,10 +57,10 @@ read-only; per-user data is owner-scoped by the server; trusted writes
 (ratings, results, grants, moderation, audit) are performed server-side.
 
 ## Auth
-- Email/password + **Google** (Clerk SSO) via Clerk. Custom in-app
-  sign-in/sign-up screens.
-- **Apple** Sign-In is not wired up yet; **anonymous/guest and magic-link login
-  were removed**.
+- **Email/password + Google (Clerk SSO) only** — a real account is always
+  required. Custom in-app sign-in/sign-up screens.
+- **Apple** Sign-In is not wired up yet. There is no guest/anonymous mode and no
+  magic-link sign-in.
 - Sessions are managed by Clerk (`@clerk/expo`); tokens are refreshed
   automatically and used as bearer tokens for REST and Socket.IO.
 

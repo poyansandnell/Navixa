@@ -21,7 +21,6 @@ import { useTranslation } from 'react-i18next';
 import { useColors } from '@/hooks/useColors';
 import { iconSize, radii, spacing } from '@/constants/theme';
 import { useAuth } from '@/features/auth';
-import { useIsGuest } from '@/hooks/useIsGuest';
 import {
   Badge,
   Button,
@@ -66,7 +65,6 @@ export default function ShopScreen() {
   const { t } = useTranslation();
   const colors = useColors();
   const { user } = useAuth();
-  const isGuest = useIsGuest();
 
   const [loading, setLoading] = useState(true);
   const [catalog, setCatalog] = useState<CosmeticItem[]>([]);
@@ -79,7 +77,7 @@ export default function ShopScreen() {
     try {
       const items = await fetchCatalog();
       setCatalog(items);
-      if (user && !isGuest) {
+      if (user) {
         const [inv, eq] = await Promise.all([
           fetchInventory(user.id),
           fetchEquipped(user.id),
@@ -92,14 +90,14 @@ export default function ShopScreen() {
     } finally {
       setLoading(false);
     }
-  }, [user, isGuest]);
+  }, [user]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   const handleEquip = async (item: CosmeticItem) => {
-    if (!user || isGuest) return;
+    if (!user) return;
     setBusyId(item.id);
     try {
       const ok = await equipCosmetic(user.id, item.type, item.id);
@@ -178,16 +176,6 @@ export default function ShopScreen() {
       </Card>
 
       <Spacer size="xl" />
-
-      {isGuest || !user ? (
-        <Card>
-          <Text variant="title">{t('shop.guestBlockedTitle')}</Text>
-          <Spacer size="xs" />
-          <Text variant="subhead" color="muted">
-            {t('shop.guestBlockedBody')}
-          </Text>
-        </Card>
-      ) : null}
 
       {loading ? (
         <ActivityIndicator color={colors.primary} style={styles.loader} />

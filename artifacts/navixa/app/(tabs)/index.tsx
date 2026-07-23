@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { showAlert } from '@/lib/alert';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,6 @@ import {
   Spacer,
   Text,
 } from '@/components/ui';
-import { useIsGuest } from '@/hooks/useIsGuest';
 import type { OnlineMode } from '@/features/matchmaking';
 import { ActiveMatches } from '@/features/onlineMatch';
 
@@ -25,8 +23,6 @@ interface ModeDef {
   icon: keyof typeof Feather.glyphMap;
   titleKey: string;
   descriptionKey: string;
-  /** Requires a registered account (guests are prompted to upgrade). */
-  requiresAccount?: boolean;
 }
 
 const MODES: ModeDef[] = [
@@ -41,7 +37,6 @@ const MODES: ModeDef[] = [
     icon: 'trending-up',
     titleKey: 'online.picker.ranked',
     descriptionKey: 'online.picker.rankedDesc',
-    requiresAccount: true,
   },
   {
     key: 'blitz',
@@ -72,25 +67,10 @@ const MODES: ModeDef[] = [
 export default function PlayScreen() {
   const { t } = useTranslation();
   const colors = useColors();
-  const isGuest = useIsGuest();
 
   const startTraining = () => router.push('/game/setup');
 
-  const promptUpgrade = () => {
-    showAlert(t('online.picker.guestTitle'), t('online.picker.guestBody'), [
-      { text: t('online.picker.cancel'), style: 'cancel' },
-      {
-        text: t('online.picker.upgrade'),
-        onPress: () => router.push('/(auth)/sign-up'),
-      },
-    ]);
-  };
-
   const handleModePress = (mode: ModeDef) => {
-    if (mode.requiresAccount && isGuest) {
-      promptUpgrade();
-      return;
-    }
     switch (mode.key) {
       case 'bot':
         startTraining();
@@ -170,33 +150,26 @@ export default function PlayScreen() {
       {/* Game modes */}
       <SectionHeader title={t('online.picker.title')} />
       <View style={styles.modeList}>
-        {MODES.map((mode) => {
-          const locked = mode.requiresAccount && isGuest;
-          return (
-            <Card key={mode.key} onPress={() => handleModePress(mode)}>
-              <View style={styles.row}>
-                <View style={[styles.iconTile, { backgroundColor: colors.secondary }]}>
-                  <Feather name={mode.icon} size={iconSize.md} color={colors.accent} />
-                </View>
-                <View style={styles.rowBody}>
-                  <Text variant="bodyMedium">{t(mode.titleKey)}</Text>
-                  <Text variant="caption" color="muted">
-                    {t(mode.descriptionKey)}
-                  </Text>
-                </View>
-                {locked ? (
-                  <Feather name="lock" size={iconSize.md} color={colors.mutedForeground} />
-                ) : (
-                  <Feather
-                    name="chevron-right"
-                    size={iconSize.md}
-                    color={colors.mutedForeground}
-                  />
-                )}
+        {MODES.map((mode) => (
+          <Card key={mode.key} onPress={() => handleModePress(mode)}>
+            <View style={styles.row}>
+              <View style={[styles.iconTile, { backgroundColor: colors.secondary }]}>
+                <Feather name={mode.icon} size={iconSize.md} color={colors.accent} />
               </View>
-            </Card>
-          );
-        })}
+              <View style={styles.rowBody}>
+                <Text variant="bodyMedium">{t(mode.titleKey)}</Text>
+                <Text variant="caption" color="muted">
+                  {t(mode.descriptionKey)}
+                </Text>
+              </View>
+              <Feather
+                name="chevron-right"
+                size={iconSize.md}
+                color={colors.mutedForeground}
+              />
+            </View>
+          </Card>
+        ))}
       </View>
     </Screen>
   );
