@@ -1,4 +1,5 @@
 export default function Iphone2() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <div
       style={{ width: 1290, height: 2796 }}
@@ -18,15 +19,15 @@ export default function Iphone2() {
         <h1 className="text-white text-center font-['Inter'] font-black leading-[0.9] mb-6">
           <div className="text-[82px]">
             <span className="relative inline-block">
-              Utmana
+              {en ? "Challenge" : "Utmana"}
               <span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span>
             </span>
           </div>
-          <div className="text-[82px] mt-3">dina vänner</div>
+          <div className="text-[82px] mt-3">{en ? "your friends" : "dina vänner"}</div>
         </h1>
         
         <p className="text-gray-400 text-[22px] font-['Inter'] font-medium text-center max-w-[600px]">
-          Skapa privata matcher med unik kod
+          {en ? "Create private matches with a unique code" : "Skapa privata matcher med unik kod"}
         </p>
       </div>
 
@@ -53,20 +54,20 @@ export default function Iphone2() {
 
               {/* Header */}
               <div className="px-6 py-5 border-b border-[#1a2f4a]">
-                <button className="text-amber-400 font-semibold text-base mb-4">← Tillbaka</button>
-                <h2 className="text-white font-black text-3xl mb-1">Privat match</h2>
-                <p className="text-gray-400 text-sm">Dela koden med din motståndare</p>
+                <button className="text-amber-400 font-semibold text-base mb-4">{en ? "← Back" : "← Tillbaka"}</button>
+                <h2 className="text-white font-black text-3xl mb-1">{en ? "Private match" : "Privat match"}</h2>
+                <p className="text-gray-400 text-sm">{en ? "Share the code with your opponent" : "Dela koden med din motståndare"}</p>
               </div>
 
               {/* Invite code section */}
               <div className="px-6 py-8 flex flex-col items-center">
                 <div className="w-full bg-[#0d1d35] rounded-2xl border-2 border-[#1a2f4a] p-8 mb-6">
                   <div className="text-center mb-6">
-                    <div className="text-gray-400 text-xs font-semibold tracking-wider mb-3">MATCHKOD</div>
+                    <div className="text-gray-400 text-xs font-semibold tracking-wider mb-3">{en ? "MATCH CODE" : "MATCHKOD"}</div>
                     <div className="text-white font-black text-6xl tracking-[0.2em] mb-2 font-mono">
                       B7X9K4
                     </div>
-                    <div className="text-gray-500 text-xs mt-3">Giltig i 24 timmar</div>
+                    <div className="text-gray-500 text-xs mt-3">{en ? "Valid for 24 hours" : "Giltig i 24 timmar"}</div>
                   </div>
 
                   {/* QR code mockup */}
@@ -84,7 +85,7 @@ export default function Iphone2() {
                   </div>
 
                   <div className="text-center text-gray-400 text-xs">
-                    Scanna QR-koden eller dela länken
+                    {en ? "Scan the QR code or share the link" : "Scanna QR-koden eller dela länken"}
                   </div>
                 </div>
 
@@ -93,11 +94,11 @@ export default function Iphone2() {
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
                     <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 5.12548 15.0077 5.24917 15.0227 5.37061L8.08259 9.20024C7.54305 8.46211 6.67194 8 5.7 8C3.93269 8 2.5 9.43269 2.5 11.2C2.5 12.9673 3.93269 14.4 5.7 14.4C6.67194 14.4 7.54305 13.9379 8.08259 13.1998L15.0227 17.0294C15.0077 17.1508 15 17.2745 15 17.4C15 19.0569 16.3431 20.4 18 20.4C19.6569 20.4 21 19.0569 21 17.4C21 15.7431 19.6569 14.4 18 14.4C17.0281 14.4 16.157 14.8621 15.6174 15.6002L8.67734 11.7706C8.69229 11.6492 8.7 11.5255 8.7 11.4C8.7 11.2745 8.69229 11.1508 8.67734 11.0294L15.6174 7.19976C16.157 7.93789 17.0281 8.4 18 8.4V8Z" fill="currentColor"/>
                   </svg>
-                  <span className="text-white font-black text-xl">Dela matchkod</span>
+                  <span className="text-white font-black text-xl">{en ? "Share match code" : "Dela matchkod"}</span>
                 </button>
 
                 <button className="w-full bg-[#0d1d35] border-2 border-[#1a2f4a] rounded-2xl py-4 px-6 text-gray-300 font-bold text-base">
-                  Kopiera länk
+                  {en ? "Copy link" : "Kopiera länk"}
                 </button>
               </div>
 
@@ -111,8 +112,8 @@ export default function Iphone2() {
                       </svg>
                     </div>
                     <div>
-                      <div className="text-white font-bold text-sm mb-1">Rated match</div>
-                      <div className="text-gray-400 text-xs">Resultatet påverkar din rating</div>
+                      <div className="text-white font-bold text-sm mb-1">{en ? "Rated match" : "Rated match"}</div>
+                      <div className="text-gray-400 text-xs">{en ? "The result affects your rating" : "Resultatet påverkar din rating"}</div>
                     </div>
                   </div>
                 </div>
@@ -125,8 +126,8 @@ export default function Iphone2() {
                       </svg>
                     </div>
                     <div>
-                      <div className="text-white font-bold text-sm mb-1">1 drag per dag</div>
-                      <div className="text-gray-400 text-xs">Ta din tid och tänk strategiskt</div>
+                      <div className="text-white font-bold text-sm mb-1">{en ? "1 move per day" : "1 drag per dag"}</div>
+                      <div className="text-gray-400 text-xs">{en ? "Take your time and think strategically" : "Ta din tid och tänk strategiskt"}</div>
                     </div>
                   </div>
                 </div>

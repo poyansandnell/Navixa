@@ -1,10 +1,11 @@
 import { AppstoreShell } from './Iphone6';
 
 export default function Iphone8() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <AppstoreShell
-      headline={<>Gå med i{' '}<span className="relative inline-block">flottan<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></>}
-      sub="Skapa ett konto och utmana världen — helt gratis"
+      headline={en ? <>Join the{' '}<span className="relative inline-block">fleet<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></> : <>Gå med i{' '}<span className="relative inline-block">flottan<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></>}
+      sub={en ? "Create an account and challenge the world — for free" : "Skapa ett konto och utmana världen — helt gratis"}
     >
       <div className="absolute inset-[12px] rounded-[48px] overflow-hidden bg-[#0A1628] flex flex-col">
         <div className="h-[54px] px-8 flex items-center justify-between pt-2 shrink-0">
@@ -24,11 +25,11 @@ export default function Iphone8() {
           </div>
           <div className="h-10" />
           <div className="text-white text-[28px] font-bold text-center leading-tight font-['Inter']">
-            Gå med i flottan
+            {en ? "Join the fleet" : "Gå med i flottan"}
           </div>
           <div className="h-3" />
           <div className="text-gray-400 text-[16px] text-center leading-snug max-w-[300px]">
-            Skapa ett konto eller hoppa in direkt som gäst.
+            {en ? "Create an account or jump right in as a guest." : "Skapa ett konto eller hoppa in direkt som gäst."}
           </div>
         </div>
         <div className="flex items-center justify-center gap-2 pb-5 shrink-0">
@@ -41,13 +42,15 @@ export default function Iphone8() {
             <div className="w-[20px] h-[20px] rounded-md bg-teal-400 flex items-center justify-center">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0A1628" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
             </div>
-            <span className="text-gray-400 text-[13px]">Jag accepterar användarvillkoren och integritetspolicyn</span>
+            <span className="text-gray-400 text-[13px]">
+              {en ? "I accept the Terms of Service and Privacy Policy" : "Jag accepterar användarvillkoren och integritetspolicyn"}
+            </span>
           </div>
           <div className="h-[52px] rounded-2xl bg-[#f2704e] flex items-center justify-center">
-            <span className="text-white font-bold text-[17px]">Skapa konto</span>
+            <span className="text-white font-bold text-[17px]">{en ? "Create account" : "Skapa konto"}</span>
           </div>
           <div className="h-[52px] rounded-2xl bg-[#13294a] flex items-center justify-center">
-            <span className="text-white font-bold text-[17px]">Logga in</span>
+            <span className="text-white font-bold text-[17px]">{en ? "Log in" : "Logga in"}</span>
           </div>
         </div>
       </div>

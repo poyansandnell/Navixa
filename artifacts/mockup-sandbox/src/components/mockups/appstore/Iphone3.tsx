@@ -1,4 +1,5 @@
 export default function Iphone3() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <div
       style={{ width: 1290, height: 2796 }}
@@ -16,18 +17,18 @@ export default function Iphone3() {
         </div>
         
         <h1 className="text-white text-center font-['Inter'] font-black leading-[0.9] mb-6">
-          <div className="text-[76px]">Din tur —</div>
+          <div className="text-[76px]">{en ? "Your turn —" : "Din tur —"}</div>
           <div className="text-[76px] mt-3">
             <span className="relative inline-block">
-              när det
+              {en ? "when it" : "när det"}
               <span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span>
             </span>
           </div>
-          <div className="text-[76px] mt-3">passar dig</div>
+          <div className="text-[76px] mt-3">{en ? "suits you" : "passar dig"}</div>
         </h1>
         
         <p className="text-gray-400 text-[22px] font-['Inter'] font-medium text-center max-w-[700px]">
-          Ett drag per dag. Inga stressiga tidskrav.
+          {en ? "One move a day. No stressful time limits." : "Ett drag per dag. Inga stressiga tidskrav."}
         </p>
       </div>
 
@@ -61,47 +62,47 @@ export default function Iphone3() {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-white font-bold text-sm mb-1">Navixa · nu</div>
-                    <div className="text-white text-sm mb-1">Det är din tur!</div>
-                    <div className="text-gray-400 text-xs">SjöormenSara väntar på ditt drag</div>
+                    <div className="text-white font-bold text-sm mb-1">{en ? "Navixa · now" : "Navixa · nu"}</div>
+                    <div className="text-white text-sm mb-1">{en ? "It's your turn!" : "Det är din tur!"}</div>
+                    <div className="text-gray-400 text-xs">{en ? "SjöormenSara is waiting for your move" : "SjöormenSara väntar på ditt drag"}</div>
                   </div>
                 </div>
               </div>
 
               {/* Header */}
               <div className="px-6 py-6 border-b border-[#1a2f4a]">
-                <h2 className="text-white font-black text-3xl mb-1">Hem</h2>
-                <p className="text-gray-400 text-sm">Välkommen tillbaka, Kapten!</p>
+                <h2 className="text-white font-black text-3xl mb-1">{en ? "Home" : "Hem"}</h2>
+                <p className="text-gray-400 text-sm">{en ? "Welcome back, Captain!" : "Välkommen tillbaka, Kapten!"}</p>
               </div>
 
               {/* Quick stats */}
               <div className="px-6 py-4 grid grid-cols-3 gap-3">
                 <div className="bg-[#0d1d35] rounded-xl p-3 border border-[#1a2f4a]">
                   <div className="text-amber-400 font-black text-2xl mb-1">1847</div>
-                  <div className="text-gray-400 text-xs font-semibold">Rating</div>
+                  <div className="text-gray-400 text-xs font-semibold">{en ? "Rating" : "Rating"}</div>
                 </div>
                 <div className="bg-[#0d1d35] rounded-xl p-3 border border-[#1a2f4a]">
                   <div className="text-emerald-400 font-black text-2xl mb-1">23</div>
-                  <div className="text-gray-400 text-xs font-semibold">Vinster</div>
+                  <div className="text-gray-400 text-xs font-semibold">{en ? "Wins" : "Vinster"}</div>
                 </div>
                 <div className="bg-[#0d1d35] rounded-xl p-3 border border-[#1a2f4a]">
                   <div className="text-white font-black text-2xl mb-1">67%</div>
-                  <div className="text-gray-400 text-xs font-semibold">Win rate</div>
+                  <div className="text-gray-400 text-xs font-semibold">{en ? "Win rate" : "Win rate"}</div>
                 </div>
               </div>
 
               {/* Matches list */}
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white font-black text-xl">Dina matcher</h3>
-                  <button className="text-amber-400 font-semibold text-sm">Se alla</button>
+                  <h3 className="text-white font-black text-xl">{en ? "Your matches" : "Dina matcher"}</h3>
+                  <button className="text-amber-400 font-semibold text-sm">{en ? "See all" : "Se alla"}</button>
                 </div>
 
                 <div className="space-y-3">
                   {/* Active match - Your turn */}
                   <div className="bg-gradient-to-r from-amber-500/20 to-orange-600/10 border-2 border-amber-500/50 rounded-xl p-4 relative overflow-hidden">
                     <div className="absolute top-2 right-2 px-3 py-1 bg-amber-500 rounded-full">
-                      <span className="text-black font-black text-xs">DIN TUR</span>
+                      <span className="text-black font-black text-xs">{en ? "YOUR TURN" : "DIN TUR"}</span>
                     </div>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-bold">
@@ -109,20 +110,20 @@ export default function Iphone3() {
                       </div>
                       <div className="flex-1">
                         <div className="text-white font-bold text-base">SjöormenSara</div>
-                        <div className="text-amber-300 text-sm font-semibold">1923 rating</div>
+                        <div className="text-amber-300 text-sm font-semibold">1923 {en ? "rating" : "rating"}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-bold text-sm">Dag 8</div>
-                        <div className="text-gray-300 text-xs">14:32 kvar</div>
+                        <div className="text-white font-bold text-sm">{en ? "Day 8" : "Dag 8"}</div>
+                        <div className="text-gray-300 text-xs">14:32 {en ? "left" : "kvar"}</div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-300">
-                        <span className="text-emerald-400 font-bold">4 träffar</span> · 
-                        <span className="text-gray-400"> 12 försök</span>
+                        <span className="text-emerald-400 font-bold">4 {en ? "hits" : "träffar"}</span> · 
+                        <span className="text-gray-400"> 12 {en ? "shots" : "försök"}</span>
                       </div>
                       <button className="px-5 py-2 bg-amber-500 rounded-lg text-black font-black text-sm">
-                        Spela →
+                        {en ? "Play →" : "Spela →"}
                       </button>
                     </div>
                   </div>
@@ -135,20 +136,20 @@ export default function Iphone3() {
                       </div>
                       <div className="flex-1">
                         <div className="text-white font-bold text-base">Kapten_Erik</div>
-                        <div className="text-gray-400 text-sm">1789 rating</div>
+                        <div className="text-gray-400 text-sm">1789 {en ? "rating" : "rating"}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-bold text-sm">Dag 5</div>
-                        <div className="text-gray-400 text-xs">Motståndaren tänker</div>
+                        <div className="text-white font-bold text-sm">{en ? "Day 5" : "Dag 5"}</div>
+                        <div className="text-gray-400 text-xs">{en ? "Opponent is thinking" : "Motståndaren tänker"}</div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-400">
-                        <span className="text-emerald-400 font-bold">2 träffar</span> · 
-                        <span> 8 försök</span>
+                        <span className="text-emerald-400 font-bold">2 {en ? "hits" : "träffar"}</span> · 
+                        <span> 8 {en ? "shots" : "försök"}</span>
                       </div>
                       <div className="px-4 py-2 bg-[#1a2f4a] rounded-lg text-gray-400 text-sm font-semibold">
-                        Väntar...
+                        {en ? "Waiting..." : "Väntar..."}
                       </div>
                     </div>
                   </div>
@@ -161,20 +162,20 @@ export default function Iphone3() {
                       </div>
                       <div className="flex-1">
                         <div className="text-white font-bold text-base">AdmiralAnna</div>
-                        <div className="text-gray-400 text-sm">1654 rating</div>
+                        <div className="text-gray-400 text-sm">1654 {en ? "rating" : "rating"}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-bold text-sm">Dag 3</div>
-                        <div className="text-gray-400 text-xs">19:45 kvar</div>
+                        <div className="text-white font-bold text-sm">{en ? "Day 3" : "Dag 3"}</div>
+                        <div className="text-gray-400 text-xs">19:45 {en ? "left" : "kvar"}</div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-400">
-                        <span className="text-emerald-400 font-bold">1 träff</span> · 
-                        <span> 5 försök</span>
+                        <span className="text-emerald-400 font-bold">1 {en ? "hit" : "träff"}</span> · 
+                        <span> 5 {en ? "shots" : "försök"}</span>
                       </div>
                       <div className="px-4 py-2 bg-[#1a2f4a] rounded-lg text-gray-400 text-sm font-semibold">
-                        Väntar...
+                        {en ? "Waiting..." : "Väntar..."}
                       </div>
                     </div>
                   </div>
@@ -182,7 +183,7 @@ export default function Iphone3() {
                   {/* Your turn again */}
                   <div className="bg-gradient-to-r from-amber-500/20 to-orange-600/10 border-2 border-amber-500/50 rounded-xl p-4 relative overflow-hidden">
                     <div className="absolute top-2 right-2 px-3 py-1 bg-amber-500 rounded-full">
-                      <span className="text-black font-black text-xs">DIN TUR</span>
+                      <span className="text-black font-black text-xs">{en ? "YOUR TURN" : "DIN TUR"}</span>
                     </div>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white font-bold">
@@ -190,20 +191,20 @@ export default function Iphone3() {
                       </div>
                       <div className="flex-1">
                         <div className="text-white font-bold text-base">MatrosMaria</div>
-                        <div className="text-amber-300 text-sm font-semibold">1702 rating</div>
+                        <div className="text-amber-300 text-sm font-semibold">1702 {en ? "rating" : "rating"}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-bold text-sm">Dag 2</div>
-                        <div className="text-gray-300 text-xs">8:12 kvar</div>
+                        <div className="text-white font-bold text-sm">{en ? "Day 2" : "Dag 2"}</div>
+                        <div className="text-gray-300 text-xs">8:12 {en ? "left" : "kvar"}</div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="text-xs text-gray-300">
-                        <span className="text-emerald-400 font-bold">0 träffar</span> · 
-                        <span className="text-gray-400"> 3 försök</span>
+                        <span className="text-emerald-400 font-bold">0 {en ? "hits" : "träffar"}</span> · 
+                        <span className="text-gray-400"> 3 {en ? "shots" : "försök"}</span>
                       </div>
                       <button className="px-5 py-2 bg-amber-500 rounded-lg text-black font-black text-sm">
-                        Spela →
+                        {en ? "Play →" : "Spela →"}
                       </button>
                     </div>
                   </div>

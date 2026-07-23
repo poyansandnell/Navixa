@@ -9,6 +9,7 @@ function OnboardingScreen({
   subtitle: string;
   activeDot: number;
 }) {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <div className="absolute inset-[12px] rounded-[48px] overflow-hidden bg-[#0A1628] flex flex-col">
       {/* Status bar */}
@@ -22,7 +23,7 @@ function OnboardingScreen({
 
       {/* Skip */}
       <div className="px-6 flex justify-end shrink-0">
-        <span className="text-gray-400 text-[15px]">Hoppa över</span>
+        <span className="text-gray-400 text-[15px]">{en ? "Skip" : "Hoppa över"}</span>
       </div>
 
       {/* Slide content */}
@@ -53,7 +54,7 @@ function OnboardingScreen({
       {/* Button */}
       <div className="px-6 pb-10 shrink-0">
         <div className="h-[52px] rounded-2xl bg-[#f2704e] flex items-center justify-center">
-          <span className="text-white font-bold text-[17px]">Nästa</span>
+          <span className="text-white font-bold text-[17px]">{en ? "Next" : "Nästa"}</span>
         </div>
       </div>
     </div>
@@ -107,10 +108,11 @@ export function AppstoreShell({
 }
 
 export default function Iphone6() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <AppstoreShell
-      headline={<>Kom igång på{' '}<span className="relative inline-block">sekunder<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></>}
-      sub="Möt riktiga spelare i snabba strategiska matcher"
+      headline={en ? <>Get started in{' '}<span className="relative inline-block">seconds<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></> : <>Kom igång på{' '}<span className="relative inline-block">sekunder<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></>}
+      sub={en ? "Face real players in fast, strategic matches" : "Möt riktiga spelare i snabba strategiska matcher"}
     >
       <OnboardingScreen
         icon={
@@ -122,8 +124,8 @@ export default function Iphone6() {
             <line x1="18" y1="12" x2="22" y2="12" />
           </svg>
         }
-        title={<>Sänk flottor över<br />hela världen</>}
-        subtitle="Möt riktiga spelare i snabba strategiska matcher"
+        title={en ? <>Sink fleets across<br />the globe</> : <>Sänk flottor över<br />hela världen</>}
+        subtitle={en ? "Face real players in fast, strategic matches" : "Möt riktiga spelare i snabba strategiska matcher"}
         activeDot={0}
       />
     </AppstoreShell>

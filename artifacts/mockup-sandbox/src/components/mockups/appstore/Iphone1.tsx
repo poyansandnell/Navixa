@@ -1,4 +1,5 @@
 export default function Iphone1() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <div
       style={{ width: 1290, height: 2796 }}
@@ -16,18 +17,18 @@ export default function Iphone1() {
         </div>
         
         <h1 className="text-white text-center font-['Inter'] font-black leading-[0.9] mb-6">
-          <div className="text-[88px]">Sänk skepp.</div>
+          <div className="text-[88px]">{en ? "Sink ships." : "Sänk skepp."}</div>
           <div className="text-[88px] mt-3">
             <span className="relative inline-block">
-              Klättra
+              {en ? "Climb" : "Klättra"}
               <span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span>
             </span>
-            {" i rank."}
+            {en ? " the ranks." : " i rank."}
           </div>
         </h1>
         
         <p className="text-gray-400 text-[22px] font-['Inter'] font-medium text-center max-w-[600px]">
-          Spela klassiska Sänka Skepp med rating
+          {en ? "Play classic Battleship with rating" : "Spela klassiska Sänka Skepp med rating"}
         </p>
       </div>
 
@@ -57,16 +58,16 @@ export default function Iphone1() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
-                      D
+                      {en ? "Y" : "D"}
                     </div>
                     <div>
-                      <div className="text-white font-bold text-base">Du</div>
+                      <div className="text-white font-bold text-base">{en ? "You" : "Du"}</div>
                       <div className="text-amber-400 font-semibold text-sm">1847</div>
                     </div>
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <div className="text-xs text-gray-400 font-medium mb-1">Din tur</div>
+                    <div className="text-xs text-gray-400 font-medium mb-1">{en ? "Your turn" : "Din tur"}</div>
                     <div className="px-3 py-1 bg-amber-500/20 border border-amber-500/40 rounded-md">
                       <span className="text-amber-400 font-bold text-sm">2:34</span>
                     </div>
@@ -108,7 +109,7 @@ export default function Iphone1() {
 
               {/* Battle grid - opponent's board */}
               <div className="px-5 py-5">
-                <div className="text-xs text-gray-400 font-semibold mb-3 tracking-wide">MOTSTÅNDARENS BRÄDE</div>
+                <div className="text-xs text-gray-400 font-semibold mb-3 tracking-wide">{en ? "OPPONENT'S BOARD" : "MOTSTÅNDARENS BRÄDE"}</div>
                 <div className="inline-grid grid-cols-11 gap-0 bg-[#0d1d35] p-2 rounded-lg">
                   {/* Column headers */}
                   <div className="w-8 h-8"></div>

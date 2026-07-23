@@ -2,6 +2,8 @@ import React from 'react';
 import { User, Trophy, Search, ChevronRight, Play, Swords, Shield, Medal, Star } from 'lucide-react';
 
 export default function Ipad2() {
+  const en = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('lang') === 'en';
+
   return (
     <div style={{ width: 2048, height: 2732 }} className="relative bg-gradient-to-br from-[#0a0a0c] via-[#101016] to-[#0a0a0c] overflow-hidden flex flex-col font-['Inter',sans-serif]">
       {/* Background texture */}
@@ -20,15 +22,15 @@ export default function Ipad2() {
         </div>
         
         <h1 className="text-white text-[120px] font-black leading-[1.1] tracking-tight mb-12">
-          Alla dina matcher.<br />
-          En <span className="relative inline-block">
-            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">överblick.</span>
+          {en ? "All your matches." : "Alla dina matcher."}<br />
+          {en ? "At a " : "En "} <span className="relative inline-block">
+            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">{en ? "glance." : "överblick."}</span>
             <div className="absolute bottom-4 left-0 w-full h-4 bg-amber-500/30 -z-10 rounded-full blur-sm"></div>
           </span>
         </h1>
         
         <p className="text-slate-400 text-4xl font-medium max-w-[1200px] leading-relaxed">
-          Håll koll på aktiva spel, utmana vänner och klättra på topplistan. Allt samlat på en vacker och tydlig plats.
+          {en ? "Keep track of active games, challenge friends and climb the leaderboard. All gathered in one beautiful place." : "Håll koll på aktiva spel, utmana vänner och klättra på topplistan. Allt samlat på en vacker och tydlig plats."}
         </p>
       </div>
 
@@ -71,11 +73,11 @@ export default function Ipad2() {
               <div className="flex gap-6">
                 <button className="bg-[#1D2F4F] hover:bg-[#2A4066] text-white px-8 py-4 rounded-2xl text-2xl font-bold flex items-center gap-3 transition-colors">
                   <Search className="w-7 h-7" />
-                  Sök spelare
+                  {en ? "Search players" : "Sök spelare"}
                 </button>
                 <button className="bg-amber-500 hover:bg-amber-400 text-[#050B14] px-10 py-4 rounded-2xl text-2xl font-bold flex items-center gap-3 transition-colors shadow-[0_0_30px_rgba(245,158,11,0.3)]">
                   <Swords className="w-7 h-7" />
-                  Ny match
+                  {en ? "New match" : "Ny match"}
                 </button>
               </div>
             </div>
@@ -87,7 +89,7 @@ export default function Ipad2() {
               <div className="flex-[3] flex flex-col">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-white text-3xl font-bold flex items-center gap-4">
-                    Aktiva matcher
+                    {en ? "Active matches" : "Aktiva matcher"}
                     <span className="bg-amber-500 text-[#050B14] text-xl px-4 py-1 rounded-full font-bold">5</span>
                   </h3>
                 </div>
@@ -108,10 +110,10 @@ export default function Ipad2() {
                        <div>
                          <div className="text-amber-500 text-xl font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                            <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.8)]"></span>
-                           Din tur
+                           {en ? "Your turn" : "Din tur"}
                          </div>
                          <h4 className="text-white text-4xl font-bold">SjöormenSara</h4>
-                         <p className="text-slate-400 text-2xl mt-2">Omgång 14 • 12 fartyg kvar</p>
+                         <p className="text-slate-400 text-2xl mt-2">{en ? "Round 14 • 12 ships left" : "Omgång 14 • 12 fartyg kvar"}</p>
                        </div>
                     </div>
                     <button className="bg-amber-500 text-[#050B14] w-24 h-24 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(245,158,11,0.3)]">
@@ -131,10 +133,10 @@ export default function Ipad2() {
                        <div>
                          <div className="text-amber-500 text-xl font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
                            <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.8)]"></span>
-                           Din tur
+                           {en ? "Your turn" : "Din tur"}
                          </div>
                          <h4 className="text-white text-4xl font-bold">SpökSkeppet</h4>
-                         <p className="text-slate-400 text-2xl mt-2">Omgång 2 • 17 fartyg kvar</p>
+                         <p className="text-slate-400 text-2xl mt-2">{en ? "Round 2 • 17 ships left" : "Omgång 2 • 17 fartyg kvar"}</p>
                        </div>
                     </div>
                     <button className="bg-amber-500 text-[#050B14] w-24 h-24 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(245,158,11,0.3)]">
@@ -152,10 +154,10 @@ export default function Ipad2() {
                        </div>
                        <div>
                          <div className="text-slate-500 text-xl font-bold uppercase tracking-wider mb-2">
-                           Väntar på
+                           {en ? "Waiting for" : "Väntar på"}
                          </div>
                          <h4 className="text-white text-4xl font-bold">Amiral_Svensson</h4>
-                         <p className="text-slate-400 text-2xl mt-2">Omgång 4 • 16 fartyg kvar</p>
+                         <p className="text-slate-400 text-2xl mt-2">{en ? "Round 4 • 16 ships left" : "Omgång 4 • 16 fartyg kvar"}</p>
                        </div>
                     </div>
                     <ChevronRight className="w-12 h-12 text-slate-600" />
@@ -171,10 +173,10 @@ export default function Ipad2() {
                        </div>
                        <div>
                          <div className="text-slate-500 text-xl font-bold uppercase tracking-wider mb-2">
-                           Väntar på
+                           {en ? "Waiting for" : "Väntar på"}
                          </div>
                          <h4 className="text-white text-4xl font-bold">Kryssaren</h4>
-                         <p className="text-slate-400 text-2xl mt-2">Omgång 1 • 17 fartyg kvar</p>
+                         <p className="text-slate-400 text-2xl mt-2">{en ? "Round 1 • 17 ships left" : "Omgång 1 • 17 fartyg kvar"}</p>
                        </div>
                     </div>
                     <ChevronRight className="w-12 h-12 text-slate-600" />
@@ -190,10 +192,10 @@ export default function Ipad2() {
                        </div>
                        <div>
                          <div className="text-slate-500 text-xl font-bold uppercase tracking-wider mb-2">
-                           Väntar på
+                           {en ? "Waiting for" : "Väntar på"}
                          </div>
                          <h4 className="text-white text-4xl font-bold">Kapten_Krok</h4>
-                         <p className="text-slate-400 text-2xl mt-2">Omgång 8 • 5 fartyg kvar</p>
+                         <p className="text-slate-400 text-2xl mt-2">{en ? "Round 8 • 5 ships left" : "Omgång 8 • 5 fartyg kvar"}</p>
                        </div>
                     </div>
                     <ChevronRight className="w-12 h-12 text-slate-600" />
@@ -207,7 +209,7 @@ export default function Ipad2() {
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-white text-3xl font-bold flex items-center gap-4">
                     <Medal className="w-8 h-8 text-indigo-400" />
-                    Topplista (Sverige)
+                    {en ? "Leaderboard (Sweden)" : "Topplista (Sverige)"}
                   </h3>
                 </div>
                 

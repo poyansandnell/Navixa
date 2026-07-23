@@ -1,10 +1,11 @@
 import { AppstoreShell } from './Iphone6';
 
 export default function Iphone7() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <AppstoreShell
-      headline={<>En resa mot{' '}<span className="relative inline-block">toppen<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></>}
-      sub="Vinn matcher, förbättra din rating och nå högre divisioner"
+      headline={en ? <>A journey to the{' '}<span className="relative inline-block">top<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></> : <>En resa mot{' '}<span className="relative inline-block">toppen<span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span></span></>}
+      sub={en ? "Win matches, improve your rating, and reach higher divisions" : "Vinn matcher, förbättra din rating och nå högre divisioner"}
     >
       <div className="absolute inset-[12px] rounded-[48px] overflow-hidden bg-[#0A1628] flex flex-col">
         <div className="h-[54px] px-8 flex items-center justify-between pt-2 shrink-0">
@@ -15,7 +16,7 @@ export default function Iphone7() {
           </div>
         </div>
         <div className="px-6 flex justify-end shrink-0">
-          <span className="text-gray-400 text-[15px]">Hoppa över</span>
+          <span className="text-gray-400 text-[15px]">{en ? "Skip" : "Hoppa över"}</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-10 -mt-6">
           <div className="w-[130px] h-[130px] rounded-full bg-[#13294a] flex items-center justify-center">
@@ -26,11 +27,11 @@ export default function Iphone7() {
           </div>
           <div className="h-12" />
           <div className="text-white text-[30px] font-bold text-center leading-tight font-['Inter']">
-            Klättra i<br />världsrankingen
+            {en ? <>Climb the<br />world rankings</> : <>Klättra i<br />världsrankingen</>}
           </div>
           <div className="h-4" />
           <div className="text-gray-400 text-[16px] text-center leading-snug max-w-[300px]">
-            Vinn matcher, förbättra din rating och nå högre divisioner
+            {en ? "Win matches, improve your rating, and reach higher divisions" : "Vinn matcher, förbättra din rating och nå högre divisioner"}
           </div>
         </div>
         <div className="flex items-center justify-center gap-2 pb-5 shrink-0">
@@ -40,7 +41,7 @@ export default function Iphone7() {
         </div>
         <div className="px-6 pb-10 shrink-0">
           <div className="h-[52px] rounded-2xl bg-[#f2704e] flex items-center justify-center">
-            <span className="text-white font-bold text-[17px]">Nästa</span>
+            <span className="text-white font-bold text-[17px]">{en ? "Next" : "Nästa"}</span>
           </div>
         </div>
       </div>

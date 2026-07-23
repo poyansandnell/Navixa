@@ -2,6 +2,8 @@ import React from 'react';
 import { User, Crosshair, Clock, Shield, Target } from 'lucide-react';
 
 export default function Ipad1() {
+  const en = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('lang') === 'en';
+
   return (
     <div style={{ width: 2048, height: 2732 }} className="relative bg-gradient-to-br from-[#0a0a0c] via-[#101016] to-[#0a0a0c] overflow-hidden flex flex-col font-['Inter',sans-serif]">
       {/* Background texture */}
@@ -20,12 +22,12 @@ export default function Ipad1() {
         </div>
         
         <h1 className="text-white text-[120px] font-black leading-[1.1] tracking-tight mb-12">
-          Hela sjöslaget.<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Större</span> än någonsin.
+          {en ? "The whole battle." : "Hela sjöslaget."}<br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">{en ? "Bigger" : "Större"}</span> {en ? "than ever." : "än någonsin."}
         </h1>
         
         <p className="text-slate-400 text-4xl font-medium max-w-[1200px] leading-relaxed">
-          Full överblick över stridszonen. Planera dina attacker och se motståndarens drag i realtid på en och samma skärm.
+          {en ? "Full overview of the combat zone. Plan your attacks and watch your opponent's moves in real-time on a single screen." : "Full överblick över stridszonen. Planera dina attacker och se motståndarens drag i realtid på en och samma skärm."}
         </p>
       </div>
 
@@ -59,7 +61,7 @@ export default function Ipad1() {
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="text-slate-400 text-xl font-medium uppercase tracking-widest mb-2">Din Tur</div>
+                <div className="text-slate-400 text-xl font-medium uppercase tracking-widest mb-2">{en ? "Your Turn" : "Din Tur"}</div>
                 <div className="flex items-center gap-3 bg-amber-500/10 px-6 py-3 rounded-full border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
                   <Clock className="w-6 h-6 text-amber-500" />
                   <span className="text-amber-500 text-3xl font-bold tabular-nums">0:45</span>
@@ -92,7 +94,7 @@ export default function Ipad1() {
                   <div className="flex items-center justify-between mb-8">
                     <h2 className="text-white text-4xl font-bold flex items-center gap-4">
                       <Shield className="w-10 h-10 text-indigo-400" />
-                      Din Flotta
+                      {en ? "Your Fleet" : "Din Flotta"}
                     </h2>
                     <div className="flex gap-2">
                       {[1,2,3,4,5].map(i => (
@@ -147,7 +149,7 @@ export default function Ipad1() {
                   <div className="flex items-center justify-between mb-8">
                     <h2 className="text-white text-4xl font-bold flex items-center gap-4">
                       <Target className="w-10 h-10 text-amber-500" />
-                      Attackradar
+                      {en ? "Attack Radar" : "Attackradar"}
                     </h2>
                     <div className="flex gap-2">
                       {[1,2,3,4,5].map(i => (
@@ -202,33 +204,41 @@ export default function Ipad1() {
                 <div className="flex-1 bg-[#0A1628] rounded-[32px] border-2 border-[#1D2F4F] p-8 flex flex-col">
                   <h3 className="text-slate-400 text-2xl font-bold mb-6 uppercase tracking-widest flex items-center gap-3">
                     <Clock className="w-6 h-6" />
-                    Stridslogg
+                    {en ? "Combat Log" : "Stridslogg"}
                   </h3>
                   <div className="space-y-4 flex-1">
                      <div className="flex items-center gap-4 bg-[#050B14] p-5 rounded-2xl border border-[#1D2F4F]">
                         <span className="text-slate-500 font-mono text-xl w-20">14:02</span>
                         <div className="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                        <span className="text-white text-2xl">Träff på <span className="font-bold text-red-400">D4</span>! Motståndarens u-båt skadad.</span>
+                        <span className="text-white text-2xl">
+                          {en ? <><span className="font-bold text-red-400">Hit on D4!</span> Opponent's sub damaged.</> : <>Träff på <span className="font-bold text-red-400">D4</span>! Motståndarens u-båt skadad.</>}
+                        </span>
                      </div>
                      <div className="flex items-center gap-4 bg-[#050B14] p-5 rounded-2xl border border-[#1D2F4F]">
                         <span className="text-slate-500 font-mono text-xl w-20">14:01</span>
                         <div className="w-4 h-4 rounded-full bg-slate-500"></div>
-                        <span className="text-slate-300 text-2xl">Miss på <span className="font-bold text-slate-400">B7</span>.</span>
+                        <span className="text-slate-300 text-2xl">
+                          {en ? <>Miss on <span className="font-bold text-slate-400">B7</span>.</> : <>Miss på <span className="font-bold text-slate-400">B7</span>.</>}
+                        </span>
                      </div>
                      <div className="flex items-center gap-4 bg-[#050B14] p-5 rounded-2xl border border-[#1D2F4F]">
                         <span className="text-slate-500 font-mono text-xl w-20">13:58</span>
                         <div className="w-4 h-4 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
-                        <span className="text-slate-300 text-2xl">Motståndaren missade din kryssare på <span className="font-bold text-indigo-400">H2</span>.</span>
+                        <span className="text-slate-300 text-2xl">
+                          {en ? <>Opponent missed your cruiser on <span className="font-bold text-indigo-400">H2</span>.</> : <>Motståndaren missade din kryssare på <span className="font-bold text-indigo-400">H2</span>.</>}
+                        </span>
                      </div>
                      <div className="flex items-center gap-4 bg-[#050B14] p-5 rounded-2xl border border-[#1D2F4F]">
                         <span className="text-slate-500 font-mono text-xl w-20">13:55</span>
                         <div className="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                        <span className="text-white text-2xl">Träff på <span className="font-bold text-red-400">E4</span>! Motståndarens u-båt skadad.</span>
+                        <span className="text-white text-2xl">
+                          {en ? <><span className="font-bold text-red-400">Hit on E4!</span> Opponent's sub damaged.</> : <>Träff på <span className="font-bold text-red-400">E4</span>! Motståndarens u-båt skadad.</>}
+                        </span>
                      </div>
                      <div className="flex items-center gap-4 bg-[#050B14] p-5 rounded-2xl border border-[#1D2F4F] opacity-50">
                         <span className="text-slate-500 font-mono text-xl w-20">13:42</span>
                         <div className="w-4 h-4 rounded-full bg-emerald-500"></div>
-                        <span className="text-slate-400 text-2xl">Matchen startade. Din tur.</span>
+                        <span className="text-slate-400 text-2xl">{en ? "Match started. Your turn." : "Matchen startade. Din tur."}</span>
                      </div>
                   </div>
                 </div>
@@ -237,12 +247,12 @@ export default function Ipad1() {
                 <div className="flex-[0.8] bg-gradient-to-b from-[#0A1628] to-[#050B14] rounded-[32px] border-2 border-[#1D2F4F] p-8 flex flex-col">
                   <h3 className="text-slate-400 text-2xl font-bold mb-8 uppercase tracking-widest flex items-center gap-3">
                     <Shield className="w-6 h-6" />
-                    Flottans Status
+                    {en ? "Fleet Status" : "Flottans Status"}
                   </h3>
                   <div className="space-y-8">
                      <div>
                        <div className="flex justify-between text-2xl mb-4">
-                          <span className="text-white font-medium">Hangarfartyg</span>
+                          <span className="text-white font-medium">{en ? "Carrier" : "Hangarfartyg"}</span>
                           <span className="text-emerald-400 font-bold">100%</span>
                        </div>
                        <div className="h-5 bg-[#050B14] rounded-full overflow-hidden border border-[#1D2F4F]">
@@ -251,7 +261,7 @@ export default function Ipad1() {
                      </div>
                      <div>
                        <div className="flex justify-between text-2xl mb-4">
-                          <span className="text-white font-medium">Slagskepp</span>
+                          <span className="text-white font-medium">{en ? "Battleship" : "Slagskepp"}</span>
                           <span className="text-amber-500 font-bold">60%</span>
                        </div>
                        <div className="h-5 bg-[#050B14] rounded-full overflow-hidden border border-[#1D2F4F]">
@@ -260,8 +270,8 @@ export default function Ipad1() {
                      </div>
                      <div>
                        <div className="flex justify-between text-2xl mb-4">
-                          <span className="text-white font-medium">Kryssare</span>
-                          <span className="text-red-500 font-bold">Kritisk</span>
+                          <span className="text-white font-medium">{en ? "Cruiser" : "Kryssare"}</span>
+                          <span className="text-red-500 font-bold">{en ? "Critical" : "Kritisk"}</span>
                        </div>
                        <div className="h-5 bg-[#050B14] rounded-full overflow-hidden border border-[#1D2F4F]">
                           <div className="h-full bg-red-500 w-[20%] animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
@@ -269,8 +279,8 @@ export default function Ipad1() {
                      </div>
                      <div className="opacity-50">
                        <div className="flex justify-between text-2xl mb-4">
-                          <span className="text-slate-400 font-medium line-through">U-båt</span>
-                          <span className="text-slate-500 font-bold uppercase tracking-wider text-xl mt-1">Sänkt</span>
+                          <span className="text-slate-400 font-medium line-through">{en ? "Submarine" : "U-båt"}</span>
+                          <span className="text-slate-500 font-bold uppercase tracking-wider text-xl mt-1">{en ? "Sunk" : "Sänkt"}</span>
                        </div>
                        <div className="h-5 bg-[#050B14] rounded-full overflow-hidden border border-[#1D2F4F]">
                           <div className="h-full bg-slate-600 w-0"></div>

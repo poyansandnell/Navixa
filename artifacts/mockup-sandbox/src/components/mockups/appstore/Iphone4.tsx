@@ -1,4 +1,5 @@
 export default function Iphone4() {
+  const en = new URLSearchParams(window.location.search).get('lang') === 'en';
   return (
     <div
       style={{ width: 1290, height: 2796 }}
@@ -18,16 +19,16 @@ export default function Iphone4() {
         <h1 className="text-white text-center font-['Inter'] font-black leading-[0.9] mb-6">
           <div className="text-[86px]">
             <span className="relative inline-block">
-              Klättra
+              {en ? "Climb" : "Klättra"}
               <span className="absolute bottom-[-8px] left-0 right-0 h-[6px] bg-amber-500"></span>
             </span>
-            {" på"}
+            {en ? " the" : " på"}
           </div>
-          <div className="text-[86px] mt-3">topplistan</div>
+          <div className="text-[86px] mt-3">{en ? "leaderboard" : "topplistan"}</div>
         </h1>
         
         <p className="text-gray-400 text-[22px] font-['Inter'] font-medium text-center max-w-[600px]">
-          Tävla mot Sveriges bästa spelare
+          {en ? "Compete against the world's best players" : "Tävla mot Sveriges bästa spelare"}
         </p>
       </div>
 
@@ -54,15 +55,15 @@ export default function Iphone4() {
 
               {/* Header */}
               <div className="px-6 py-5 border-b border-[#1a2f4a]">
-                <h2 className="text-white font-black text-3xl mb-3">Topplistan</h2>
+                <h2 className="text-white font-black text-3xl mb-3">{en ? "Leaderboard" : "Topplistan"}</h2>
                 
                 {/* Time filter tabs */}
                 <div className="flex gap-2">
                   <button className="px-4 py-2 bg-amber-500 rounded-lg text-black font-bold text-sm">
-                    Denna vecka
+                    {en ? "This week" : "Denna vecka"}
                   </button>
                   <button className="px-4 py-2 bg-[#0d1d35] border border-[#1a2f4a] rounded-lg text-gray-400 font-semibold text-sm">
-                    Alla tider
+                    {en ? "All time" : "Alla tider"}
                   </button>
                 </div>
               </div>
@@ -130,7 +131,7 @@ export default function Iphone4() {
                   </div>
                   <div className="flex-1">
                     <div className="text-white font-bold text-base">MatrosMaria</div>
-                    <div className="text-gray-400 text-sm">34 vinster</div>
+                    <div className="text-gray-400 text-sm">34 {en ? "wins" : "vinster"}</div>
                   </div>
                   <div className="text-amber-400 font-black text-xl">1987</div>
                 </div>
@@ -143,7 +144,7 @@ export default function Iphone4() {
                   </div>
                   <div className="flex-1">
                     <div className="text-white font-bold text-base">LöjtnantenLars</div>
-                    <div className="text-gray-400 text-sm">29 vinster</div>
+                    <div className="text-gray-400 text-sm">29 {en ? "wins" : "vinster"}</div>
                   </div>
                   <div className="text-amber-400 font-black text-xl">1923</div>
                 </div>
@@ -153,11 +154,11 @@ export default function Iphone4() {
                   <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-12 bg-amber-500 rounded-full"></div>
                   <div className="text-amber-400 font-black text-xl w-8">12</div>
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white font-bold text-lg border-2 border-amber-400">
-                    D
+                    {en ? "Y" : "D"}
                   </div>
                   <div className="flex-1">
-                    <div className="text-white font-bold text-base">Du</div>
-                    <div className="text-amber-300 text-sm font-semibold">23 vinster · På väg upp! 📈</div>
+                    <div className="text-white font-bold text-base">{en ? "You" : "Du"}</div>
+                    <div className="text-amber-300 text-sm font-semibold">23 {en ? "wins" : "vinster"} · {en ? "Moving up! 📈" : "På väg upp! 📈"}</div>
                   </div>
                   <div className="text-amber-400 font-black text-xl">1847</div>
                 </div>
@@ -170,7 +171,7 @@ export default function Iphone4() {
                   </div>
                   <div className="flex-1">
                     <div className="text-white font-bold text-base">FregattFredrik</div>
-                    <div className="text-gray-400 text-sm">21 vinster</div>
+                    <div className="text-gray-400 text-sm">21 {en ? "wins" : "vinster"}</div>
                   </div>
                   <div className="text-amber-400 font-black text-xl">1834</div>
                 </div>
@@ -183,7 +184,7 @@ export default function Iphone4() {
                   </div>
                   <div className="flex-1">
                     <div className="text-white font-bold text-base">KorvettenKim</div>
-                    <div className="text-gray-400 text-sm">19 vinster</div>
+                    <div className="text-gray-400 text-sm">19 {en ? "wins" : "vinster"}</div>
                   </div>
                   <div className="text-amber-400 font-black text-xl">1812</div>
                 </div>
@@ -196,7 +197,7 @@ export default function Iphone4() {
                   </div>
                   <div className="flex-1">
                     <div className="text-white font-bold text-base">TorpedTom</div>
-                    <div className="text-gray-400 text-sm">18 vinster</div>
+                    <div className="text-gray-400 text-sm">18 {en ? "wins" : "vinster"}</div>
                   </div>
                   <div className="text-amber-400 font-black text-xl">1798</div>
                 </div>
