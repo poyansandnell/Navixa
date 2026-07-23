@@ -25,6 +25,9 @@ export const profilesTable = pgTable(
   {
     id: text("id").primaryKey(),
     username: text("username").notNull(),
+    // sha256 hex of the lowercased+trimmed primary email; used for
+    // contact-based friend discovery. Never exposed via the API.
+    emailHash: text("email_hash"),
     displayName: text("display_name"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
@@ -49,6 +52,9 @@ export const profilesTable = pgTable(
     uniqueIndex("profiles_username_key")
       .on(t.username)
       .where(sql`${t.deletedAt} is null`),
+    uniqueIndex("profiles_email_hash_key")
+      .on(t.emailHash)
+      .where(sql`${t.emailHash} is not null`),
     index("profiles_country_idx").on(t.countryCode),
     index("profiles_last_seen_idx").on(t.lastSeenAt.desc()),
     check(

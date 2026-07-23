@@ -78,6 +78,9 @@ export function makeIdempotencyKey(): string {
 // Matchmaking
 // ---------------------------------------------------------------------------
 
+/** Match pace: `daily` (~24h/move, async) vs `blitz` (realtime clock). */
+export type MatchTempo = 'blitz' | 'daily';
+
 export interface JoinMatchmakingResult {
   matched: boolean;
   matchId: string | null;
@@ -88,6 +91,8 @@ export function joinMatchmaking(params: {
   mode: ServerMatchMode;
   boardSize?: number;
   region?: string;
+  /** Match pace; defaults to `daily` server-side. */
+  tempo?: MatchTempo;
 }): Promise<JoinMatchmakingResult> {
   return call<JoinMatchmakingResult>('POST', '/matchmaking/join', params);
 }
@@ -105,6 +110,7 @@ export interface CreatePrivateResult {
   code: string;
   deepLink: string;
   universalLink: string;
+  tempo: MatchTempo;
 }
 
 export function createPrivateMatch(params: {
@@ -112,6 +118,8 @@ export function createPrivateMatch(params: {
   boardSize?: number;
   turnSeconds?: number;
   isRated?: boolean;
+  /** Match pace; defaults to `blitz` server-side. */
+  tempo?: MatchTempo;
 }): Promise<CreatePrivateResult> {
   return call<CreatePrivateResult>('POST', '/matches/private', params);
 }
@@ -192,6 +200,42 @@ export interface ReconnectResult {
 
 export function reconnectMatch(matchId: string): Promise<ReconnectResult> {
   return call<ReconnectResult>('GET', `/matches/${matchId}/reconnect`);
+}
+
+// ---------------------------------------------------------------------------
+// Active matches ("Dina matcher")
+// ---------------------------------------------------------------------------
+
+/** Opponent summary on an active-match row (null for an unfilled seat). */
+export interface ActiveMatchOpponent {
+  id: string;
+  isBot: boolean;
+  username: string;
+  avatarUrl: string | null;
+  rating: number | null;
+}
+
+/**
+ * A single active match as returned by `GET /api/matches/active`. Server keys
+ * are already camelCase, so no normalisation is needed. Rows are sorted
+ * your-turn-first.
+ */
+export interface ActiveMatch {
+  matchId: string;
+  tempo: MatchTempo;
+  mode: ServerMatchMode;
+  status: 'pending' | 'placing' | 'active';
+  boardSize: number;
+  turnSeconds: number | null;
+  seat: number;
+  yourTurn: boolean;
+  turnDeadline: string | null;
+  updatedAt: string;
+  opponent: ActiveMatchOpponent | null;
+}
+
+export function fetchActiveMatches(): Promise<{ matches: ActiveMatch[] }> {
+  return call<{ matches: ActiveMatch[] }>('GET', '/matches/active');
 }
 
 // ---------------------------------------------------------------------------

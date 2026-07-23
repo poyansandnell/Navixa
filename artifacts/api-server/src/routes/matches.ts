@@ -1,13 +1,14 @@
 /** Match lifecycle: create private/bot, join, submit fleet, fire, reconnect,
  *  resign, timeout, finalize. Server-authoritative. */
 import { Router, type IRouter } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import {
   db,
   matchesTable,
   matchPlayersTable,
   matchEventsTable,
   privateGameStatesTable,
+  profilesTable,
   ratingsTable,
 } from "@workspace/db";
 import { allSunk, type Fleet } from "@workspace/game-engine";
@@ -21,6 +22,7 @@ import {
   submitFleetSchema,
   fireShotSchema,
   uuidSchema,
+  TEMPO_TURN_SECONDS,
 } from "../lib/schemas";
 import {
   loadMatch,
@@ -40,6 +42,7 @@ import {
 } from "../game/helpers";
 import { ensureBotFleet, scheduleBotMove } from "../game/bot";
 import { genInviteCode } from "../game/invite";
+import { notifyTurn } from "../game/notify";
 import { emitMatchUpdate } from "../realtime/emitter";
 import { z } from "zod";
 
@@ -65,6 +68,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const userId = res.locals.userId as string;
     const body = parseBody(createPrivateMatchSchema, req.body);
+    const turnSeconds = body.turnSeconds ?? TEMPO_TURN_SECONDS[body.tempo];
 
     let code = "";
     let match:
@@ -87,11 +91,12 @@ router.post(
         .insert(matchesTable)
         .values({
           mode: body.mode,
+          tempo: body.tempo,
           status: "pending",
           boardSize: body.boardSize,
           isRated: body.isRated,
           isPrivate: true,
-          turnSeconds: body.turnSeconds,
+          turnSeconds,
           inviteCode: code,
         })
         .returning();
@@ -103,16 +108,18 @@ router.post(
       playerId: userId,
       seat: 0,
       ratingBefore: await ratingFor(userId, body.mode),
-      timeLeftMs: body.turnSeconds * 1000,
+      timeLeftMs: body.tempo === "daily" ? null : turnSeconds * 1000,
     });
     await recordEvent(match.id, "match_created", userId, {
       source: "private",
       code,
+      tempo: body.tempo,
     });
 
     res.json({
       matchId: match.id,
       code,
+      tempo: body.tempo,
       deepLink: `navixa://join/${code}`,
       universalLink: `https://navixa.app/join/${code}`,
     });
@@ -158,7 +165,7 @@ router.post(
         playerId: userId,
         seat: 1,
         ratingBefore: await ratingFor(userId, match.mode),
-        timeLeftMs: match.turnSeconds * 1000,
+        timeLeftMs: match.tempo === "daily" ? null : match.turnSeconds * 1000,
       });
       const [updated] = await tx
         .update(matchesTable)
@@ -192,6 +199,7 @@ router.post(
       .insert(matchesTable)
       .values({
         mode: "bot",
+        tempo: "blitz",
         status: "placing",
         boardSize: body.boardSize,
         isRated: false,
@@ -304,10 +312,140 @@ router.post(
           currentTurnPlayerId: firstSeat?.playerId ?? null,
           turnDeadline: deadline,
         });
+        // Daily matches: push the first mover (seat 0) that it is their turn.
+        if (match.tempo === "daily") {
+          const secondSeat = players.find((p) => p.seat !== 0);
+          void notifyTurn({
+            matchId: match.id,
+            tempo: match.tempo,
+            toUserId: firstSeat?.playerId ?? null,
+            opponentId: secondSeat?.playerId ?? null,
+          });
+        }
       }
     }
 
     res.json({ ok: true, ready: true, matchStarted: activated });
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// GET /api/matches/active — the caller's ongoing matches (setup + active).
+// No secret board data. Sorted: your-turn first, then by soonest deadline.
+// ---------------------------------------------------------------------------
+router.get(
+  "/active",
+  asyncHandler(async (req, res) => {
+    const userId = res.locals.userId as string;
+
+    // Matches the caller participates in that are still in play.
+    const rows = await db
+      .select({
+        match: matchesTable,
+        seat: matchPlayersTable.seat,
+      })
+      .from(matchPlayersTable)
+      .innerJoin(matchesTable, eq(matchPlayersTable.matchId, matchesTable.id))
+      .where(
+        and(
+          eq(matchPlayersTable.playerId, userId),
+          isNull(matchesTable.deletedAt),
+          inArray(matchesTable.status, ["pending", "placing", "active"]),
+        ),
+      )
+      .orderBy(desc(matchesTable.updatedAt));
+
+    if (rows.length === 0) {
+      res.json({ matches: [] });
+      return;
+    }
+
+    const matchIds = rows.map((r) => r.match.id);
+    // All opponents (seat rows that are not the caller).
+    const opponentRows = await db
+      .select({
+        matchId: matchPlayersTable.matchId,
+        playerId: matchPlayersTable.playerId,
+        isBot: matchPlayersTable.isBot,
+      })
+      .from(matchPlayersTable)
+      .where(
+        and(
+          inArray(matchPlayersTable.matchId, matchIds),
+          or(
+            sql`${matchPlayersTable.playerId} <> ${userId}`,
+            isNull(matchPlayersTable.playerId),
+          ),
+        ),
+      );
+    const opponentIds = [
+      ...new Set(opponentRows.map((o) => o.playerId).filter((id): id is string => !!id)),
+    ];
+    const oppProfiles = opponentIds.length
+      ? await db
+          .select({
+            id: profilesTable.id,
+            username: profilesTable.username,
+            avatarUrl: profilesTable.avatarUrl,
+          })
+          .from(profilesTable)
+          .where(inArray(profilesTable.id, opponentIds))
+      : [];
+    const oppRatings = opponentIds.length
+      ? await db
+          .select({ playerId: ratingsTable.playerId, rating: ratingsTable.rating })
+          .from(ratingsTable)
+          .where(
+            and(
+              inArray(ratingsTable.playerId, opponentIds),
+              eq(ratingsTable.mode, "ranked"),
+            ),
+          )
+      : [];
+    const profMap = new Map(oppProfiles.map((p) => [p.id, p]));
+    const ratingMap = new Map(oppRatings.map((r) => [r.playerId, r.rating]));
+    const oppByMatch = new Map<string, (typeof opponentRows)[number]>();
+    for (const o of opponentRows) if (!oppByMatch.has(o.matchId)) oppByMatch.set(o.matchId, o);
+
+    const matches = rows.map(({ match, seat }) => {
+      const opp = oppByMatch.get(match.id);
+      const prof = opp?.playerId ? profMap.get(opp.playerId) : undefined;
+      const yourTurn =
+        match.status === "active" &&
+        (match.currentTurnPlayerId === userId || match.currentTurnSeat === seat);
+      return {
+        matchId: match.id,
+        tempo: match.tempo,
+        mode: match.mode,
+        status: match.status,
+        boardSize: match.boardSize,
+        turnSeconds: match.turnSeconds,
+        seat,
+        yourTurn,
+        turnDeadline: match.turnDeadline,
+        updatedAt: match.updatedAt,
+        opponent: opp
+          ? {
+              id: opp.playerId,
+              isBot: opp.isBot,
+              username: prof?.username ?? (opp.isBot ? "Bot" : null),
+              avatarUrl: prof?.avatarUrl ?? null,
+              rating: opp.playerId ? ratingMap.get(opp.playerId) ?? null : null,
+            }
+          : null,
+      };
+    });
+
+    // Your-turn first, then soonest deadline, then most recently updated.
+    matches.sort((a, b) => {
+      if (a.yourTurn !== b.yourTurn) return a.yourTurn ? -1 : 1;
+      const ad = a.turnDeadline ? a.turnDeadline.getTime() : Infinity;
+      const bd = b.turnDeadline ? b.turnDeadline.getTime() : Infinity;
+      if (ad !== bd) return ad - bd;
+      return b.updatedAt.getTime() - a.updatedAt.getTime();
+    });
+
+    res.json({ matches });
   }),
 );
 

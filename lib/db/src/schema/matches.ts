@@ -15,7 +15,12 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-import { matchModeEnum, matchResultEnum, matchStatusEnum } from "./enums";
+import {
+  matchModeEnum,
+  matchResultEnum,
+  matchStatusEnum,
+  matchTempoEnum,
+} from "./enums";
 import { profilesTable } from "./profiles";
 
 // -----------------------------------------------------------------------------
@@ -46,6 +51,7 @@ export const matchesTable = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     mode: matchModeEnum("mode").notNull().default("ranked"),
+    tempo: matchTempoEnum("tempo").notNull().default("blitz"),
     status: matchStatusEnum("status").notNull().default("pending"),
     boardSize: smallint("board_size").notNull().default(10),
     ruleset: text("ruleset").notNull().default("classic"),
@@ -95,7 +101,7 @@ export const matchesTable = pgTable(
     check("matches_board_size_chk", sql`${t.boardSize} between 8 and 16`),
     check(
       "matches_turn_seconds_chk",
-      sql`${t.turnSeconds} between 10 and 600`,
+      sql`${t.turnSeconds} between 10 and 86400`,
     ),
     check("matches_turn_number_chk", sql`${t.turnNumber} >= 0`),
     check(

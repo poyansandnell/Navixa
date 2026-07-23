@@ -13,6 +13,9 @@ export type OnlineMode = 'quick' | 'ranked' | 'blitz' | 'classic' | 'private' | 
 /** Server-side match_mode enum. */
 export type ServerMatchMode = 'ranked' | 'casual' | 'friendly' | 'tournament' | 'bot';
 
+/** Match pace: `daily` (~24h/move, async) vs `blitz` (realtime clock). */
+export type MatchTempo = 'blitz' | 'daily';
+
 /** Server-side match_status enum. */
 export type MatchStatus =
   | 'pending'
@@ -38,6 +41,8 @@ export interface ModeConfig {
   /** Whether the mode is rated (requires a registered account). */
   ranked: boolean;
   boardSize: number;
+  /** Default pace for the mode. `blitz` mode is realtime; others are daily. */
+  tempo: MatchTempo;
 }
 
 /** Redacted public state as returned by fire-shot / reconnect-match `view`. */
@@ -73,17 +78,17 @@ export const DEV_BOT_FALLBACK_MS = 15_000;
 export function resolveModeConfig(mode: OnlineMode, boardSize = 10): ModeConfig {
   switch (mode) {
     case 'ranked':
-      return { mode, serverMode: 'ranked', ranked: true, boardSize };
+      return { mode, serverMode: 'ranked', ranked: true, boardSize, tempo: 'daily' };
     case 'quick':
-      return { mode, serverMode: 'casual', ranked: false, boardSize };
+      return { mode, serverMode: 'casual', ranked: false, boardSize, tempo: 'daily' };
     case 'blitz':
-      return { mode, serverMode: 'casual', ranked: false, boardSize };
+      return { mode, serverMode: 'casual', ranked: false, boardSize, tempo: 'blitz' };
     case 'classic':
-      return { mode, serverMode: 'casual', ranked: false, boardSize };
+      return { mode, serverMode: 'casual', ranked: false, boardSize, tempo: 'daily' };
     case 'private':
-      return { mode, serverMode: 'friendly', ranked: false, boardSize };
+      return { mode, serverMode: 'friendly', ranked: false, boardSize, tempo: 'blitz' };
     case 'bot':
     default:
-      return { mode: 'bot', serverMode: 'bot', ranked: false, boardSize };
+      return { mode: 'bot', serverMode: 'bot', ranked: false, boardSize, tempo: 'blitz' };
   }
 }

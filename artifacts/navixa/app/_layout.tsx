@@ -25,6 +25,7 @@ import { AuthProvider, useAuth } from '@/features/auth';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { setAuthTokenGetter } from '@/lib/api';
 import { setSocketTokenGetter, disconnectSocket } from '@/lib/socket';
+import { useNotificationDeepLink } from '@/features/onlineMatch';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -74,6 +75,9 @@ function RootLayoutNav() {
     useOnboarding();
 
   const ready = !initializing && !onboardingLoading;
+
+  // Resume a match when the player taps a daily-match push (incl. cold start).
+  useNotificationDeepLink(!!session && hasProfile);
 
   useEffect(() => {
     if (!ready) return;

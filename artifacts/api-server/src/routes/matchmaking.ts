@@ -17,8 +17,13 @@ import {
 } from "@workspace/db";
 import { requireAuth } from "../middlewares/requireAuth";
 import { asyncHandler, parseBody } from "../lib/http";
-import { joinMatchmakingSchema, leaveMatchmakingSchema } from "../lib/schemas";
+import {
+  joinMatchmakingSchema,
+  leaveMatchmakingSchema,
+  TEMPO_TURN_SECONDS,
+} from "../lib/schemas";
 import { emitMatchmakingMatched } from "../realtime/emitter";
+import { notifyTurn } from "../game/notify";
 
 const router: IRouter = Router();
 router.use(requireAuth);
@@ -46,6 +51,7 @@ router.post(
         .values({
           playerId: userId,
           mode: body.mode,
+          tempo: body.tempo,
           rating: playerRating,
           region: body.region ?? null,
           boardSize: body.boardSize,
@@ -55,6 +61,7 @@ router.post(
           target: [matchmakingQueueTable.playerId, matchmakingQueueTable.mode],
           targetWhere: sql`${matchmakingQueueTable.status} = 'searching'`,
           set: {
+            tempo: body.tempo,
             rating: playerRating,
             region: body.region ?? null,
             boardSize: body.boardSize,
@@ -74,6 +81,7 @@ router.post(
           and(
             eq(matchmakingQueueTable.status, "searching"),
             eq(matchmakingQueueTable.mode, body.mode),
+            eq(matchmakingQueueTable.tempo, body.tempo),
             eq(matchmakingQueueTable.boardSize, body.boardSize),
             ne(matchmakingQueueTable.playerId, userId),
             body.region
@@ -111,30 +119,36 @@ router.post(
       if (locked.length === 0) return null;
 
       // Create the match + seats.
+      const turnSeconds = TEMPO_TURN_SECONDS[body.tempo];
       const [match] = await tx
         .insert(matchesTable)
         .values({
           mode: body.mode,
+          tempo: body.tempo,
           status: "placing",
           boardSize: body.boardSize,
+          turnSeconds,
           isRated: body.mode === "ranked",
         })
         .returning();
 
+      // Daily matches do not track a per-player total clock (timeLeftMs null);
+      // only the 24h per-turn deadline applies.
+      const timeLeftMs = body.tempo === "daily" ? null : match.turnSeconds * 1000;
       await tx.insert(matchPlayersTable).values([
         {
           matchId: match.id,
           playerId: userId,
           seat: 0,
           ratingBefore: playerRating,
-          timeLeftMs: match.turnSeconds * 1000,
+          timeLeftMs,
         },
         {
           matchId: match.id,
           playerId: opponent.playerId,
           seat: 1,
           ratingBefore: opponent.rating,
-          timeLeftMs: match.turnSeconds * 1000,
+          timeLeftMs,
         },
       ]);
 
@@ -154,13 +168,29 @@ router.post(
         payload: { mode: body.mode, source: "matchmaking" },
       });
 
-      return { matchId: match.id, opponentId: opponent.playerId };
+      return { matchId: match.id, opponentId: opponent.playerId, tempo: body.tempo };
     });
 
     if (matchId) {
       // Notify both players via their user rooms.
       emitMatchmakingMatched(userId, matchId.matchId);
       emitMatchmakingMatched(matchId.opponentId, matchId.matchId);
+      // Daily matches: push both players that a match was found so they place
+      // their fleet. The per-turn push follows once the game activates.
+      if (matchId.tempo === "daily") {
+        void notifyTurn({
+          matchId: matchId.matchId,
+          tempo: "daily",
+          toUserId: userId,
+          opponentId: matchId.opponentId,
+        });
+        void notifyTurn({
+          matchId: matchId.matchId,
+          tempo: "daily",
+          toUserId: matchId.opponentId,
+          opponentId: userId,
+        });
+      }
       res.json({ matched: true, matchId: matchId.matchId, status: "matched" });
       return;
     }

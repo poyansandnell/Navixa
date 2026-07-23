@@ -22,6 +22,7 @@ import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
 import { asyncHandler, parseBody } from "../lib/http";
 import { appError } from "../lib/errors";
 import { annulMatch } from "../game/annul";
+import { publicProfileColumns } from "../lib/sanitizeProfile";
 
 const router: IRouter = Router();
 router.use(requireAuth, requireAdmin);
@@ -42,7 +43,7 @@ const handlers: Record<string, Handler> = {
       payload,
     );
     const users = await db
-      .select()
+      .select(publicProfileColumns)
       .from(profilesTable)
       .where(ilike(profilesTable.username, `%${query}%`))
       .limit(limit);
@@ -52,7 +53,7 @@ const handlers: Record<string, Handler> = {
   async get_user_status(payload) {
     const { userId } = p(z.object({ userId: z.string().min(1).max(255) }), payload);
     const [profile] = await db
-      .select()
+      .select(publicProfileColumns)
       .from(profilesTable)
       .where(eq(profilesTable.id, userId))
       .limit(1);

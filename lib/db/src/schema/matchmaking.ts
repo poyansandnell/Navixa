@@ -13,7 +13,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-import { matchModeEnum, queueStatusEnum } from "./enums";
+import { matchModeEnum, matchTempoEnum, queueStatusEnum } from "./enums";
 import { matchesTable } from "./matches";
 import { profilesTable } from "./profiles";
 
@@ -28,6 +28,7 @@ export const matchmakingQueueTable = pgTable(
       .notNull()
       .references(() => profilesTable.id, { onDelete: "cascade" }),
     mode: matchModeEnum("mode").notNull().default("ranked"),
+    tempo: matchTempoEnum("tempo").notNull().default("daily"),
     rating: integer("rating").notNull().default(1200),
     region: text("region"),
     boardSize: smallint("board_size").notNull().default(10),
@@ -54,7 +55,7 @@ export const matchmakingQueueTable = pgTable(
       .on(t.playerId, t.mode)
       .where(sql`${t.status} = 'searching'`),
     index("mmq_search_idx")
-      .on(t.mode, t.status, t.rating)
+      .on(t.mode, t.tempo, t.status, t.rating)
       .where(sql`${t.status} = 'searching'`),
     check("mmq_board_size_chk", sql`${t.boardSize} between 8 and 16`),
   ],

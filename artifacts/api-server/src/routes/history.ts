@@ -12,6 +12,7 @@ import { requireAuth } from "../middlewares/requireAuth";
 import { asyncHandler, parseBody } from "../lib/http";
 import { appError } from "../lib/errors";
 import { uuidSchema } from "../lib/schemas";
+import { publicProfileColumns } from "../lib/sanitizeProfile";
 import { z } from "zod";
 
 const router: IRouter = Router();
@@ -58,7 +59,10 @@ router.get(
       ),
     );
     const profiles = oppIds.length
-      ? await db.select().from(profilesTable).where(inArray(profilesTable.id, oppIds))
+      ? await db
+          .select(publicProfileColumns)
+          .from(profilesTable)
+          .where(inArray(profilesTable.id, oppIds))
       : [];
     const profMap = new Map(profiles.map((p) => [p.id, p]));
     const byMatch = new Map<string, typeof players>();
@@ -115,7 +119,10 @@ router.get(
       new Set(players.map((p) => p.playerId).filter((id): id is string => !!id)),
     );
     const profiles = oppIds.length
-      ? await db.select().from(profilesTable).where(inArray(profilesTable.id, oppIds))
+      ? await db
+          .select(publicProfileColumns)
+          .from(profilesTable)
+          .where(inArray(profilesTable.id, oppIds))
       : [];
     res.json({ match, players, moves, profiles });
   }),

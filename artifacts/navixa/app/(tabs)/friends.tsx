@@ -30,6 +30,7 @@ import {
   acceptFriendRequest,
   blockUser,
   cancelFriendRequest,
+  ContactDiscovery,
   fetchFriends,
   fetchPendingRequests,
   promptReport,
@@ -46,7 +47,7 @@ import {
 export default function FriendsScreen() {
   const { t } = useTranslation();
   const colors = useColors();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const isGuest = useIsGuest();
   const selfId = user?.id ?? null;
 
@@ -305,6 +306,14 @@ export default function FriendsScreen() {
       ) : null}
 
       <Spacer size="xl" />
+
+      {/* Find friends: contacts sync + invite */}
+      {selfId ? (
+        <>
+          <ContactDiscovery selfId={selfId} username={profile?.username ?? ''} />
+          <Spacer size="xl" />
+        </>
+      ) : null}
 
       {loading ? (
         <View style={styles.centerPad}>

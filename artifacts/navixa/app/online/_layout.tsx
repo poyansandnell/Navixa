@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { useColors } from '@/hooks/useColors';
+import { LeaveMatchButton } from '@/features/onlineMatch';
 
 /**
  * Stack for the online (server-authoritative) match flow:
@@ -27,11 +28,20 @@ export default function OnlineLayout() {
       <Stack.Screen name="join/[code]" options={{ title: t('online.private.joinTitle') }} />
       <Stack.Screen
         name="setup"
-        options={{ title: t('online.setup.title'), headerBackVisible: false }}
+        options={{
+          title: t('online.setup.title'),
+          headerBackVisible: false,
+          headerLeft: () => <LeaveMatchButton />,
+        }}
       />
       <Stack.Screen
         name="play"
-        options={{ title: t('online.play.title'), headerBackVisible: false, gestureEnabled: false }}
+        options={{
+          title: t('online.play.title'),
+          headerBackVisible: false,
+          gestureEnabled: false,
+          headerLeft: () => <LeaveMatchButton />,
+        }}
       />
       <Stack.Screen
         name="result"

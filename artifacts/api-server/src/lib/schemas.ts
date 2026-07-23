@@ -26,14 +26,23 @@ const placementSchema = z.object({
 export const fleetSchema = z.array(placementSchema).min(1).max(16);
 
 const modeSchema = z.enum(["ranked", "casual", "friendly", "tournament", "bot"]);
+const tempoSchema = z.enum(["blitz", "daily"]);
 const boardSizeSchema = z.number().int().min(8).max(16).default(10);
-const turnSecondsSchema = z.number().int().min(10).max(600).default(60);
+const turnSecondsSchema = z.number().int().min(10).max(86400).default(60);
+
+/** Turn duration in seconds implied by a tempo. */
+export const TEMPO_TURN_SECONDS: Record<"blitz" | "daily", number> = {
+  blitz: 60,
+  daily: 86400,
+};
 
 // --- Profile ---------------------------------------------------------------
 export const bootstrapProfileSchema = z.object({
   username: z.string().trim().min(3).max(24),
   displayName: z.string().trim().min(1).max(48).optional(),
   locale: z.string().trim().min(2).max(8).optional(),
+  // Optional; when omitted the server reads it from the Clerk session claims.
+  email: z.string().email().max(320).optional(),
 });
 
 export const updateProfileSchema = z.object({
@@ -47,6 +56,7 @@ export const updateProfileSchema = z.object({
 // --- Matchmaking -----------------------------------------------------------
 export const joinMatchmakingSchema = z.object({
   mode: modeSchema.default("ranked"),
+  tempo: tempoSchema.default("daily"),
   boardSize: boardSizeSchema,
   region: z.string().min(1).max(16).optional(),
 });
@@ -58,8 +68,10 @@ export const leaveMatchmakingSchema = z.object({
 // --- Private match ---------------------------------------------------------
 export const createPrivateMatchSchema = z.object({
   mode: z.enum(["casual", "friendly"]).default("friendly"),
+  tempo: tempoSchema.default("blitz"),
   boardSize: boardSizeSchema,
-  turnSeconds: turnSecondsSchema,
+  // Optional explicit override; when omitted, derived from tempo.
+  turnSeconds: turnSecondsSchema.optional(),
   isRated: z.boolean().default(false),
 });
 
@@ -130,6 +142,13 @@ export const sendFriendRequestSchema = z.object({
 export const blockUserSchema = z.object({
   blockedId: z.string().min(1).max(255),
   reason: z.string().max(500).optional(),
+});
+
+export const contactMatchSchema = z.object({
+  hashes: z
+    .array(z.string().regex(/^[a-f0-9]{64}$/, "must be a 64-char lowercase hex sha256"))
+    .min(1)
+    .max(500),
 });
 
 export const searchUsersQuerySchema = z.object({

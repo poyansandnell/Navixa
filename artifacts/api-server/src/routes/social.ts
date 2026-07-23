@@ -1,6 +1,6 @@
 /** Social: friends, requests, blocks, leaderboards, reports. */
 import { Router, type IRouter } from "express";
-import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, ne, or, sql } from "drizzle-orm";
 import {
   db,
   profilesTable,
@@ -19,11 +19,37 @@ import {
   idParamSchema,
   reportUserSchema,
   leaderboardQuerySchema,
+  contactMatchSchema,
 } from "../lib/schemas";
+import { publicProfileColumns } from "../lib/sanitizeProfile";
 import { emitFriendEvent } from "../realtime/emitter";
 
 const router: IRouter = Router();
 router.use(requireAuth);
+
+// -----------------------------------------------------------------------------
+// Simple per-user in-memory rate limiter for contact matching (privacy-sensitive
+// bulk lookup). Sliding window: at most CONTACT_MATCH_MAX requests per window.
+// In-memory is acceptable for a single-instance deployment; swap for a shared
+// store (Redis) if horizontally scaled.
+// -----------------------------------------------------------------------------
+const CONTACT_MATCH_MAX = 10;
+const CONTACT_MATCH_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const contactMatchHits = new Map<string, number[]>();
+
+/** Records a hit and returns true if the caller is now over the limit. */
+function contactMatchRateLimited(userId: string): boolean {
+  const now = Date.now();
+  const cutoff = now - CONTACT_MATCH_WINDOW_MS;
+  const hits = (contactMatchHits.get(userId) ?? []).filter((t) => t > cutoff);
+  if (hits.length >= CONTACT_MATCH_MAX) {
+    contactMatchHits.set(userId, hits);
+    return true;
+  }
+  hits.push(now);
+  contactMatchHits.set(userId, hits);
+  return false;
+}
 
 /** GET /api/social/friends — the caller's friends with profile + rating. */
 router.get(
@@ -36,7 +62,10 @@ router.get(
       .where(or(eq(friendshipsTable.userA, uid), eq(friendshipsTable.userB, uid)));
     const otherIds = rows.map((r) => (r.userA === uid ? r.userB : r.userA));
     const profiles = otherIds.length
-      ? await db.select().from(profilesTable).where(inArray(profilesTable.id, otherIds))
+      ? await db
+          .select(publicProfileColumns)
+          .from(profilesTable)
+          .where(inArray(profilesTable.id, otherIds))
       : [];
     const ratings = otherIds.length
       ? await db
@@ -85,7 +114,10 @@ router.get(
       new Set(rows.map((r) => (r.senderId === uid ? r.receiverId : r.senderId))),
     );
     const profiles = otherIds.length
-      ? await db.select().from(profilesTable).where(inArray(profilesTable.id, otherIds))
+      ? await db
+          .select(publicProfileColumns)
+          .from(profilesTable)
+          .where(inArray(profilesTable.id, otherIds))
       : [];
     const profMap = new Map(profiles.map((p) => [p.id, p]));
     const incoming = rows
@@ -365,6 +397,117 @@ router.get(
       .offset(offset);
     const entries = rows.map((r, i) => ({ ...r, rank: offset + i + 1 }));
     res.json({ entries, page: q.page, pageSize: q.pageSize });
+  }),
+);
+
+/**
+ * POST /api/social/contacts/match — find registered users from hashed contact
+ * emails. Body { hashes: string[] } (≤500, 64-char hex). Returns matching
+ * profiles (id, username, rating) excluding self, existing friends, pending
+ * requests (either direction), and blocked users (either direction). The email
+ * / hash is NEVER returned.
+ */
+router.post(
+  "/contacts/match",
+  asyncHandler(async (req, res) => {
+    const uid = res.locals.userId as string;
+    if (contactMatchRateLimited(uid)) {
+      throw appError(
+        "RATE_LIMITED",
+        `Too many contact-match requests; max ${CONTACT_MATCH_MAX} per hour.`,
+      );
+    }
+    const body = parseBody(contactMatchSchema, req.body);
+    const hashes = [...new Set(body.hashes)];
+
+    // Candidate profiles whose email hash is in the supplied set (not self).
+    const candidates = await db
+      .select({
+        id: profilesTable.id,
+        username: profilesTable.username,
+        displayName: profilesTable.displayName,
+        avatarUrl: profilesTable.avatarUrl,
+      })
+      .from(profilesTable)
+      .where(
+        and(
+          isNotNull(profilesTable.emailHash),
+          inArray(profilesTable.emailHash, hashes),
+          ne(profilesTable.id, uid),
+          sql`${profilesTable.deletedAt} is null`,
+          eq(profilesTable.isBot, false),
+        ),
+      );
+
+    if (candidates.length === 0) {
+      res.json({ matches: [] });
+      return;
+    }
+    const candidateIds = candidates.map((c) => c.id);
+
+    // Existing friendships (either canonical direction).
+    const friends = await db
+      .select({ a: friendshipsTable.userA, b: friendshipsTable.userB })
+      .from(friendshipsTable)
+      .where(or(eq(friendshipsTable.userA, uid), eq(friendshipsTable.userB, uid)));
+    const friendIds = new Set(
+      friends.map((f) => (f.a === uid ? f.b : f.a)),
+    );
+
+    // Pending requests either direction.
+    const pending = await db
+      .select({ s: friendRequestsTable.senderId, r: friendRequestsTable.receiverId })
+      .from(friendRequestsTable)
+      .where(
+        and(
+          eq(friendRequestsTable.status, "pending"),
+          or(
+            eq(friendRequestsTable.senderId, uid),
+            eq(friendRequestsTable.receiverId, uid),
+          ),
+        ),
+      );
+    const pendingIds = new Set(
+      pending.map((p) => (p.s === uid ? p.r : p.s)),
+    );
+
+    // Blocks either direction.
+    const blocks = await db
+      .select({ blocker: blocksTable.blockerId, blocked: blocksTable.blockedId })
+      .from(blocksTable)
+      .where(or(eq(blocksTable.blockerId, uid), eq(blocksTable.blockedId, uid)));
+    const blockedIds = new Set(
+      blocks.map((b) => (b.blocker === uid ? b.blocked : b.blocker)),
+    );
+
+    const eligible = candidates.filter(
+      (c) =>
+        !friendIds.has(c.id) && !pendingIds.has(c.id) && !blockedIds.has(c.id),
+    );
+    if (eligible.length === 0) {
+      res.json({ matches: [] });
+      return;
+    }
+
+    const ratings = await db
+      .select({ playerId: ratingsTable.playerId, rating: ratingsTable.rating })
+      .from(ratingsTable)
+      .where(
+        and(
+          inArray(ratingsTable.playerId, candidateIds),
+          eq(ratingsTable.mode, "ranked"),
+        ),
+      );
+    const ratingMap = new Map(ratings.map((r) => [r.playerId, r.rating]));
+
+    const matches = eligible.map((c) => ({
+      id: c.id,
+      username: c.username,
+      displayName: c.displayName,
+      avatarUrl: c.avatarUrl,
+      rating: ratingMap.get(c.id) ?? null,
+    }));
+    res.json({ matches });
   }),
 );
 

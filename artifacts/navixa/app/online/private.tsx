@@ -15,6 +15,7 @@ import {
   useOnlineMatchStore,
   type CreatePrivateResult,
 } from '@/features/onlineMatch';
+import { TempoPicker, type MatchTempo } from '@/features/matchmaking';
 
 export default function PrivateMatchScreen() {
   const { t } = useTranslation();
@@ -27,14 +28,15 @@ export default function PrivateMatchScreen() {
   const [error, setError] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [joined, setJoined] = React.useState(false);
+  const [tempo, setTempo] = React.useState<MatchTempo>('blitz');
 
   const navigateToMatch = React.useCallback(
     (matchId: string) => {
       setJoined(true);
-      initMatch(matchId, false);
+      initMatch(matchId, false, tempo);
       setTimeout(() => router.replace('/online/setup'), 300);
     },
-    [initMatch],
+    [initMatch, tempo],
   );
 
   // Once created, watch for the opponent joining via matchmaking realtime is
@@ -50,7 +52,7 @@ export default function PrivateMatchScreen() {
     setCreating(true);
     setError(null);
     try {
-      const res = await createPrivateMatch({ mode: 'friendly', isRated: false });
+      const res = await createPrivateMatch({ mode: 'friendly', isRated: false, tempo });
       setCreated(res);
     } catch (err) {
       const message = err instanceof OnlineError ? err.message : t('online.search.error');
@@ -95,7 +97,7 @@ export default function PrivateMatchScreen() {
 
   const handleContinue = () => {
     if (!created) return;
-    initMatch(created.matchId, false);
+    initMatch(created.matchId, false, created.tempo);
     router.replace('/online/setup');
   };
 
@@ -106,6 +108,12 @@ export default function PrivateMatchScreen() {
           <Text variant="subhead" color="muted">
             {t('online.private.createBody')}
           </Text>
+          <Spacer size="xl" />
+          <Text variant="label" color="muted">
+            {t('online.tempo.title').toUpperCase()}
+          </Text>
+          <Spacer size="sm" />
+          <TempoPicker value={tempo} onChange={setTempo} />
           <Spacer size="xl" />
           <Button
             label={t('online.private.create')}

@@ -17,6 +17,8 @@ export interface ProfileBootstrap {
   ageConfirmed: boolean;
   termsAcceptedAt: string;
   locale?: string;
+  /** Clerk primary email — lets the server set email_hash for contact matching. */
+  email?: string | null;
 }
 
 /**
@@ -40,12 +42,14 @@ export async function isUsernameAvailable(username: string): Promise<boolean> {
  * `created: false`.
  */
 export async function completeProfileBootstrap(bootstrap: ProfileBootstrap): Promise<void> {
+  const email = bootstrap.email?.trim();
   await apiFetch('/profile/bootstrap', {
     method: 'POST',
     body: {
       username: bootstrap.username.trim(),
       displayName: (bootstrap.displayName ?? bootstrap.username).trim(),
       locale: bootstrap.locale ?? 'en',
+      ...(email ? { email } : {}),
     },
   });
 }

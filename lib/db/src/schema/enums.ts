@@ -25,6 +25,8 @@ export const matchModeEnum = pgEnum("match_mode", [
   "bot",
 ]);
 
+export const matchTempoEnum = pgEnum("match_tempo", ["blitz", "daily"]);
+
 export const friendRequestStatusEnum = pgEnum("friend_request_status", [
   "pending",
   "accepted",

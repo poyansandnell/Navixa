@@ -21,6 +21,7 @@ import { requireAuth } from "../middlewares/requireAuth";
 import { asyncHandler, parseBody } from "../lib/http";
 import { appError } from "../lib/errors";
 import { deleteAccountSchema } from "../lib/schemas";
+import { publicProfileColumns } from "../lib/sanitizeProfile";
 
 const router: IRouter = Router();
 router.use(requireAuth);
@@ -44,7 +45,7 @@ router.get(
       quests,
       notifications,
     ] = await Promise.all([
-      db.select().from(profilesTable).where(eq(profilesTable.id, uid)),
+      db.select(publicProfileColumns).from(profilesTable).where(eq(profilesTable.id, uid)),
       db.select().from(userSettingsTable).where(eq(userSettingsTable.userId, uid)),
       db.select().from(ratingsTable).where(eq(ratingsTable.playerId, uid)),
       db.select().from(ratingHistoryTable).where(eq(ratingHistoryTable.playerId, uid)),

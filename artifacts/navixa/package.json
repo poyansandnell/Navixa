@@ -65,7 +65,9 @@
     "zod-validation-error": "^3.4.0"
   },
   "dependencies": {
+    "expo-contacts": "~15.0.11",
     "expo-localization": "^17.0.9",
+    "expo-notifications": "~0.32.17",
     "i18next": "^26.3.6",
     "react-i18next": "^17.0.10",
     "socket.io-client": "^4.8.3",

@@ -25,6 +25,7 @@ import {
 import type {
   MatchClock,
   MatchStatus,
+  MatchTempo,
   ServerPublicView,
 } from '@/features/matchmaking/types';
 
@@ -55,6 +56,8 @@ interface OnlineMatchState {
   matchId: string | null;
   /** Server match_mode label for leave-matchmaking / rating reads. */
   ranked: boolean;
+  /** Match pace; drives the blitz "clock keeps ticking" leave confirmation. */
+  tempo: MatchTempo;
   status: MatchStatus | null;
   seat: number | null;
   view: ServerPublicView | null;
@@ -78,7 +81,7 @@ interface OnlineMatchState {
   firing: boolean;
 
   // ---- lifecycle ---------------------------------------------------------
-  init: (matchId: string, ranked: boolean) => void;
+  init: (matchId: string, ranked: boolean, tempo?: MatchTempo) => void;
   reset: () => void;
 
   // ---- server sync -------------------------------------------------------
@@ -204,6 +207,7 @@ async function sendPendingShot(set: Set, get: Get, pending: PendingShot): Promis
 export const useOnlineMatchStore = create<OnlineMatchState>((set, get) => ({
   matchId: null,
   ranked: false,
+  tempo: 'blitz',
   status: null,
   seat: null,
   view: null,
@@ -217,12 +221,13 @@ export const useOnlineMatchStore = create<OnlineMatchState>((set, get) => ({
   errorMessage: null,
   firing: false,
 
-  init: (matchId, ranked) => {
+  init: (matchId, ranked, tempo = 'blitz') => {
     eventCounter = 0;
     reactionCounter = 0;
     set({
       matchId,
       ranked,
+      tempo,
       status: 'placing',
       seat: null,
       view: null,
@@ -242,6 +247,7 @@ export const useOnlineMatchStore = create<OnlineMatchState>((set, get) => ({
     set({
       matchId: null,
       ranked: false,
+      tempo: 'blitz',
       status: null,
       seat: null,
       view: null,

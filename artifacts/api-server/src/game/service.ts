@@ -41,6 +41,7 @@ import {
   emitMatchMove,
   emitMatchUpdate,
 } from "../realtime/emitter";
+import { notifyTurn, notifyMatchEnd } from "./notify";
 
 /** Transaction handle type (the argument drizzle passes to the tx callback). */
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -322,7 +323,9 @@ async function touchTurnClockTx(
   prevSeat: number | null,
   activeSeat: number,
 ): Promise<Date> {
-  if (prevSeat !== null && match.turnDeadline) {
+  // Daily matches only enforce the per-turn deadline; the per-player total
+  // clock (timeLeftMs) is intentionally left untouched (null / not tracked).
+  if (match.tempo !== "daily" && prevSeat !== null && match.turnDeadline) {
     const remaining = Math.max(
       0,
       Math.floor(match.turnDeadline.getTime() - Date.now()),
@@ -384,7 +387,14 @@ export async function applyShot(params: {
   y: number;
   idempotencyKey: string;
 }): Promise<ShotApplyResult> {
-  const { result, emits } = await db.transaction(async (tx) => {
+  interface Notify {
+    tempo: string;
+    ended: boolean;
+    nextUserId: string | null;
+    nextOpponentId: string | null;
+    participants: { userId: string | null; opponentId: string | null }[];
+  }
+  const { result, emits, notify } = await db.transaction(async (tx) => {
     const { match, players, privates } = await lockMatch(tx, params.matchId);
 
     // Resolve the shooter seat (human by id, or explicit bot seat).
@@ -433,7 +443,7 @@ export async function applyShot(params: {
         view: publicViewForSeat(state, shooter.seat),
         nextSeat: state.turn === seatToPlayerId(0) ? 0 : 1,
       };
-      return { result: res, emits: [] as Emit[] };
+      return { result: res, emits: [] as Emit[], notify: null as Notify | null };
     }
 
     if (match.status !== "active") {
@@ -488,7 +498,7 @@ export async function applyShot(params: {
             view: publicViewForSeat(dupState, shooter.seat),
             nextSeat: dupState.turn === seatToPlayerId(0) ? 0 : 1,
           };
-          return { result: res, emits: [] as Emit[] };
+          return { result: res, emits: [] as Emit[], notify: null as Notify | null };
         }
         throw appError("DUPLICATE_MOVE", "This move was already applied");
       }
@@ -593,10 +603,36 @@ export async function applyShot(params: {
       view: publicViewForSeat(outcome.newState, shooter.seat),
       nextSeat,
     };
-    return { result: res, emits };
+    const notify: Notify = {
+      tempo: match.tempo,
+      ended: outcome.winnerSeat !== null,
+      nextUserId: outcome.winnerSeat === null ? target.playerId : null,
+      nextOpponentId: outcome.winnerSeat === null ? shooter.playerId : null,
+      participants: players.map((p) => ({
+        userId: p.playerId,
+        opponentId: players.find((o) => o.seat !== p.seat)?.playerId ?? null,
+      })),
+    };
+    return { result: res, emits, notify };
   });
 
   flushEmits(emits);
+  if (notify) {
+    if (notify.ended) {
+      void notifyMatchEnd({
+        matchId: params.matchId,
+        tempo: notify.tempo,
+        participants: notify.participants,
+      });
+    } else {
+      void notifyTurn({
+        matchId: params.matchId,
+        tempo: notify.tempo,
+        toUserId: notify.nextUserId,
+        opponentId: notify.nextOpponentId,
+      });
+    }
+  }
   return result;
 }
 
@@ -609,7 +645,7 @@ export interface TimeoutOutcome {
 }
 
 export async function resolveTimeout(matchId: string): Promise<TimeoutOutcome> {
-  const { outcome, emits } = await db.transaction(async (tx) => {
+  const { outcome, emits, endNotify } = await db.transaction(async (tx) => {
     const { match, players } = await lockMatch(tx, matchId);
     if (match.status !== "active") {
       throw appError("WRONG_MATCH_STATE", `Match is '${match.status}', not active`);
@@ -637,9 +673,17 @@ export async function resolveTimeout(matchId: string): Promise<TimeoutOutcome> {
     return {
       outcome: { timedOut: true, winnerId } as TimeoutOutcome,
       emits: fin.emits,
+      endNotify: {
+        tempo: match.tempo,
+        participants: players.map((p) => ({
+          userId: p.playerId,
+          opponentId: players.find((o) => o.seat !== p.seat)?.playerId ?? null,
+        })),
+      },
     };
   });
   flushEmits(emits);
+  void notifyMatchEnd({ matchId, tempo: endNotify.tempo, participants: endNotify.participants });
   return outcome;
 }
 
@@ -655,7 +699,7 @@ export async function resolveResign(
   matchId: string,
   userId: string,
 ): Promise<ResignOutcome> {
-  const { outcome, emits } = await db.transaction(async (tx) => {
+  const { outcome, emits, endNotify } = await db.transaction(async (tx) => {
     const { match, players } = await lockMatch(tx, matchId);
     const me = players.find((p) => p.playerId === userId);
     if (!me) throw appError("NOT_A_PARTICIPANT");
@@ -682,8 +726,19 @@ export async function resolveResign(
       { kind: "event", matchId: match.id, payload: { eventType: "resigned", actorId: userId, payload: { seat: me.seat } } },
       ...fin.emits,
     ];
-    return { outcome: { winnerId, abandoned } as ResignOutcome, emits };
+    return {
+      outcome: { winnerId, abandoned } as ResignOutcome,
+      emits,
+      endNotify: {
+        tempo: match.tempo,
+        participants: players.map((p) => ({
+          userId: p.playerId,
+          opponentId: players.find((o) => o.seat !== p.seat)?.playerId ?? null,
+        })),
+      },
+    };
   });
   flushEmits(emits);
+  void notifyMatchEnd({ matchId, tempo: endNotify.tempo, participants: endNotify.participants });
   return outcome;
 }

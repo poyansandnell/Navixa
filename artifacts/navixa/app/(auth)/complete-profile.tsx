@@ -19,7 +19,7 @@ type Availability = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 export default function CompleteProfileScreen() {
   const { t } = useTranslation();
-  const { refreshProfile } = useAuth();
+  const { refreshProfile, user } = useAuth();
   const languagePref = useSettingsStore((s) => s.language);
 
   const [username, setUsername] = useState('');
@@ -98,6 +98,7 @@ export default function CompleteProfileScreen() {
         ageConfirmed,
         termsAcceptedAt,
         locale,
+        email: user?.email ?? undefined,
       });
       await refreshProfile();
       router.replace('/(tabs)');

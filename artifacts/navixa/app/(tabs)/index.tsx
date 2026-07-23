@@ -11,7 +11,6 @@ import {
   Badge,
   Button,
   Card,
-  EmptyState,
   Screen,
   SectionHeader,
   Spacer,
@@ -19,6 +18,7 @@ import {
 } from '@/components/ui';
 import { useIsGuest } from '@/hooks/useIsGuest';
 import type { OnlineMode } from '@/features/matchmaking';
+import { ActiveMatches } from '@/features/onlineMatch';
 
 interface ModeDef {
   key: OnlineMode;
@@ -161,11 +161,9 @@ export default function PlayScreen() {
 
       <Spacer size="xl" />
 
-      {/* Active match */}
-      <SectionHeader title={t('play.activeMatch.title')} />
-      <Card>
-        <EmptyState icon="crosshair" title={t('play.activeMatch.empty')} />
-      </Card>
+      {/* Active matches ("Dina matcher") */}
+      <SectionHeader title={t('online.active.title')} />
+      <ActiveMatches />
 
       <Spacer size="xl" />
 

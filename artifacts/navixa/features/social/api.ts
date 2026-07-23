@@ -121,6 +121,30 @@ function toRequestRow(r: ServerFriendRequest): FriendRequestRow {
   };
 }
 
+// --- contact matching --------------------------------------------------------
+
+/** A Navixa player matched from a synced contact email hash. */
+export interface ContactMatch {
+  id: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  rating: number | null;
+}
+
+/**
+ * Match sha256 email hashes against Navixa players. The server already excludes
+ * self, existing friends, pending requests and blocked users. Max 500 hashes.
+ */
+export async function matchContacts(hashes: string[]): Promise<ContactMatch[]> {
+  if (hashes.length === 0) return [];
+  const res = await apiFetch<{ matches: ContactMatch[] }>('/social/contacts/match', {
+    method: 'POST',
+    body: { hashes: hashes.slice(0, 500) },
+  });
+  return res.matches;
+}
+
 // --- profiles / ratings / stats ---------------------------------------------
 
 /** Fetch a single profile by id. */

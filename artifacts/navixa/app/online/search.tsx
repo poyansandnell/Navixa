@@ -25,7 +25,12 @@ import {
   useMatchmakingRealtime,
   useOnlineMatchStore,
 } from '@/features/onlineMatch';
-import { resolveModeConfig, type OnlineMode } from '@/features/matchmaking';
+import {
+  resolveModeConfig,
+  TempoPicker,
+  type MatchTempo,
+  type OnlineMode,
+} from '@/features/matchmaking';
 
 const RADAR_SIZE = 200;
 
@@ -38,11 +43,17 @@ export default function SearchScreen() {
   const { user } = useAuth();
   const animationsEnabled = useAnimationsEnabled();
 
-  const params = useLocalSearchParams<{ mode?: string }>();
+  const params = useLocalSearchParams<{ mode?: string; tempo?: string }>();
   const mode = (params.mode as OnlineMode) ?? 'quick';
   const config = React.useMemo(() => resolveModeConfig(mode), [mode]);
 
   const initMatch = useOnlineMatchStore((s) => s.init);
+
+  const [tempo, setTempo] = React.useState<MatchTempo>(
+    params.tempo === 'blitz' || params.tempo === 'daily'
+      ? (params.tempo as MatchTempo)
+      : config.tempo,
+  );
 
   const [elapsed, setElapsed] = React.useState(0);
   const [error, setError] = React.useState<string | null>(null);
@@ -79,11 +90,11 @@ export default function SearchScreen() {
   const navigateToMatch = React.useCallback(
     (matchId: string) => {
       setMatchFound(true);
-      initMatch(matchId, config.ranked);
+      initMatch(matchId, config.ranked, tempo);
       // Give the "match found" flash a beat before navigating.
       setTimeout(() => router.replace('/online/setup'), 400);
     },
-    [initMatch, config.ranked],
+    [initMatch, config.ranked, tempo],
   );
 
   // Realtime: watch the queue row for a match.
@@ -97,6 +108,7 @@ export default function SearchScreen() {
         const res = await joinMatchmaking({
           mode: config.serverMode,
           boardSize: config.boardSize,
+          tempo,
         });
         if (cancelled) return;
         if (res.matched && res.matchId) {
@@ -112,7 +124,7 @@ export default function SearchScreen() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.serverMode, config.boardSize]);
+  }, [config.serverMode, config.boardSize, tempo]);
 
   // Elapsed timer.
   React.useEffect(() => {
@@ -199,6 +211,17 @@ export default function SearchScreen() {
           </Text>
         )}
       </View>
+
+      {!matchFound ? (
+        <>
+          <Spacer size="lg" />
+          <Text variant="label" color="muted" center>
+            {t('online.tempo.title').toUpperCase()}
+          </Text>
+          <Spacer size="sm" />
+          <TempoPicker value={tempo} onChange={setTempo} />
+        </>
+      ) : null}
 
       {error ? (
         <>

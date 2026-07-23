@@ -1,5 +1,7 @@
 /** Profile domain: JIT bootstrap, own profile, public profiles, ratings, stats. */
+import { createHash } from "node:crypto";
 import { Router, type IRouter } from "express";
+import { getAuth, clerkClient } from "@clerk/express";
 import { and, eq, ilike, isNull, ne, sql } from "drizzle-orm";
 import {
   db,
@@ -12,6 +14,7 @@ import {
 import { requireAuth } from "../middlewares/requireAuth";
 import { asyncHandler, parseBody, parseQuery } from "../lib/http";
 import { appError } from "../lib/errors";
+import { sanitizeProfile } from "../lib/sanitizeProfile";
 import {
   bootstrapProfileSchema,
   updateProfileSchema,
@@ -23,6 +26,37 @@ const router: IRouter = Router();
 router.use(requireAuth);
 
 const USERNAME_RE = /^[a-zA-Z0-9_]+$/;
+
+/** sha256 hex of a normalised (trimmed, lowercased) email. */
+export function hashEmail(email: string): string {
+  return createHash("sha256")
+    .update(email.trim().toLowerCase())
+    .digest("hex");
+}
+
+/**
+ * Resolve the caller's primary email: prefer the request body, then Clerk
+ * session claims, then a Clerk API lookup. Returns null if none is available.
+ */
+async function resolveEmail(
+  req: Parameters<typeof getAuth>[0],
+  userId: string,
+  bodyEmail?: string,
+): Promise<string | null> {
+  if (bodyEmail) return bodyEmail;
+  const claims = getAuth(req).sessionClaims as Record<string, unknown> | null;
+  const claimEmail = claims?.email ?? claims?.email_address;
+  if (typeof claimEmail === "string" && claimEmail.includes("@")) return claimEmail;
+  try {
+    const user = await clerkClient.users.getUser(userId);
+    const primary = user.emailAddresses.find(
+      (e) => e.id === user.primaryEmailAddressId,
+    );
+    return primary?.emailAddress ?? user.emailAddresses[0]?.emailAddress ?? null;
+  } catch {
+    return null;
+  }
+}
 
 async function assertUsernameOk(username: string): Promise<void> {
   const u = username.trim();
@@ -58,11 +92,26 @@ router.post(
       .where(eq(profilesTable.id, userId))
       .limit(1);
     if (existing) {
-      res.json({ created: false, profile: existing });
+      // Backfill the email hash for pre-existing profiles that lack one.
+      if (!existing.emailHash) {
+        const email = await resolveEmail(req, userId, body.email);
+        if (email) {
+          const emailHash = hashEmail(email);
+          await db
+            .update(profilesTable)
+            .set({ emailHash })
+            .where(and(eq(profilesTable.id, userId), isNull(profilesTable.emailHash)))
+            .catch(() => undefined);
+        }
+      }
+      res.json({ created: false, profile: sanitizeProfile(existing) });
       return;
     }
 
     await assertUsernameOk(body.username);
+
+    const email = await resolveEmail(req, userId, body.email);
+    const emailHash = email ? hashEmail(email) : null;
 
     const [profile] = await db
       .insert(profilesTable)
@@ -71,6 +120,7 @@ router.post(
         username: body.username.trim(),
         displayName: (body.displayName ?? body.username).trim(),
         locale: body.locale ?? "en",
+        emailHash,
       })
       .returning();
 
@@ -83,7 +133,7 @@ router.post(
       .values({ playerId: userId, mode: "ranked" })
       .onConflictDoNothing();
 
-    res.json({ created: true, profile });
+    res.json({ created: true, profile: sanitizeProfile(profile) });
   }),
 );
 
@@ -98,7 +148,7 @@ router.get(
       .where(eq(profilesTable.id, userId))
       .limit(1);
     if (!profile) throw appError("NOT_FOUND", "Profile not bootstrapped");
-    res.json({ profile });
+    res.json({ profile: sanitizeProfile(profile) });
   }),
 );
 
@@ -120,7 +170,7 @@ router.patch(
       .where(eq(profilesTable.id, userId))
       .returning();
     if (!profile) throw appError("NOT_FOUND", "Profile not found");
-    res.json({ profile });
+    res.json({ profile: sanitizeProfile(profile) });
   }),
 );
 
@@ -154,7 +204,7 @@ router.get(
         ),
       )
       .limit(q.limit);
-    res.json({ users });
+    res.json({ users: users.map(sanitizeProfile) });
   }),
 );
 
@@ -169,7 +219,7 @@ router.get(
       .where(eq(profilesTable.id, id))
       .limit(1);
     if (!profile) throw appError("NOT_FOUND", "Profile not found");
-    res.json({ profile });
+    res.json({ profile: sanitizeProfile(profile) });
   }),
 );
 

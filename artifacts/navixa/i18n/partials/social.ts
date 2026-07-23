@@ -27,6 +27,29 @@ export default {
       inviteNote: 'Create a private match and share the code with {{name}}.',
       requestSent: 'Friend request sent',
       actions: 'Actions',
+      discover: {
+        title: 'Find friends',
+        syncContacts: 'Sync contacts',
+        syncSubtitle: 'See which of your contacts already play Navixa.',
+        syncing: 'Looking for friends…',
+        permissionTitle: 'Find friends from your contacts',
+        permissionBody:
+          'We’ll match your contacts’ emails to Navixa players so you can add them. Your contacts are hashed on your device and never stored.',
+        permissionAllow: 'Continue',
+        permissionCancel: 'Not now',
+        permissionDeniedTitle: 'Contacts access needed',
+        permissionDeniedBody:
+          'Enable contacts access in Settings to find friends who already play.',
+        suggestionsTitle: 'People you may know',
+        noMatches: 'None of your contacts play yet',
+        noMatchesBody: 'Invite them to join you on Navixa.',
+        error: 'Could not sync contacts. Please try again.',
+        add: 'Add',
+        invite: 'Invite friends',
+        inviteSubtitle: 'Share Navixa with your friends.',
+        shareMessage:
+          'Play Battleship with me on Navixa! I’m {{username}}. Download the app: {{link}}',
+      },
     },
     leaderboard: {
       national: 'National',
@@ -161,6 +184,29 @@ export default {
       inviteNote: 'Skapa en privat match och dela koden med {{name}}.',
       requestSent: 'Vänförfrågan skickad',
       actions: 'Åtgärder',
+      discover: {
+        title: 'Hitta vänner',
+        syncContacts: 'Synka kontakter',
+        syncSubtitle: 'Se vilka av dina kontakter som redan spelar Navixa.',
+        syncing: 'Söker efter vänner…',
+        permissionTitle: 'Hitta vänner bland dina kontakter',
+        permissionBody:
+          'Vi matchar dina kontakters e-post mot Navixa-spelare så att du kan lägga till dem. Dina kontakter hashas på din enhet och lagras aldrig.',
+        permissionAllow: 'Fortsätt',
+        permissionCancel: 'Inte nu',
+        permissionDeniedTitle: 'Kontaktåtkomst krävs',
+        permissionDeniedBody:
+          'Aktivera kontaktåtkomst i Inställningar för att hitta vänner som redan spelar.',
+        suggestionsTitle: 'Personer du kanske känner',
+        noMatches: 'Ingen av dina kontakter spelar än',
+        noMatchesBody: 'Bjud in dem att spela Navixa med dig.',
+        error: 'Kunde inte synka kontakter. Försök igen.',
+        add: 'Lägg till',
+        invite: 'Bjud in vänner',
+        inviteSubtitle: 'Dela Navixa med dina vänner.',
+        shareMessage:
+          'Spela Sänka skepp med mig på Navixa! Jag heter {{username}}. Ladda ner appen: {{link}}',
+      },
     },
     leaderboard: {
       national: 'Nationell',
