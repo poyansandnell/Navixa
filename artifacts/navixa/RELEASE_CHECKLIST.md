@@ -15,8 +15,8 @@ Replit; they are not run in this environment.
 - [ ] `pnpm run test` passes (engine suite).
 - [ ] Manual QA matrix in [TEST_PLAN.md](./TEST_PLAN.md) done on iOS + Android.
 - [ ] `app.json`: `version` bumped, `name` = "Navixa", scheme = `navixa`,
-      `ios.bundleIdentifier` = `com.navixa.game`, `android.package` =
-      `com.navixa.game`.
+      `ios.bundleIdentifier` = `com.navixa.app`, `android.package` =
+      `com.navixa.app`, `ios.buildNumber` / `android.versionCode` bumped.
 - [ ] `eas.json`: `cli.version >= 16`, `appVersionSource: remote`, profiles
       present (development / preview / production).
 
@@ -34,6 +34,47 @@ Replit; they are not run in this environment.
 - [ ] Public legal/support URLs hosted and reachable (see `.env.example`).
 - [ ] Final icon/splash/adaptive icon in place ([ASSETS_TO_REPLACE.md](./ASSETS_TO_REPLACE.md)).
 - [ ] (Optional) Sentry DSN set.
+
+### 3a. Production URLs (web build @ `https://sanka-skepp.replit.app`)
+Legal/support pages are served by the Expo **web** build via the dynamic route
+`app/legal/[page].tsx`. Exact URLs:
+- Privacy policy: `https://sanka-skepp.replit.app/legal/privacy`
+- Terms of service: `https://sanka-skepp.replit.app/legal/terms`
+- Community rules: `https://sanka-skepp.replit.app/legal/community`
+- Fair play: `https://sanka-skepp.replit.app/legal/fair-play`
+- Data deletion: `https://sanka-skepp.replit.app/legal/data-deletion`
+- Support: `https://sanka-skepp.replit.app/legal/support`
+- Contact: `https://sanka-skepp.replit.app/legal/contact`
+- Licenses: `https://sanka-skepp.replit.app/legal/licenses`
+- [ ] Support contact e-mail: set `EXPO_PUBLIC_SUPPORT_EMAIL`
+      (**placeholder** today: `support@example.com` — replace before submission).
+- [ ] Set `EXPO_PUBLIC_WEBSITE_URL=https://sanka-skepp.replit.app` so
+      support/contact/licenses actions resolve to the live domain.
+
+### 3b. Invite / universal links
+- Server (`artifacts/api-server`) emits per-match links:
+  - `deepLink`: `navixa://join/<code>` → handled by `app/join/[code].tsx`
+    (redirects into the shared join flow).
+  - `universalLink`: `${APP_PUBLIC_URL}/join?code=<code>` → handled by
+    `app/join.tsx`.
+- [ ] Set server env `APP_PUBLIC_URL=https://sanka-skepp.replit.app` (else the
+      universal link defaults to `https://navixa.app`).
+- App config for universal links:
+  - iOS `associatedDomains`: `applinks:sanka-skepp.replit.app` (app.json).
+  - Android App Links intent filter for `https://sanka-skepp.replit.app/join`
+    with `autoVerify` (app.json).
+- **AASA caveat (iOS universal links):** Apple requires an
+  `apple-app-site-association` (AASA) JSON file served at
+  `https://sanka-skepp.replit.app/.well-known/apple-app-site-association`
+  (Content-Type `application/json`, no redirects) listing the app's Team ID +
+  bundle ID (`<TEAMID>.com.navixa.app`) and the `/join*` path. This is **not**
+  present yet and must be served by the web deployment — otherwise iOS universal
+  links silently fall back to the browser. Android additionally needs a
+  `/.well-known/assetlinks.json` for verified App Links. The custom scheme
+  (`navixa://join/...`) and web `/join?code=` work without these files.
+- **Expo Go note:** custom-scheme / universal links do NOT open the app in Expo
+  Go — manual code entry (`/online/join/new`) is the dev fallback. Universal
+  links require a production/dev-client build.
 
 ## 4. Build (EAS — outside Replit)
 ```bash
@@ -55,7 +96,32 @@ eas submit --profile production --platform android  # → Play Internal testing
 ## 6. Post-release
 - [ ] Tag the release; note the store build numbers.
 - [ ] Monitor crashes (Sentry) and api-server logs.
-- [ ] Verify deep link `navixa://online/join/<code>` opens the app.
+- [ ] Verify deep link `navixa://join/<code>` opens the app and auto-joins.
+- [ ] Verify universal link `https://sanka-skepp.replit.app/join?code=<code>`
+      opens the app (requires the AASA/assetlinks files from §3b).
+
+## 7. App Store submission — manual steps (need the user)
+These require accounts/artwork and cannot be done from code:
+- [ ] **Apple Developer Program** membership (US$99/yr) + Team ID (for AASA).
+- [ ] **Google Play Developer** account (one-time US$25).
+- [ ] EAS build + submit run **outside Replit** (see §4–§5), or Replit Expo
+      Launch flow for iOS.
+- [ ] **App Store Connect** app record: name, subtitle, description, keywords,
+      category, age rating, privacy "nutrition labels" (contacts are hashed
+      on-device; declare accordingly), support + marketing URLs (use the §3a
+      legal URLs).
+- [ ] **Screenshots** for required device sizes (6.7"/6.5" iPhone, iPad if
+      later enabled; Play phone/tablet) — **not generated; needs real artwork.**
+- [ ] Serve the **AASA** + **assetlinks.json** files on the web deployment
+      (see §3b) before relying on universal/App Links.
+
+## Assets status
+- `assets/images/icon.png` — real 1024×1024 PNG (used for icon, splash,
+  adaptive icon foreground, and web favicon).
+- ⚠️ There is **no dedicated splash / adaptive-icon / favicon artwork**: all
+  four reuse `icon.png`. A distinct splash image and a properly padded adaptive
+  icon foreground are recommended before store submission
+  (see [ASSETS_TO_REPLACE.md](./ASSETS_TO_REPLACE.md)).
 
 ## Reminders
 - No `app.config.ts` (static `app.json` is a Replit Expo Launch requirement).

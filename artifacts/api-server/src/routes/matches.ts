@@ -116,12 +116,17 @@ router.post(
       tempo: body.tempo,
     });
 
+    // Prefer the app's public production URL (e.g. the Replit deployment) for
+    // the universal link so it resolves to the web app; fall back to the
+    // legacy dev base when APP_PUBLIC_URL is unset.
+    const publicBase = (process.env["APP_PUBLIC_URL"] ?? "https://navixa.app")
+      .replace(/\/+$/, "");
     res.json({
       matchId: match.id,
       code,
       tempo: body.tempo,
       deepLink: `navixa://join/${code}`,
-      universalLink: `https://navixa.app/join/${code}`,
+      universalLink: `${publicBase}/join?code=${code}`,
     });
   }),
 );

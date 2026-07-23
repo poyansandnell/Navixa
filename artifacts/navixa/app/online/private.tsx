@@ -143,8 +143,9 @@ export default function PrivateMatchScreen() {
       ) : (
         <>
           <View style={styles.content}>
+            {/* 1) The big code + a Copy button that copies ONLY the code. */}
             <Card elevated>
-              <Text variant="caption" color="muted">
+              <Text variant="caption" color="muted" center>
                 {t('online.private.codeLabel').toUpperCase()}
               </Text>
               <Spacer size="xs" />
@@ -152,25 +153,19 @@ export default function PrivateMatchScreen() {
                 {created.code}
               </Text>
               <Spacer size="md" />
-              <View style={styles.actions}>
-                <Button
-                  label={copied ? t('online.private.copied') : t('online.private.copy')}
-                  icon={copied ? 'check' : 'copy'}
-                  variant="secondary"
-                  size="sm"
-                  onPress={handleCopy}
-                />
-                <Button
-                  label={t('online.private.shareLink')}
-                  icon="share-2"
-                  variant="secondary"
-                  size="sm"
-                  onPress={handleShare}
-                />
-              </View>
+              <Button
+                label={copied ? t('online.private.copied') : t('online.private.copyCode')}
+                icon={copied ? 'check' : 'copy'}
+                variant="secondary"
+                size="sm"
+                onPress={handleCopy}
+              />
             </Card>
 
             <Spacer size="md" />
+
+            {/* 2) The invite link + a prominent Share button (primary CTA for
+                sending the invite), placed directly under the link. */}
             <Card>
               <Text variant="caption" color="muted">
                 {t('online.private.linkLabel').toUpperCase()}
@@ -178,6 +173,18 @@ export default function PrivateMatchScreen() {
               <Spacer size="xs" />
               <Text variant="body" numberOfLines={1} style={{ color: colors.foreground }}>
                 {created.universalLink || created.deepLink}
+              </Text>
+              <Spacer size="md" />
+              <Button
+                label={t('online.private.shareLink')}
+                icon="share-2"
+                fullWidth
+                onPress={handleShare}
+                testID="online-private-share"
+              />
+              <Spacer size="xs" />
+              <Text variant="caption" color="muted" center>
+                {t('online.private.shareHint')}
               </Text>
             </Card>
 
@@ -219,11 +226,6 @@ const styles = StyleSheet.create({
   },
   code: {
     letterSpacing: 6,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    justifyContent: 'center',
   },
   waitingRow: {
     flexDirection: 'row',

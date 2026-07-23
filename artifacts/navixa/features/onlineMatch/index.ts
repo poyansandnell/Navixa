@@ -6,3 +6,8 @@ export * from './useReconnect';
 export { ActiveMatches } from './ActiveMatches';
 export { LeaveMatchButton } from './LeaveMatchButton';
 export { useNotificationDeepLink } from './useNotificationDeepLink';
+export {
+  stashPendingJoinCode,
+  takePendingJoinCode,
+  usePendingJoinResume,
+} from './pendingJoin';

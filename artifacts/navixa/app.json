@@ -16,15 +16,35 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.navixa.app"
+      "bundleIdentifier": "com.navixa.app",
+      "buildNumber": "1",
+      "associatedDomains": ["applinks:sanka-skepp.replit.app"],
+      "infoPlist": {
+        "NSContactsUsageDescription": "Navixa använder dina kontakter för att hitta vänner som redan spelar. Adresserna hashas på din enhet och lämnar den aldrig i klartext. / Navixa uses your contacts to find friends who already play. Addresses are hashed on your device and never leave it in plain text."
+      }
     },
     "android": {
       "package": "com.navixa.app",
+      "versionCode": 1,
       "backgroundColor": "#0A1628",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#0A1628"
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "sanka-skepp.replit.app",
+              "pathPrefix": "/join"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -38,7 +58,14 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      "expo-notifications",
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Navixa använder dina kontakter för att hitta vänner som redan spelar. Adresserna hashas på din enhet och lämnar den aldrig i klartext. / Navixa uses your contacts to find friends who already play. Addresses are hashed on your device and never leave it in plain text."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

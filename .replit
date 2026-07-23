@@ -24,5 +24,8 @@ timeoutMs = 20000
 [userenv.shared]
 EXPO_PUBLIC_SUPABASE_URL = "https://dzvliczifopxkwpcikzf.supabase.co"
 
+[userenv.production]
+APP_PUBLIC_URL = "https://sanka-skepp.replit.app"
+
 [nix]
 channel = "stable-25_05"
