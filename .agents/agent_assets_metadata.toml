@@ -54,3 +54,27 @@ id = "W8-l-BFPxh7u9Yfhohzlo"
 uri = "file://appstore-assets/ipad-2.jpg"
 type = "image"
 title = "iPad 2 — Alla dina matcher"
+
+[[outputs]]
+id = "1EHiWJwrJnm6dzmZjBEGB"
+uri = "file://appstore-assets/iphone-6.jpg"
+type = "image"
+title = "iPhone 6 – Intro: Sänk flottor"
+
+[[outputs]]
+id = "WRHeyUEhpz9PwNZLXXlyk"
+uri = "file://appstore-assets/iphone-7.jpg"
+type = "image"
+title = "iPhone 7 – Intro: Klättra i rankingen"
+
+[[outputs]]
+id = "OVtZ4_tbOgql2-vWWY8Yf"
+uri = "file://appstore-assets/iphone-8.jpg"
+type = "image"
+title = "iPhone 8 – Intro: Gå med i flottan"
+
+[[outputs]]
+id = "PI5a4uaAXIWS97uKyfDEd"
+uri = "file://appstore-assets/navixa-appstore-bilder.zip"
+type = "unspecified"
+title = "Alla App Store-bilder (ZIP)"

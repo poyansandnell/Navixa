@@ -7,5 +7,8 @@ export const modules: ModuleMap = {
   "./components/mockups/appstore/Iphone2.tsx": () => import("../components/mockups/appstore/Iphone2.tsx"),
   "./components/mockups/appstore/Iphone3.tsx": () => import("../components/mockups/appstore/Iphone3.tsx"),
   "./components/mockups/appstore/Iphone4.tsx": () => import("../components/mockups/appstore/Iphone4.tsx"),
-  "./components/mockups/appstore/Iphone5.tsx": () => import("../components/mockups/appstore/Iphone5.tsx")
+  "./components/mockups/appstore/Iphone5.tsx": () => import("../components/mockups/appstore/Iphone5.tsx"),
+  "./components/mockups/appstore/Iphone6.tsx": () => import("../components/mockups/appstore/Iphone6.tsx"),
+  "./components/mockups/appstore/Iphone7.tsx": () => import("../components/mockups/appstore/Iphone7.tsx"),
+  "./components/mockups/appstore/Iphone8.tsx": () => import("../components/mockups/appstore/Iphone8.tsx")
 };
