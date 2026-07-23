@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useColors } from '@/hooks/useColors';
 import { iconSize, radii, spacing } from '@/constants/theme';
-import { Button, Card, Screen, SectionHeader, Spacer, Text } from '@/components/ui';
+import { Button, Card, Screen, Spacer, Text } from '@/components/ui';
 import { PlacementBoard, computeCellSize } from '@/components/game';
 import { buildPlacement, nextUnplacedShip } from '@/store/game';
 import { selectionHaptic } from '@/features/game/helpers';
@@ -188,26 +188,26 @@ export default function OnlineSetupScreen() {
   }
 
   return (
-    <Screen testID="online-setup-screen">
-      <SectionHeader title={t('online.setup.title')} />
-      <Card padded={false} style={styles.boardCard}>
-        <View style={styles.boardWrap}>
-          <PlacementBoard
-            boardSize={rules.boardSize}
-            cellSize={cellSize}
-            placements={draftFleet}
-            selectedShipId={selectedShipId}
-            selectedLength={selectedSpec?.length ?? 0}
-            orientation={orientation}
-            onPlace={handlePlace}
-            onSelectShip={handleSelectShip}
-          />
-        </View>
-      </Card>
+    <Screen testID="online-setup-screen" scroll={false} contentStyle={styles.screenContent}>
+      <View style={styles.content}>
+        <Card padded={false} style={styles.boardCard}>
+          <View style={styles.boardWrap}>
+            <PlacementBoard
+              boardSize={rules.boardSize}
+              cellSize={cellSize}
+              placements={draftFleet}
+              selectedShipId={selectedShipId}
+              selectedLength={selectedSpec?.length ?? 0}
+              orientation={orientation}
+              onPlace={handlePlace}
+              onSelectShip={handleSelectShip}
+            />
+          </View>
+        </Card>
 
-      <Spacer size="md" />
+        <Spacer size="md" />
 
-      <View style={styles.shipRow}>
+        <View style={styles.shipRow}>
         {rules.ships.map((ship) => {
           const placed = draftFleet.some((p) => p.id === ship.id);
           const selected = ship.id === selectedShipId;
@@ -235,73 +235,85 @@ export default function OnlineSetupScreen() {
               {placed ? <Feather name="check" size={iconSize.xs} color={colors.accent} /> : null}
             </Pressable>
           );
-        })}
+          })}
+        </View>
+
+        <Spacer size="sm" />
+
+        <View style={styles.controls}>
+          <Button
+            label={t('game.setup.rotate')}
+            icon="rotate-cw"
+            variant="secondary"
+            size="sm"
+            onPress={handleRotate}
+          />
+          <Button
+            label={t('game.setup.randomize')}
+            icon="shuffle"
+            variant="secondary"
+            size="sm"
+            onPress={handleRandomize}
+          />
+          <Button
+            label={t('game.setup.reset')}
+            icon="trash-2"
+            variant="ghost"
+            size="sm"
+            onPress={() => {
+              setDraftFleet([]);
+              setSelectedShipId(null);
+            }}
+          />
+        </View>
+
+        {!validation.valid && draftFleet.length > 0 ? (
+          <>
+            <Spacer size="sm" />
+            <Text variant="caption" color="destructive" center>
+              {t('game.setup.invalid')}
+            </Text>
+          </>
+        ) : null}
+
+        {error ? (
+          <>
+            <Spacer size="sm" />
+            <Text variant="subhead" color="destructive" center>
+              {error}
+            </Text>
+          </>
+        ) : null}
       </View>
 
-      <Spacer size="md" />
-
-      <View style={styles.controls}>
+      {/* Pinned CTA — always visible above the safe-area, no scrolling. */}
+      <View style={styles.footer}>
         <Button
-          label={t('game.setup.rotate')}
-          icon="rotate-cw"
-          variant="secondary"
-          size="sm"
-          onPress={handleRotate}
-        />
-        <Button
-          label={t('game.setup.randomize')}
-          icon="shuffle"
-          variant="secondary"
-          size="sm"
-          onPress={handleRandomize}
-        />
-        <Button
-          label={t('game.setup.reset')}
-          icon="trash-2"
-          variant="ghost"
-          size="sm"
-          onPress={() => {
-            setDraftFleet([]);
-            setSelectedShipId(null);
-          }}
+          label={t('online.setup.confirm')}
+          icon="anchor"
+          size="lg"
+          fullWidth
+          disabled={!complete}
+          loading={submitting}
+          onPress={handleSubmit}
+          testID="online-setup-confirm"
         />
       </View>
-
-      {!validation.valid && draftFleet.length > 0 ? (
-        <>
-          <Spacer size="sm" />
-          <Text variant="caption" color="destructive" center>
-            {t('game.setup.invalid')}
-          </Text>
-        </>
-      ) : null}
-
-      {error ? (
-        <>
-          <Spacer size="sm" />
-          <Text variant="subhead" color="destructive" center>
-            {error}
-          </Text>
-        </>
-      ) : null}
-
-      <Spacer size="xl" />
-
-      <Button
-        label={t('online.setup.confirm')}
-        icon="anchor"
-        size="lg"
-        fullWidth
-        disabled={!complete}
-        loading={submitting}
-        onPress={handleSubmit}
-        testID="online-setup-confirm"
-      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  screenContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  content: {
+    flex: 1,
+  },
+  footer: {
+    paddingTop: spacing.sm,
+  },
   boardCard: {
     padding: spacing.sm,
     alignItems: 'center',

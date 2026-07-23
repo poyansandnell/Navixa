@@ -171,94 +171,93 @@ export default function SearchScreen() {
   };
 
   return (
-    <Screen testID="online-search-screen">
-      <Spacer size="xl" />
-      <View style={styles.radarWrap}>
-        <View style={[styles.radar, { borderColor: colors.border, backgroundColor: colors.card }]}>
-          <Animated.View
-            style={[styles.ping, { borderColor: colors.accent }, animationsEnabled ? pingStyle : undefined]}
-          />
-          <Animated.View style={[styles.sweep, animationsEnabled ? sweepStyle : undefined]}>
-            <View style={[styles.sweepLine, { backgroundColor: colors.accent }]} />
-          </Animated.View>
-          <View style={[styles.radarCore, { backgroundColor: colors.accent }]}>
-            <Feather
-              name={matchFound ? 'check' : 'radio'}
-              size={iconSize.lg}
-              color={colors.accentForeground}
+    <Screen testID="online-search-screen" scroll={false} contentStyle={styles.screenContent}>
+      <View style={styles.content}>
+        <View style={styles.radarWrap}>
+          <View style={[styles.radar, { borderColor: colors.border, backgroundColor: colors.card }]}>
+            <Animated.View
+              style={[styles.ping, { borderColor: colors.accent }, animationsEnabled ? pingStyle : undefined]}
             />
+            <Animated.View style={[styles.sweep, animationsEnabled ? sweepStyle : undefined]}>
+              <View style={[styles.sweepLine, { backgroundColor: colors.accent }]} />
+            </Animated.View>
+            <View style={[styles.radarCore, { backgroundColor: colors.accent }]}>
+              <Feather
+                name={matchFound ? 'check' : 'radio'}
+                size={iconSize.lg}
+                color={colors.accentForeground}
+              />
+            </View>
           </View>
         </View>
-      </View>
 
-      <Spacer size="xl" />
+        <Spacer size="xl" />
 
-      <Text variant="h2" center>
-        {matchFound ? t('online.search.matchFound') : t('online.search.searching')}
-      </Text>
-      <Spacer size="sm" />
-      <View style={styles.centerRow}>
-        <Badge label={t(`online.picker.${config.mode}`)} tone="accent" />
+        <Text variant="h2" center>
+          {matchFound ? t('online.search.matchFound') : t('online.search.searching')}
+        </Text>
+        <Spacer size="sm" />
+        <View style={styles.centerRow}>
+          <Badge label={t(`online.picker.${config.mode}`)} tone="accent" />
+          {!matchFound ? (
+            <Text variant="subhead" color="muted">
+              {showBotFallback
+                ? t('online.search.elapsed', { seconds: elapsed })
+                : t('online.search.botCountdown', { seconds: fallbackCountdown })}
+            </Text>
+          ) : (
+            <Text variant="subhead" color="muted">
+              {t('online.search.connecting')}
+            </Text>
+          )}
+        </View>
+
         {!matchFound ? (
-          <Text variant="subhead" color="muted">
-            {showBotFallback
-              ? t('online.search.elapsed', { seconds: elapsed })
-              : t('online.search.botCountdown', { seconds: fallbackCountdown })}
-          </Text>
-        ) : (
-          <Text variant="subhead" color="muted">
-            {t('online.search.connecting')}
-          </Text>
-        )}
-      </View>
-
-      {!matchFound ? (
-        <>
-          <Spacer size="lg" />
-          <Text variant="label" color="muted" center>
-            {t('online.tempo.title').toUpperCase()}
-          </Text>
-          <Spacer size="sm" />
-          <TempoPicker value={tempo} onChange={setTempo} />
-        </>
-      ) : null}
-
-      {error ? (
-        <>
-          <Spacer size="lg" />
-          <Text variant="subhead" color="destructive" center>
-            {error}
-          </Text>
-        </>
-      ) : null}
-
-      {showBotFallback && !matchFound ? (
-        <>
-          <Spacer size="xl" />
-          <Card>
-            <Text variant="bodyMedium">{t('online.search.botFallbackTitle')}</Text>
-            <Spacer size="xs" />
-            <Text variant="caption" color="muted">
-              {t('online.search.botFallbackBody')}
+          <>
+            <Spacer size="lg" />
+            <Text variant="label" color="muted" center>
+              {t('online.tempo.title').toUpperCase()}
             </Text>
-            <Spacer size="md" />
-            <Button
-              label={t('online.search.playBot')}
-              icon="cpu"
-              variant="secondary"
-              fullWidth
-              onPress={handlePlayBot}
-              testID="online-search-play-bot"
-            />
             <Spacer size="sm" />
-            <Text variant="caption" color="muted" center>
-              {t('online.search.keepSearching')}
-            </Text>
-          </Card>
-        </>
-      ) : null}
+            <TempoPicker value={tempo} onChange={setTempo} />
+          </>
+        ) : null}
 
-      <Spacer size="xxl" />
+        {error ? (
+          <>
+            <Spacer size="lg" />
+            <Text variant="subhead" color="destructive" center>
+              {error}
+            </Text>
+          </>
+        ) : null}
+
+        {showBotFallback && !matchFound ? (
+          <>
+            <Spacer size="lg" />
+            <Card>
+              <Text variant="bodyMedium">{t('online.search.botFallbackTitle')}</Text>
+              <Spacer size="xs" />
+              <Text variant="caption" color="muted">
+                {t('online.search.botFallbackBody')}
+              </Text>
+              <Spacer size="md" />
+              <Button
+                label={t('online.search.playBot')}
+                icon="cpu"
+                variant="secondary"
+                fullWidth
+                onPress={handlePlayBot}
+                testID="online-search-play-bot"
+              />
+              <Spacer size="sm" />
+              <Text variant="caption" color="muted" center>
+                {t('online.search.keepSearching')}
+              </Text>
+            </Card>
+          </>
+        ) : null}
+      </View>
 
       {!matchFound ? (
         <Button
@@ -275,6 +274,13 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
+  screenContent: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   radarWrap: {
     alignItems: 'center',
     justifyContent: 'center',

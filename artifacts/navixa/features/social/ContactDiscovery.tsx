@@ -47,6 +47,8 @@ export function ContactDiscovery({ selfId, username }: ContactDiscoveryProps) {
   const [syncing, setSyncing] = React.useState(false);
   const [synced, setSynced] = React.useState(false);
   const [matches, setMatches] = React.useState<ContactMatch[]>([]);
+  /** How many contact emails we scanned this sync (for the "no app yet" count). */
+  const [contactCount, setContactCount] = React.useState(0);
   const [sentIds, setSentIds] = React.useState<Set<string>>(new Set());
 
   const runSync = React.useCallback(async () => {
@@ -80,8 +82,10 @@ export function ContactDiscovery({ selfId, username }: ContactDiscoveryProps) {
         }
       }
 
-      const hashes = await Promise.all([...emails].slice(0, 500).map(hashEmail));
+      const emailList = [...emails].slice(0, 500);
+      const hashes = await Promise.all(emailList.map(hashEmail));
       const found = await matchContacts(hashes);
+      setContactCount(emailList.length);
       setMatches(found);
       setSynced(true);
     } catch {
@@ -186,12 +190,29 @@ export function ContactDiscovery({ selfId, username }: ContactDiscoveryProps) {
               <ActivityIndicator color={colors.primary} />
             </View>
           ) : matches.length === 0 ? (
+            /* Zero matches: friendly empty state with a prominent invite CTA. */
             <Card>
-              <Text variant="bodyMedium">{t('friends.discover.noMatches')}</Text>
-              <Spacer size="xs" />
-              <Text variant="caption" color="muted">
-                {t('friends.discover.noMatchesBody')}
-              </Text>
+              <View style={styles.centerBody}>
+                <View style={[styles.iconTile, { backgroundColor: colors.secondary }]}>
+                  <Feather name="user-plus" size={iconSize.md} color={colors.accent} />
+                </View>
+                <Spacer size="sm" />
+                <Text variant="bodyMedium" center>
+                  {t('friends.discover.noMatches')}
+                </Text>
+                <Spacer size="xs" />
+                <Text variant="caption" color="muted" center>
+                  {t('friends.discover.noMatchesBody')}
+                </Text>
+                <Spacer size="md" />
+                <Button
+                  label={t('friends.discover.inviteAll')}
+                  icon="send"
+                  fullWidth
+                  onPress={handleInvite}
+                  testID="invite-all-button"
+                />
+              </View>
             </Card>
           ) : (
             <>
@@ -228,6 +249,38 @@ export function ContactDiscovery({ selfId, username }: ContactDiscoveryProps) {
                   </View>
                 ))}
               </Card>
+
+              {/* Contacts without the app: prominent invite CTA. */}
+              {contactCount > matches.length ? (
+                <>
+                  <Spacer size="md" />
+                  <Card>
+                    <View style={styles.actionRow}>
+                      <View style={[styles.iconTile, { backgroundColor: colors.secondary }]}>
+                        <Feather name="user-plus" size={iconSize.md} color={colors.accent} />
+                      </View>
+                      <View style={styles.actionBody}>
+                        <Text variant="bodyMedium">
+                          {t('friends.discover.noAppCount', {
+                            count: contactCount - matches.length,
+                          })}
+                        </Text>
+                        <Text variant="caption" color="muted">
+                          {t('friends.discover.noAppBody')}
+                        </Text>
+                      </View>
+                    </View>
+                    <Spacer size="sm" />
+                    <Button
+                      label={t('friends.discover.inviteAll')}
+                      icon="send"
+                      fullWidth
+                      onPress={handleInvite}
+                      testID="invite-remaining-button"
+                    />
+                  </Card>
+                </>
+              ) : null}
             </>
           )}
         </>
@@ -255,6 +308,9 @@ const styles = StyleSheet.create({
   },
   centerPad: {
     padding: spacing.xl,
+    alignItems: 'center',
+  },
+  centerBody: {
     alignItems: 'center',
   },
   row: {

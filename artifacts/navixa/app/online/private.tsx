@@ -86,9 +86,12 @@ export default function PrivateMatchScreen() {
 
   const handleShare = async () => {
     if (!created) return;
+    // Prefer the universal (https) link; fall back to the custom-scheme deep
+    // link. Include the code so the recipient can also join by typing it.
+    const link = created.universalLink || created.deepLink;
     try {
       await Share.share({
-        message: `${t('online.private.createBody')} ${created.deepLink}`,
+        message: t('online.private.shareMessage', { code: created.code, link }),
       });
     } catch {
       // ignore
@@ -102,94 +105,101 @@ export default function PrivateMatchScreen() {
   };
 
   return (
-    <Screen testID="online-private-screen">
+    <Screen testID="online-private-screen" scroll={false} contentStyle={styles.screenContent}>
       {!created ? (
         <>
-          <Text variant="subhead" color="muted">
-            {t('online.private.createBody')}
-          </Text>
-          <Spacer size="xl" />
-          <Text variant="label" color="muted">
-            {t('online.tempo.title').toUpperCase()}
-          </Text>
-          <Spacer size="sm" />
-          <TempoPicker value={tempo} onChange={setTempo} />
-          <Spacer size="xl" />
-          <Button
-            label={t('online.private.create')}
-            icon="plus-circle"
-            size="lg"
-            fullWidth
-            loading={creating}
-            onPress={handleCreate}
-            testID="online-private-create"
-          />
-          {error ? (
-            <>
-              <Spacer size="lg" />
-              <Text variant="subhead" color="destructive" center>
-                {error}
-              </Text>
-            </>
-          ) : null}
+          <View style={styles.content}>
+            <Text variant="subhead" color="muted">
+              {t('online.private.createBody')}
+            </Text>
+            <Spacer size="xl" />
+            <Text variant="label" color="muted">
+              {t('online.tempo.title').toUpperCase()}
+            </Text>
+            <Spacer size="sm" />
+            <TempoPicker value={tempo} onChange={setTempo} />
+            {error ? (
+              <>
+                <Spacer size="lg" />
+                <Text variant="subhead" color="destructive" center>
+                  {error}
+                </Text>
+              </>
+            ) : null}
+          </View>
+
+          <View style={styles.footer}>
+            <Button
+              label={t('online.private.create')}
+              icon="plus-circle"
+              size="lg"
+              fullWidth
+              loading={creating}
+              onPress={handleCreate}
+              testID="online-private-create"
+            />
+          </View>
         </>
       ) : (
         <>
-          <Card elevated>
-            <Text variant="caption" color="muted">
-              {t('online.private.codeLabel').toUpperCase()}
-            </Text>
-            <Spacer size="xs" />
-            <Text variant="h1" color="accent" center style={styles.code}>
-              {created.code}
-            </Text>
+          <View style={styles.content}>
+            <Card elevated>
+              <Text variant="caption" color="muted">
+                {t('online.private.codeLabel').toUpperCase()}
+              </Text>
+              <Spacer size="xs" />
+              <Text variant="h1" color="accent" center style={styles.code}>
+                {created.code}
+              </Text>
+              <Spacer size="md" />
+              <View style={styles.actions}>
+                <Button
+                  label={copied ? t('online.private.copied') : t('online.private.copy')}
+                  icon={copied ? 'check' : 'copy'}
+                  variant="secondary"
+                  size="sm"
+                  onPress={handleCopy}
+                />
+                <Button
+                  label={t('online.private.shareLink')}
+                  icon="share-2"
+                  variant="secondary"
+                  size="sm"
+                  onPress={handleShare}
+                />
+              </View>
+            </Card>
+
             <Spacer size="md" />
-            <View style={styles.actions}>
-              <Button
-                label={copied ? t('online.private.copied') : t('online.private.copy')}
-                icon={copied ? 'check' : 'copy'}
-                variant="secondary"
-                size="sm"
-                onPress={handleCopy}
-              />
-              <Button
-                label={t('online.private.share')}
-                icon="share-2"
-                variant="secondary"
-                size="sm"
-                onPress={handleShare}
-              />
+            <Card>
+              <Text variant="caption" color="muted">
+                {t('online.private.linkLabel').toUpperCase()}
+              </Text>
+              <Spacer size="xs" />
+              <Text variant="body" numberOfLines={1} style={{ color: colors.foreground }}>
+                {created.universalLink || created.deepLink}
+              </Text>
+            </Card>
+
+            <Spacer size="lg" />
+            <View style={styles.waitingRow}>
+              <Feather name="clock" size={18} color={colors.mutedForeground} />
+              <Text variant="subhead" color="muted">
+                {t('online.private.waiting')}
+              </Text>
             </View>
-          </Card>
-
-          <Spacer size="md" />
-          <Card>
-            <Text variant="caption" color="muted">
-              {t('online.private.linkLabel').toUpperCase()}
-            </Text>
-            <Spacer size="xs" />
-            <Text variant="body" style={{ color: colors.foreground }}>
-              {created.deepLink}
-            </Text>
-          </Card>
-
-          <Spacer size="xl" />
-          <View style={styles.waitingRow}>
-            <Feather name="clock" size={18} color={colors.mutedForeground} />
-            <Text variant="subhead" color="muted">
-              {t('online.private.waiting')}
-            </Text>
           </View>
 
-          <Spacer size="xl" />
-          <Button
-            label={t('online.setup.title')}
-            icon="anchor"
-            size="lg"
-            fullWidth
-            onPress={handleContinue}
-            testID="online-private-continue"
-          />
+          <View style={styles.footer}>
+            <Button
+              label={t('online.setup.title')}
+              icon="anchor"
+              size="lg"
+              fullWidth
+              onPress={handleContinue}
+              testID="online-private-continue"
+            />
+          </View>
         </>
       )}
     </Screen>
@@ -197,6 +207,16 @@ export default function PrivateMatchScreen() {
 }
 
 const styles = StyleSheet.create({
+  screenContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  content: {
+    flex: 1,
+  },
+  footer: {
+    paddingTop: spacing.sm,
+  },
   code: {
     letterSpacing: 6,
   },
