@@ -172,14 +172,23 @@
       "sentTitle": "Länk skickad",
       "sentBody": "Kolla {{email}} och tryck på länken för att logga in."
     },
+    "verify": {
+      "heading": "Verifiera din e-post",
+      "subtitle": "Ange koden vi skickade till {{email}}.",
+      "code": "Verifieringskod",
+      "codePlaceholder": "123456",
+      "submit": "Verifiera"
+    },
     "forgotPassword": {
       "title": "Återställ lösenord",
       "action": "Glömt lösenordet?",
       "heading": "Återställ ditt lösenord",
-      "subtitle": "Ange din e-post så skickar vi en återställningslänk.",
-      "submit": "Skicka återställningslänk",
+      "subtitle": "Ange din e-post så skickar vi en återställningskod.",
+      "submit": "Skicka återställningskod",
+      "newPassword": "Nytt lösenord",
+      "reset": "Återställ lösenord",
       "sentTitle": "E-post skickad",
-      "sentBody": "Kolla {{email}} för en länk att återställa ditt lösenord."
+      "sentBody": "Kolla {{email}} för en kod att återställa ditt lösenord."
     },
     "completeProfile": {
       "title": "Skapa profil",

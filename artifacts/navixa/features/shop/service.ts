@@ -1,20 +1,22 @@
 /**
- * Navixa — cosmetics shop data access.
+ * Navixa — cosmetics shop data access via the api-server.
  *
- * Catalog: `cosmetic_items` (public read of non-deleted rows).
- * Ownership: `user_inventory` (owner read). Equipping: `equipped_cosmetics`
- * (owner-managed; upsert on the (user, type) slot). A DB trigger
- * (`guard_equipped_ownership`) rejects equipping items the user does not own.
+ *   GET  /api/shop/catalog    → { items }
+ *   GET  /api/shop/inventory  → { inventory, equipped }
+ *   POST /api/shop/purchase    { itemId } → { ok, granted }
+ *   POST /api/shop/equip       { type, itemId } → { ok }
+ *
+ * The server returns camelCase drizzle rows which we normalise into the app's
+ * snake_case view models here. Ownership + equip guards are enforced
+ * server-side (you cannot equip an item you do not own).
  *
  * ── Monetization note ────────────────────────────────────────────────────
  * This dev build uses ONLY a test currency (coins / XP). There are NO
  * real-money purchase paths and no `price_cents` products are surfaced.
- * When adding real IAP later, integrate a store SDK (e.g. RevenueCat, or
- * expo-in-app-purchases / StoreKit + Google Play Billing) and validate
- * receipts in an Edge Function that grants inventory server-side. The client
- * should never mint currency or grant inventory directly in production.
+ * When adding real IAP later, integrate a store SDK and validate receipts
+ * server-side; the client should never mint currency or grant inventory.
  */
-import { supabase } from '@/lib/supabase';
+import { apiFetch } from '@/lib/api';
 
 export type CosmeticType =
   | 'board_theme'
@@ -50,62 +52,93 @@ export interface EquippedRow {
   item_id: string;
 }
 
+interface ServerCosmeticItem {
+  id: string;
+  code: string;
+  type: CosmeticType;
+  rarity: CosmeticRarity;
+  nameKey: string;
+  descriptionKey?: string | null;
+  previewUrl?: string | null;
+  priceCoins?: number | null;
+  isPurchasable?: boolean | null;
+  isDefault?: boolean | null;
+  sortOrder?: number | null;
+}
+
+interface ServerInventoryRow {
+  itemId: string;
+}
+
+interface ServerEquippedRow {
+  type: CosmeticType;
+  itemId: string;
+}
+
+function toCosmeticItem(i: ServerCosmeticItem): CosmeticItem {
+  return {
+    id: i.id,
+    code: i.code,
+    type: i.type,
+    rarity: i.rarity,
+    name_key: i.nameKey,
+    description_key: i.descriptionKey ?? null,
+    preview_url: i.previewUrl ?? null,
+    price_coins: i.priceCoins ?? null,
+    is_purchasable: Boolean(i.isPurchasable),
+    is_default: Boolean(i.isDefault),
+    sort_order: i.sortOrder ?? 0,
+  };
+}
+
 /** Fetch the full catalog, ordered by type then sort order. */
 export async function fetchCatalog(): Promise<CosmeticItem[]> {
-  const { data, error } = await supabase
-    .from('cosmetic_items')
-    .select(
-      'id, code, type, rarity, name_key, description_key, preview_url, price_coins, is_purchasable, is_default, sort_order',
-    )
-    .is('deleted_at', null)
-    .order('type', { ascending: true })
-    .order('sort_order', { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as CosmeticItem[];
+  const res = await apiFetch<{ items: ServerCosmeticItem[] }>('/shop/catalog');
+  return res.items.map(toCosmeticItem);
 }
 
 /** Fetch the current user's owned item ids. */
-export async function fetchInventory(userId: string): Promise<Set<string>> {
-  const { data, error } = await supabase
-    .from('user_inventory')
-    .select('item_id')
-    .eq('user_id', userId);
-  if (error) throw error;
-  return new Set((data ?? []).map((r: InventoryRow) => r.item_id));
+export async function fetchInventory(_userId: string): Promise<Set<string>> {
+  const res = await apiFetch<{ inventory: ServerInventoryRow[]; equipped: ServerEquippedRow[] }>(
+    '/shop/inventory',
+  );
+  return new Set(res.inventory.map((r) => r.itemId));
 }
 
 /** Fetch the current user's equipped item per type. */
-export async function fetchEquipped(
-  userId: string,
-): Promise<Map<CosmeticType, string>> {
-  const { data, error } = await supabase
-    .from('equipped_cosmetics')
-    .select('type, item_id')
-    .eq('user_id', userId);
-  if (error) throw error;
+export async function fetchEquipped(_userId: string): Promise<Map<CosmeticType, string>> {
+  const res = await apiFetch<{ inventory: ServerInventoryRow[]; equipped: ServerEquippedRow[] }>(
+    '/shop/inventory',
+  );
   const map = new Map<CosmeticType, string>();
-  for (const row of (data ?? []) as EquippedRow[]) {
-    map.set(row.type, row.item_id);
-  }
+  for (const row of res.equipped) map.set(row.type, row.itemId);
   return map;
 }
 
 /**
- * Equip an owned cosmetic into its (user, type) slot. Uses upsert keyed on the
- * unique (user_id, type) index so re-equipping replaces the previous item.
- * Returns false if the write fails (e.g. item not owned — the DB trigger
- * rejects it).
+ * Purchase (or claim a free/default) cosmetic. Returns true when newly granted.
+ */
+export async function purchaseItem(_userId: string, itemId: string): Promise<boolean> {
+  const res = await apiFetch<{ ok: boolean; granted: boolean }>('/shop/purchase', {
+    method: 'POST',
+    body: { itemId },
+  });
+  return res.granted;
+}
+
+/**
+ * Equip an owned cosmetic into its (user, type) slot. Returns false if the
+ * write fails (e.g. item not owned — the server rejects it).
  */
 export async function equipCosmetic(
-  userId: string,
+  _userId: string,
   type: CosmeticType,
   itemId: string,
 ): Promise<boolean> {
-  const { error } = await supabase
-    .from('equipped_cosmetics')
-    .upsert(
-      { user_id: userId, type, item_id: itemId },
-      { onConflict: 'user_id,type' },
-    );
-  return !error;
+  try {
+    await apiFetch('/shop/equip', { method: 'POST', body: { type, itemId } });
+    return true;
+  } catch {
+    return false;
+  }
 }

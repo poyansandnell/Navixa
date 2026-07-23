@@ -1,11 +1,17 @@
 /**
- * Supabase data-access layer for the social graph: profiles, friends, requests,
- * blocks, reports, ratings and leaderboards. All queries run with the anon key
- * under RLS; writes are limited to what the policies in the social migration
- * allow (friend_requests insert/update, friendships delete, blocks all, reports
- * insert). Friendship creation goes through the accept_friend_request RPC.
+ * REST data-access for the social graph: profiles, friends, requests, blocks,
+ * reports, ratings and leaderboards — all against the api-server.
+ *
+ * The server returns camelCase drizzle rows; we normalise them into the app's
+ * snake_case view models here so consuming UI is unchanged.
+ *
+ * Contract gaps worked around client-side:
+ *   - The leaderboard endpoint only does live global / national (scope =
+ *     countryCode) ranking. The `friends` scope and the "your position"
+ *     lookup are computed on the client from the friend graph + ratings.
  */
-import { supabase } from '@/lib/supabase';
+import { apiFetch, ApiError } from '@/lib/api';
+import { toProfileRow, type ServerProfile } from '@/lib/normalize';
 
 export interface ProfileRow {
   id: string;
@@ -70,110 +76,161 @@ export function isOnline(lastSeenAt: string | null | undefined): boolean {
   return Date.now() - t < ONLINE_WINDOW_MS;
 }
 
-const PROFILE_COLS =
-  'id, username, display_name, avatar_url, country_code, xp, level, last_seen_at, created_at, is_bot';
+// --- server row shapes -------------------------------------------------------
+
+interface ServerRating {
+  playerId: string;
+  rating: number;
+  bestRating?: number | null;
+  gamesPlayed?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  winStreak?: number | null;
+}
+
+interface ServerFriendRequest {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  status: string;
+  message: string | null;
+  createdAt: string;
+}
+
+function toRatingRow(r: ServerRating | null | undefined): RatingRow | null {
+  if (!r) return null;
+  return {
+    player_id: r.playerId,
+    rating: r.rating,
+    best_rating: r.bestRating ?? r.rating,
+    games_played: r.gamesPlayed ?? 0,
+    wins: r.wins ?? 0,
+    losses: r.losses ?? 0,
+    win_streak: r.winStreak ?? 0,
+  };
+}
+
+function toRequestRow(r: ServerFriendRequest): FriendRequestRow {
+  return {
+    id: r.id,
+    sender_id: r.senderId,
+    receiver_id: r.receiverId,
+    status: r.status,
+    message: r.message ?? null,
+    created_at: r.createdAt,
+  };
+}
+
+// --- profiles / ratings / stats ---------------------------------------------
 
 /** Fetch a single profile by id. */
 export async function fetchProfile(id: string): Promise<ProfileRow | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(PROFILE_COLS)
-    .eq('id', id)
-    .maybeSingle();
-  if (error) throw error;
-  return (data as ProfileRow) ?? null;
+  try {
+    const res = await apiFetch<{ profile: ServerProfile }>(`/profile/${id}`);
+    return toProfileRow(res.profile);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
+  }
 }
 
 /** Fetch the ranked rating row for a player. */
 export async function fetchRating(playerId: string): Promise<RatingRow | null> {
-  const { data, error } = await supabase
-    .from('ratings')
-    .select('player_id, rating, best_rating, games_played, wins, losses, win_streak')
-    .eq('player_id', playerId)
-    .eq('mode', 'ranked')
-    .maybeSingle();
-  if (error) throw error;
-  return (data as RatingRow) ?? null;
+  const res = await apiFetch<{ rating: ServerRating | null }>(`/profile/${playerId}/rating`);
+  return toRatingRow(res.rating);
 }
 
-/** Aggregate lifetime stats via the player_stats RPC. */
+/** Aggregate lifetime stats. */
 export async function fetchPlayerStats(playerId: string): Promise<PlayerStats | null> {
-  const { data, error } = await supabase.rpc('player_stats', { p_player_id: playerId });
-  if (error) throw error;
-  const row = Array.isArray(data) ? data[0] : data;
-  return (row as PlayerStats) ?? null;
+  const res = await apiFetch<{
+    stats: {
+      matchesPlayed: number;
+      wins: number;
+      losses: number;
+      draws: number;
+      winRate: number;
+      totalShots: number;
+      totalHits: number;
+      accuracy: number;
+      shipsSunk: number;
+      currentRating: number;
+      bestRating: number;
+    };
+  }>(`/profile/${playerId}/stats`);
+  const s = res.stats;
+  return {
+    matches_played: s.matchesPlayed,
+    wins: s.wins,
+    losses: s.losses,
+    draws: s.draws,
+    win_rate: s.winRate,
+    total_shots: s.totalShots,
+    total_hits: s.totalHits,
+    accuracy: s.accuracy,
+    ships_sunk: s.shipsSunk,
+    current_rating: s.currentRating,
+    best_rating: s.bestRating,
+  };
 }
 
 /** Fetch ratings for a set of players (used to decorate lists). */
 export async function fetchRatingsFor(playerIds: string[]): Promise<Map<string, number>> {
   const map = new Map<string, number>();
   if (playerIds.length === 0) return map;
-  const { data, error } = await supabase
-    .from('ratings')
-    .select('player_id, rating')
-    .eq('mode', 'ranked')
-    .in('player_id', playerIds);
-  if (error) throw error;
-  for (const r of (data ?? []) as { player_id: string; rating: number }[]) {
-    map.set(r.player_id, r.rating);
+  const results = await Promise.all(
+    playerIds.map((id) =>
+      fetchRating(id)
+        .then((r) => [id, r?.rating] as const)
+        .catch(() => [id, undefined] as const),
+    ),
+  );
+  for (const [id, rating] of results) {
+    if (typeof rating === 'number') map.set(id, rating);
   }
   return map;
 }
 
 /** Ids the current user has blocked (used to filter search results). */
 export async function fetchBlockedIds(): Promise<Set<string>> {
-  const { data, error } = await supabase.from('blocks').select('blocked_id');
-  if (error) throw error;
-  return new Set(((data ?? []) as { blocked_id: string }[]).map((b) => b.blocked_id));
+  const res = await apiFetch<{ blocks: { blockedId: string }[] }>('/social/blocks');
+  return new Set(res.blocks.map((b) => b.blockedId));
 }
 
 /**
- * Search users by (case-insensitive) username prefix, excluding self and blocked
- * users. citext + ilike makes this a case-insensitive match.
+ * Search users by (case-insensitive) username prefix, excluding self and
+ * blocked users.
  */
-export async function searchUsers(query: string, selfId: string): Promise<ProfileRow[]> {
+export async function searchUsers(query: string, _selfId: string): Promise<ProfileRow[]> {
   const q = query.trim();
   if (q.length < 2) return [];
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(PROFILE_COLS)
-    .ilike('username', `${q}%`)
-    .neq('id', selfId)
-    .limit(20);
-  if (error) throw error;
-  const blocked = await fetchBlockedIds();
-  return ((data ?? []) as ProfileRow[]).filter((p) => !blocked.has(p.id));
+  const [res, blocked] = await Promise.all([
+    apiFetch<{ users: ServerProfile[] }>('/profile/search', { query: { q, limit: 20 } }),
+    fetchBlockedIds().catch(() => new Set<string>()),
+  ]);
+  return res.users
+    .map((u) => toProfileRow(u))
+    .filter((p): p is ProfileRow => p !== null && !blocked.has(p.id));
+}
+
+// --- friends -----------------------------------------------------------------
+
+interface ServerFriendEntry {
+  friendshipId: string;
+  profile: ServerProfile;
+  rating: number | null;
 }
 
 /** Accepted friends of the current user, decorated with rating + online. */
-export async function fetchFriends(selfId: string): Promise<FriendEntry[]> {
-  const { data, error } = await supabase
-    .from('friendships')
-    .select('id, user_a, user_b, created_at');
-  if (error) throw error;
-  const rows = (data ?? []) as { id: string; user_a: string; user_b: string }[];
-  const otherIds = rows.map((r) => (r.user_a === selfId ? r.user_b : r.user_a));
-  if (otherIds.length === 0) return [];
-
-  const { data: profs, error: pErr } = await supabase
-    .from('profiles')
-    .select(PROFILE_COLS)
-    .in('id', otherIds);
-  if (pErr) throw pErr;
-  const profMap = new Map<string, ProfileRow>();
-  for (const p of (profs ?? []) as ProfileRow[]) profMap.set(p.id, p);
-
-  const ratings = await fetchRatingsFor(otherIds);
-
+export async function fetchFriends(_selfId: string): Promise<FriendEntry[]> {
+  const res = await apiFetch<{ friends: ServerFriendEntry[] }>('/social/friends');
   const out: FriendEntry[] = [];
-  for (const row of rows) {
-    const otherId = row.user_a === selfId ? row.user_b : row.user_a;
-    const profile = profMap.get(otherId);
+  for (const row of res.friends) {
+    const profile = toProfileRow(row.profile);
     if (!profile) continue;
     out.push({
-      friendshipId: row.id,
+      friendshipId: row.friendshipId,
       profile,
-      rating: ratings.get(otherId) ?? null,
+      rating: row.rating ?? null,
       online: isOnline(profile.last_seen_at),
     });
   }
@@ -189,42 +246,28 @@ export interface RequestWithProfile {
   profile: ProfileRow | null;
 }
 
+interface ServerRequestWithProfile {
+  request: ServerFriendRequest;
+  profile: ServerProfile | null;
+}
+
 /** Incoming + outgoing pending friend requests. */
-export async function fetchPendingRequests(selfId: string): Promise<{
+export async function fetchPendingRequests(_selfId: string): Promise<{
   incoming: RequestWithProfile[];
   outgoing: RequestWithProfile[];
 }> {
-  const { data, error } = await supabase
-    .from('friend_requests')
-    .select('id, sender_id, receiver_id, status, message, created_at')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  const rows = (data ?? []) as FriendRequestRow[];
-
-  const otherIds = new Set<string>();
-  for (const r of rows) {
-    otherIds.add(r.sender_id === selfId ? r.receiver_id : r.sender_id);
-  }
-  const profMap = new Map<string, ProfileRow>();
-  if (otherIds.size > 0) {
-    const { data: profs } = await supabase
-      .from('profiles')
-      .select(PROFILE_COLS)
-      .in('id', Array.from(otherIds));
-    for (const p of (profs ?? []) as ProfileRow[]) profMap.set(p.id, p);
-  }
-
-  const incoming: RequestWithProfile[] = [];
-  const outgoing: RequestWithProfile[] = [];
-  for (const r of rows) {
-    if (r.receiver_id === selfId) {
-      incoming.push({ request: r, profile: profMap.get(r.sender_id) ?? null });
-    } else if (r.sender_id === selfId) {
-      outgoing.push({ request: r, profile: profMap.get(r.receiver_id) ?? null });
-    }
-  }
-  return { incoming, outgoing };
+  const res = await apiFetch<{
+    incoming: ServerRequestWithProfile[];
+    outgoing: ServerRequestWithProfile[];
+  }>('/social/requests');
+  const map = (r: ServerRequestWithProfile): RequestWithProfile => ({
+    request: toRequestRow(r.request),
+    profile: toProfileRow(r.profile),
+  });
+  return {
+    incoming: res.incoming.map(map),
+    outgoing: res.outgoing.map(map),
+  };
 }
 
 /** Relationship between the current user and another profile. */
@@ -237,118 +280,73 @@ export type Relationship =
   | 'none';
 
 export async function fetchRelationship(
-  selfId: string,
+  _selfId: string,
   otherId: string,
 ): Promise<{ relationship: Relationship; requestId: string | null }> {
-  if (selfId === otherId) return { relationship: 'self', requestId: null };
-
-  const [{ data: fs }, { data: reqs }, { data: blk }] = await Promise.all([
-    supabase
-      .from('friendships')
-      .select('id')
-      .or(`and(user_a.eq.${selfId},user_b.eq.${otherId}),and(user_a.eq.${otherId},user_b.eq.${selfId})`)
-      .maybeSingle(),
-    supabase
-      .from('friend_requests')
-      .select('id, sender_id, receiver_id, status')
-      .eq('status', 'pending')
-      .or(`and(sender_id.eq.${selfId},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${selfId})`),
-    supabase.from('blocks').select('id').eq('blocked_id', otherId).maybeSingle(),
-  ]);
-
-  if (blk) return { relationship: 'blocked', requestId: null };
-  if (fs) return { relationship: 'friends', requestId: null };
-  const pending = (reqs ?? []) as { id: string; sender_id: string }[];
-  if (pending.length > 0) {
-    const p = pending[0];
-    return {
-      relationship: p.sender_id === selfId ? 'request_sent' : 'request_received',
-      requestId: p.id,
-    };
-  }
-  return { relationship: 'none', requestId: null };
+  const res = await apiFetch<{ relationship: Relationship; requestId: string | null }>(
+    `/social/relationship/${otherId}`,
+  );
+  return { relationship: res.relationship, requestId: res.requestId };
 }
 
-/** Send a friend request (RLS enforces sender = auth.uid + not blocked). */
+/** Send a friend request. */
 export async function sendFriendRequest(
-  senderId: string,
+  _senderId: string,
   receiverId: string,
   message?: string,
 ): Promise<void> {
-  const { error } = await supabase.from('friend_requests').insert({
-    sender_id: senderId,
-    receiver_id: receiverId,
-    message: message ?? null,
+  await apiFetch('/social/requests', {
+    method: 'POST',
+    body: { receiverId, message: message ?? undefined },
   });
-  if (error) throw error;
 }
 
-/** Accept a pending request via the server RPC (creates the friendship). */
+/** Accept a pending request (creates the friendship server-side). */
 export async function acceptFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabase.rpc('accept_friend_request', { request_id: requestId });
-  if (error) throw error;
+  await apiFetch(`/social/requests/${requestId}/accept`, { method: 'POST', body: {} });
 }
 
 /** Reject (decline) a pending request the current user received. */
 export async function rejectFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabase
-    .from('friend_requests')
-    .update({ status: 'declined', responded_at: new Date().toISOString() })
-    .eq('id', requestId);
-  if (error) throw error;
+  await apiFetch(`/social/requests/${requestId}/reject`, { method: 'POST', body: {} });
 }
 
 /** Cancel a pending request the current user sent. */
 export async function cancelFriendRequest(requestId: string): Promise<void> {
-  const { error } = await supabase
-    .from('friend_requests')
-    .update({ status: 'cancelled', responded_at: new Date().toISOString() })
-    .eq('id', requestId);
-  if (error) throw error;
+  await apiFetch(`/social/requests/${requestId}/cancel`, { method: 'POST', body: {} });
 }
 
-/** Remove a friendship (either party may delete under RLS). */
+/** Remove a friendship by its id. */
 export async function removeFriend(friendshipId: string): Promise<void> {
-  const { error } = await supabase.from('friendships').delete().eq('id', friendshipId);
-  if (error) throw error;
+  await apiFetch(`/social/friends/${friendshipId}`, { method: 'DELETE' });
 }
 
-/** Remove a friendship identified by the two participant ids (canonical pair). */
+/**
+ * Remove a friendship identified by the two participant ids. The server keys
+ * removal off the friendship id, so we resolve it from the caller's friend
+ * list first.
+ */
 export async function removeFriendByPair(selfId: string, otherId: string): Promise<void> {
-  const a = selfId < otherId ? selfId : otherId;
-  const b = selfId < otherId ? otherId : selfId;
-  const { error } = await supabase
-    .from('friendships')
-    .delete()
-    .eq('user_a', a)
-    .eq('user_b', b);
-  if (error) throw error;
+  const friends = await fetchFriends(selfId);
+  const match = friends.find((f) => f.profile.id === otherId);
+  if (match) await removeFriend(match.friendshipId);
 }
 
-/** Block a user. Also tears down any friendship between the two, best-effort. */
+/** Block a user. Also tears down any friendship between the two (server-side). */
 export async function blockUser(
-  selfId: string,
+  _selfId: string,
   targetId: string,
   reason?: string,
 ): Promise<void> {
-  const { error } = await supabase
-    .from('blocks')
-    .insert({ blocker_id: selfId, blocked_id: targetId, reason: reason ?? null });
-  if (error && error.code !== '23505') throw error; // ignore duplicate
-  // Best-effort friendship removal (canonical a<b ordering).
-  const a = selfId < targetId ? selfId : targetId;
-  const b = selfId < targetId ? targetId : selfId;
-  await supabase.from('friendships').delete().eq('user_a', a).eq('user_b', b);
+  await apiFetch('/social/blocks', {
+    method: 'POST',
+    body: { blockedId: targetId, reason: reason ?? undefined },
+  });
 }
 
-/** Unblock a user. */
-export async function unblockUser(selfId: string, targetId: string): Promise<void> {
-  const { error } = await supabase
-    .from('blocks')
-    .delete()
-    .eq('blocker_id', selfId)
-    .eq('blocked_id', targetId);
-  if (error) throw error;
+/** Unblock a user (path id is the blocked user id). */
+export async function unblockUser(_selfId: string, targetId: string): Promise<void> {
+  await apiFetch(`/social/blocks/${targetId}`, { method: 'DELETE' });
 }
 
 export type ReportCategory =
@@ -358,16 +356,16 @@ export type ReportCategory =
   | 'spam'
   | 'other';
 
-/** Report a user via the report-user edge function. */
+/** Report a user. */
 export async function reportUser(
   reportedId: string,
   category: ReportCategory,
   description?: string,
 ): Promise<void> {
-  const { error } = await supabase.functions.invoke('report-user', {
-    body: { reportedId, category, description },
+  await apiFetch('/social/reports', {
+    method: 'POST',
+    body: { reportedId, category, description: description ?? undefined },
   });
-  if (error) throw error;
 }
 
 // -----------------------------------------------------------------------------
@@ -385,11 +383,24 @@ export type LeaderboardScope = 'global' | 'national' | 'friends';
 
 const PAGE_SIZE = 25;
 
+interface ServerLeaderboardRow {
+  playerId: string;
+  rating: number;
+  gamesPlayed?: number;
+  wins?: number;
+  losses?: number;
+  username: string;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  countryCode?: string | null;
+  level?: number | null;
+  rank: number;
+}
+
 /**
- * Fetch a page of the leaderboard for a scope. Prefers today's
- * leaderboard_snapshots when present; otherwise falls back to a live
- * ratings+profiles query. `friends` is always computed live from the friend
- * graph. Returns entries plus whether more pages exist.
+ * Fetch a page of the leaderboard for a scope. `global` and `national` hit the
+ * live server endpoint; `friends` is computed client-side from the friend
+ * graph. Returns entries plus whether more pages likely exist.
  */
 export async function fetchLeaderboardPage(params: {
   scope: LeaderboardScope;
@@ -398,131 +409,75 @@ export async function fetchLeaderboardPage(params: {
   countryCode: string | null;
 }): Promise<{ entries: LeaderboardEntry[]; hasMore: boolean }> {
   const { scope, page, selfId, countryCode } = params;
-  const from = page * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
 
   if (scope === 'friends') {
     return fetchFriendsLeaderboard(selfId, page);
   }
 
-  const snapScope = scope === 'national' ? (countryCode ?? '') : 'global';
-  if (scope === 'national' && !snapScope) {
+  if (scope === 'national' && !countryCode) {
     return { entries: [], hasMore: false };
   }
 
-  // Try today's snapshot first.
-  const { data: snap, error: snapErr } = await supabase
-    .from('leaderboard_snapshots')
-    .select('rank, rating, player_id')
-    .eq('scope', snapScope)
-    .eq('mode', 'ranked')
-    .eq('snapshot_date', new Date().toISOString().slice(0, 10))
-    .order('rank', { ascending: true })
-    .range(from, to);
-
-  if (!snapErr && snap && snap.length > 0) {
-    const rows = snap as { rank: number; rating: number; player_id: string }[];
-    const profiles = await fetchProfilesMap(rows.map((r) => r.player_id));
-    return {
-      entries: rows.map((r) => ({
-        rank: r.rank,
-        playerId: r.player_id,
-        rating: r.rating,
-        profile: profiles.get(r.player_id) ?? null,
-      })),
-      hasMore: rows.length === PAGE_SIZE,
-    };
-  }
-
-  // Live fallback: rank by rating. National scope filters by country via a join.
-  return fetchLiveLeaderboard(scope, page, countryCode);
-}
-
-async function fetchLiveLeaderboard(
-  scope: LeaderboardScope,
-  page: number,
-  countryCode: string | null,
-): Promise<{ entries: LeaderboardEntry[]; hasMore: boolean }> {
-  const from = page * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-
-  if (scope === 'national') {
-    if (!countryCode) return { entries: [], hasMore: false };
-    // Filter by country via an inner join on profiles.
-    const { data, error } = await supabase
-      .from('ratings')
-      .select('player_id, rating, profiles!inner(country_code, is_bot, deleted_at)')
-      .eq('mode', 'ranked')
-      .gt('games_played', 0)
-      .eq('profiles.country_code', countryCode)
-      .eq('profiles.is_bot', false)
-      .order('rating', { ascending: false })
-      .range(from, to);
-    if (error) throw error;
-    const rows = (data ?? []) as { player_id: string; rating: number }[];
-    const profiles = await fetchProfilesMap(rows.map((r) => r.player_id));
-    return {
-      entries: rows.map((r, i) => ({
-        rank: from + i + 1,
-        playerId: r.player_id,
-        rating: r.rating,
-        profile: profiles.get(r.player_id) ?? null,
-      })),
-      hasMore: rows.length === PAGE_SIZE,
-    };
-  }
-
-  const { data, error } = await supabase
-    .from('ratings')
-    .select('player_id, rating, profiles!inner(is_bot, deleted_at)')
-    .eq('mode', 'ranked')
-    .gt('games_played', 0)
-    .eq('profiles.is_bot', false)
-    .order('rating', { ascending: false })
-    .range(from, to);
-  if (error) throw error;
-  const rows = (data ?? []) as { player_id: string; rating: number }[];
-  const profiles = await fetchProfilesMap(rows.map((r) => r.player_id));
-  return {
-    entries: rows.map((r, i) => ({
-      rank: from + i + 1,
-      playerId: r.player_id,
-      rating: r.rating,
-      profile: profiles.get(r.player_id) ?? null,
-    })),
-    hasMore: rows.length === PAGE_SIZE,
-  };
+  const serverScope = scope === 'national' ? (countryCode as string) : 'global';
+  const res = await apiFetch<{ entries: ServerLeaderboardRow[]; page: number; pageSize: number }>(
+    '/social/leaderboard',
+    { query: { scope: serverScope, mode: 'ranked', page, pageSize: PAGE_SIZE } },
+  );
+  const entries: LeaderboardEntry[] = res.entries.map((r) => ({
+    rank: r.rank,
+    playerId: r.playerId,
+    rating: r.rating,
+    profile: {
+      id: r.playerId,
+      username: r.username,
+      display_name: r.displayName ?? null,
+      avatar_url: r.avatarUrl ?? null,
+      country_code: r.countryCode ?? null,
+      xp: 0,
+      level: r.level ?? 1,
+      last_seen_at: null,
+      created_at: new Date(0).toISOString(),
+    },
+  }));
+  return { entries, hasMore: res.entries.length === PAGE_SIZE };
 }
 
 async function fetchFriendsLeaderboard(
   selfId: string,
   page: number,
 ): Promise<{ entries: LeaderboardEntry[]; hasMore: boolean }> {
-  // Friends leaderboard includes the user themself for context.
   const friends = await fetchFriends(selfId);
-  const ids = [selfId, ...friends.map((f) => f.profile.id)];
-  const [ratings, profiles] = await Promise.all([
-    fetchRatingsFor(ids),
-    fetchProfilesMap(ids),
-  ]);
-  const ranked = ids
-    .map((id) => ({ id, rating: ratings.get(id) ?? 1200 }))
-    .sort((a, b) => b.rating - a.rating);
+  const self = await fetchProfile(selfId);
+  const selfRating = (await fetchRating(selfId))?.rating ?? 1200;
+
+  const rows: { id: string; rating: number; profile: ProfileRow | null }[] = [
+    { id: selfId, rating: selfRating, profile: self },
+    ...friends.map((f) => ({
+      id: f.profile.id,
+      rating: f.rating ?? 1200,
+      profile: f.profile,
+    })),
+  ];
+  rows.sort((a, b) => b.rating - a.rating);
 
   const from = page * PAGE_SIZE;
-  const slice = ranked.slice(from, from + PAGE_SIZE);
+  const slice = rows.slice(from, from + PAGE_SIZE);
   return {
     entries: slice.map((r, i) => ({
       rank: from + i + 1,
       playerId: r.id,
       rating: r.rating,
-      profile: profiles.get(r.id) ?? null,
+      profile: r.profile,
     })),
-    hasMore: from + PAGE_SIZE < ranked.length,
+    hasMore: from + PAGE_SIZE < rows.length,
   };
 }
 
-/** The current user's own leaderboard position for a scope (rank + rating). */
+/**
+ * The current user's own leaderboard position for a scope. There is no server
+ * "your position" endpoint, so this is estimated by scanning leaderboard pages
+ * for global/national (bounded) and computed exactly for the small friends set.
+ */
 export async function fetchYourPosition(params: {
   scope: LeaderboardScope;
   selfId: string;
@@ -533,49 +488,38 @@ export async function fetchYourPosition(params: {
 
   if (scope === 'friends') {
     const { entries } = await fetchFriendsLeaderboard(selfId, 0);
-    // friends list is small; find self across pages by re-deriving full order.
     const me = entries.find((e) => e.playerId === selfId);
-    if (me) return { rank: me.rank, rating };
-    return { rank: null, rating };
+    return { rank: me?.rank ?? null, rating };
   }
 
   if (scope === 'national' && !countryCode) return { rank: null, rating };
 
-  // Count how many rated players outrank the user.
-  let query = supabase
-    .from('ratings')
-    .select('player_id, profiles!inner(is_bot, country_code)', { count: 'exact', head: true })
-    .eq('mode', 'ranked')
-    .gt('games_played', 0)
-    .eq('profiles.is_bot', false)
-    .gt('rating', rating);
-  if (scope === 'national' && countryCode) {
-    query = query.eq('profiles.country_code', countryCode);
+  // Scan up to a bounded number of pages looking for the caller.
+  const MAX_PAGES = 8;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const { entries, hasMore } = await fetchLeaderboardPage({
+      scope,
+      page,
+      selfId,
+      countryCode,
+    });
+    const me = entries.find((e) => e.playerId === selfId);
+    if (me) return { rank: me.rank, rating };
+    if (!hasMore) break;
   }
-  const { count, error } = await query;
-  if (error) throw error;
-  return { rank: (count ?? 0) + 1, rating };
-}
-
-async function fetchProfilesMap(ids: string[]): Promise<Map<string, ProfileRow>> {
-  const map = new Map<string, ProfileRow>();
-  if (ids.length === 0) return map;
-  const { data, error } = await supabase.from('profiles').select(PROFILE_COLS).in('id', ids);
-  if (error) throw error;
-  for (const p of (data ?? []) as ProfileRow[]) map.set(p.id, p);
-  return map;
+  return { rank: null, rating };
 }
 
 /** Update the current user's chosen preset avatar. */
-export async function updateAvatar(selfId: string, encoded: string): Promise<void> {
-  const { error } = await supabase.from('profiles').update({ avatar_url: encoded }).eq('id', selfId);
-  if (error) throw error;
+export async function updateAvatar(_selfId: string, encoded: string): Promise<void> {
+  await apiFetch('/profile/me', { method: 'PATCH', body: { avatarUrl: encoded } });
 }
 
 /** Touch last_seen_at so presence-style online status works. */
-export async function touchPresence(selfId: string): Promise<void> {
-  await supabase
-    .from('profiles')
-    .update({ last_seen_at: new Date().toISOString() })
-    .eq('id', selfId);
+export async function touchPresence(_selfId: string): Promise<void> {
+  try {
+    await apiFetch('/profile/presence', { method: 'POST', body: {} });
+  } catch {
+    // Best-effort presence ping.
+  }
 }

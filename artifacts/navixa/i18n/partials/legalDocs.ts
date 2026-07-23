@@ -54,11 +54,11 @@ export default {
         },
         s6: {
           heading: 'Where your data is stored',
-          body: 'Our backend is provided by Supabase (Postgres database and authentication). Depending on the configured project region, data may be hosted in the European Union or the United States. Where data is transferred outside your region, it is protected by appropriate safeguards such as the European Commission’s Standard Contractual Clauses. Push notifications, when you enable them, are delivered through Expo’s push service.',
+          body: 'Our backend is hosted on Replit (Postgres database) with authentication provided by Clerk. Depending on the configured project region, data may be hosted in the European Union or the United States. Where data is transferred outside your region, it is protected by appropriate safeguards such as the European Commission’s Standard Contractual Clauses. Push notifications, when you enable them, are delivered through Expo’s push service.',
         },
         s7: {
           heading: 'Sharing',
-          body: 'The only data visible to other players is your public profile (display name, avatar, optional country) and public gameplay information such as leaderboard standing and finished-match results. Your email address is never visible to other users. We share data with our processors only to operate the service: Supabase (hosting and authentication) and Expo (push delivery, if enabled). We may disclose data where required by law.',
+          body: 'The only data visible to other players is your public profile (display name, avatar, optional country) and public gameplay information such as leaderboard standing and finished-match results. Your email address is never visible to other users. We share data with our processors only to operate the service: Replit (hosting and database), Clerk (authentication) and Expo (push delivery, if enabled). We may disclose data where required by law.',
         },
         s8: {
           heading: 'Retention',
@@ -281,7 +281,7 @@ export default {
         },
         s2: {
           heading: 'Libraries we use',
-          body: 'These include, among others: React and React Native, Expo and Expo Router, the Supabase JavaScript client, Zustand, i18next and react-i18next, React Native Reanimated, React Native Gesture Handler, React Native Screens, React Native Safe Area Context, React Native SVG, TanStack Query, Zod, and the Expo icon set. Each library is distributed under its own licence (most commonly the MIT licence).',
+          body: 'These include, among others: React and React Native, Expo and Expo Router, Zustand, i18next and react-i18next, React Native Reanimated, React Native Gesture Handler, React Native Screens, React Native Safe Area Context, React Native SVG, TanStack Query, Zod, and the Expo icon set. Each library is distributed under its own licence (most commonly the MIT licence).',
         },
         s3: {
           heading: 'Full license texts',
@@ -322,11 +322,11 @@ export default {
         },
         s6: {
           heading: 'Var dina uppgifter lagras',
-          body: 'Vår backend tillhandahålls av Supabase (Postgres-databas och autentisering). Beroende på projektets konfigurerade region kan uppgifter lagras inom EU eller i USA. När uppgifter överförs utanför din region skyddas de av lämpliga skyddsåtgärder, såsom EU-kommissionens standardavtalsklausuler. Push-aviseringar levereras, när du aktiverar dem, via Expos push-tjänst.',
+          body: 'Vår backend driftas hos Replit (Postgres-databas) med autentisering via Clerk. Beroende på projektets konfigurerade region kan uppgifter lagras inom EU eller i USA. När uppgifter överförs utanför din region skyddas de av lämpliga skyddsåtgärder, såsom EU-kommissionens standardavtalsklausuler. Push-aviseringar levereras, när du aktiverar dem, via Expos push-tjänst.',
         },
         s7: {
           heading: 'Delning',
-          body: 'De enda uppgifter som är synliga för andra spelare är din offentliga profil (visningsnamn, avatar, valfritt land) och offentlig spelinformation såsom placering på topplistor och resultat från avslutade matcher. Din e-postadress är aldrig synlig för andra användare. Vi delar uppgifter med våra personuppgiftsbiträden endast för att driva tjänsten: Supabase (drift och autentisering) och Expo (push-leverans, om aktiverad). Vi kan lämna ut uppgifter när lagen kräver det.',
+          body: 'De enda uppgifter som är synliga för andra spelare är din offentliga profil (visningsnamn, avatar, valfritt land) och offentlig spelinformation såsom placering på topplistor och resultat från avslutade matcher. Din e-postadress är aldrig synlig för andra användare. Vi delar uppgifter med våra personuppgiftsbiträden endast för att driva tjänsten: Replit (drift och databas), Clerk (autentisering) och Expo (push-leverans, om aktiverad). Vi kan lämna ut uppgifter när lagen kräver det.',
         },
         s8: {
           heading: 'Lagring',
@@ -549,7 +549,7 @@ export default {
         },
         s2: {
           heading: 'Bibliotek vi använder',
-          body: 'Dessa inkluderar bland annat: React och React Native, Expo och Expo Router, Supabase JavaScript-klient, Zustand, i18next och react-i18next, React Native Reanimated, React Native Gesture Handler, React Native Screens, React Native Safe Area Context, React Native SVG, TanStack Query, Zod och Expos ikonuppsättning. Varje bibliotek distribueras under sin egen licens (oftast MIT-licensen).',
+          body: 'Dessa inkluderar bland annat: React och React Native, Expo och Expo Router, Zustand, i18next och react-i18next, React Native Reanimated, React Native Gesture Handler, React Native Screens, React Native Safe Area Context, React Native SVG, TanStack Query, Zod och Expos ikonuppsättning. Varje bibliotek distribueras under sin egen licens (oftast MIT-licensen).',
         },
         s3: {
           heading: 'Fullständiga licenstexter',

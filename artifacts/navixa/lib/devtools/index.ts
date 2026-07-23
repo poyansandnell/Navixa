@@ -8,7 +8,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
-import { supabase } from '@/lib/supabase';
+import { getSocket } from '@/lib/socket';
 
 /** Clear all AsyncStorage keys (nukes persisted zustand stores, cache, etc.). */
 export async function clearAsyncStorage(): Promise<void> {
@@ -16,16 +16,12 @@ export async function clearAsyncStorage(): Promise<void> {
 }
 
 /**
- * Probe the Supabase realtime socket connection status without leaving a
- * lingering subscription. Returns the transport state string.
+ * Probe the Socket.IO realtime connection status. Returns the transport state
+ * string without opening a new connection.
  */
 export async function getRealtimeStatus(): Promise<string> {
   try {
-    // supabase-js exposes the underlying realtime client.
-    const rt = (supabase as unknown as { realtime?: { isConnected?: () => boolean } })
-      .realtime;
-    if (rt?.isConnected?.()) return 'connected';
-    return 'disconnected';
+    return getSocket().connected ? 'connected' : 'disconnected';
   } catch {
     return 'unknown';
   }

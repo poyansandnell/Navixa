@@ -307,7 +307,7 @@ function QuestCard({
   const handleClaim = async () => {
     setBusy(true);
     try {
-      const res = await claimQuest(userId, quest.id);
+      const res = await claimQuest(quest.userQuestId);
       if (res.ok) {
         onClaimed();
       } else if (res.needsServer) {

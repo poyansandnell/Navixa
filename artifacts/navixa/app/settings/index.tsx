@@ -22,7 +22,9 @@ import { useColors } from '@/hooks/useColors';
 import { iconSize, radii, spacing } from '@/constants/theme';
 import { useSettingsStore, type LanguagePreference, type ThemePreference } from '@/store/settings';
 import { SUPPORTED_LANGUAGES } from '@/i18n';
+import { useAuth as useClerkAuth } from '@clerk/expo';
 import { authService, useAuth } from '@/features/auth';
+import { disconnectSocket } from '@/lib/socket';
 import { useIsGuest } from '@/hooks/useIsGuest';
 import {
   Badge,
@@ -120,6 +122,7 @@ export default function SettingsScreen() {
   const { t } = useTranslation();
   const colors = useColors();
   const { user } = useAuth();
+  const { signOut } = useClerkAuth();
   const isGuest = useIsGuest();
   const settings = useSettingsStore();
   const { showCountry, setShowCountry } = useLocalPrivacyStore();
@@ -218,7 +221,8 @@ export default function SettingsScreen() {
         onPress: async () => {
           setBusy('logout');
           try {
-            await authService.signOut();
+            disconnectSocket();
+            await signOut();
           } finally {
             setBusy(null);
           }

@@ -1,56 +1,71 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSignIn } from '@clerk/expo/legacy';
 
-import { Button, Card, Screen, Spacer, Text } from '@/components/ui';
-import { authService, isValidEmail, TextField } from '@/features/auth';
+import { Button, Screen, Spacer, Text } from '@/components/ui';
+import { isValidEmail, isValidPassword, TextField } from '@/features/auth';
+import { spacing } from '@/constants/theme';
 
+/**
+ * Password reset via Clerk's `reset_password_email_code` strategy: request a
+ * code by email, then submit the code + a new password to complete the reset
+ * and sign in.
+ */
 export default function ForgotPasswordScreen() {
   const { t } = useTranslation();
+  const { signIn, setActive, isLoaded } = useSignIn();
 
   const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
 
-  const canSubmit = isValidEmail(email);
+  const clerkMessage = (err: unknown): string => {
+    const clerkErr = err as { errors?: { message?: string }[] };
+    return clerkErr.errors?.[0]?.message ?? (err as Error).message;
+  };
 
-  const handleSubmit = async () => {
-    if (!canSubmit || submitting) return;
+  const handleSendCode = async () => {
+    if (!isValidEmail(email) || submitting || !isLoaded) return;
     setSubmitting(true);
     setError(null);
     try {
-      await authService.sendPasswordReset(email.trim());
-      setSent(true);
+      await signIn.create({
+        strategy: 'reset_password_email_code',
+        identifier: email.trim(),
+      });
+      setCodeSent(true);
     } catch (err) {
-      setError((err as Error).message);
+      setError(clerkMessage(err));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (sent) {
-    return (
-      <Screen testID="forgot-password-sent">
-        <Spacer size="xxl" />
-        <Card elevated>
-          <Text variant="h3">{t('auth.forgotPassword.sentTitle')}</Text>
-          <Spacer size="sm" />
-          <Text variant="body" color="muted">
-            {t('auth.forgotPassword.sentBody', { email: email.trim() })}
-          </Text>
-        </Card>
-        <Spacer size="xl" />
-        <Button
-          label={t('common.done')}
-          variant="secondary"
-          fullWidth
-          onPress={() => router.back()}
-        />
-      </Screen>
-    );
-  }
+  const handleReset = async () => {
+    if (code.trim().length < 4 || !isValidPassword(password) || submitting || !isLoaded) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const attempt = await signIn.attemptFirstFactor({
+        strategy: 'reset_password_email_code',
+        code: code.trim(),
+        password,
+      });
+      if (attempt.status === 'complete') {
+        await setActive({ session: attempt.createdSessionId });
+      } else {
+        setError(t('auth.errors.title'));
+      }
+    } catch (err) {
+      setError(clerkMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -65,29 +80,65 @@ export default function ForgotPasswordScreen() {
         </Text>
         <Spacer size="xxl" />
 
-        <TextField
-          label={t('auth.fields.email')}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoComplete="email"
-          textContentType="emailAddress"
-          placeholder={t('auth.fields.emailPlaceholder')}
-          error={error}
-          onSubmitEditing={handleSubmit}
-          returnKeyType="go"
-        />
+        <View style={styles.form}>
+          <TextField
+            label={t('auth.fields.email')}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            textContentType="emailAddress"
+            placeholder={t('auth.fields.emailPlaceholder')}
+            editable={!codeSent}
+          />
+          {codeSent ? (
+            <>
+              <TextField
+                label={t('auth.verify.code')}
+                value={code}
+                onChangeText={setCode}
+                keyboardType="number-pad"
+                autoCapitalize="none"
+                placeholder={t('auth.verify.codePlaceholder')}
+              />
+              <TextField
+                label={t('auth.forgotPassword.newPassword')}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                autoComplete="new-password"
+                textContentType="newPassword"
+                placeholder={t('auth.fields.passwordPlaceholder')}
+                error={error}
+                onSubmitEditing={handleReset}
+                returnKeyType="go"
+              />
+            </>
+          ) : null}
+        </View>
 
         <Spacer size="xl" />
-        <Button
-          testID="forgot-password-submit"
-          label={t('auth.forgotPassword.submit')}
-          fullWidth
-          loading={submitting}
-          disabled={!canSubmit}
-          onPress={handleSubmit}
-        />
+        {codeSent ? (
+          <Button
+            testID="forgot-password-reset"
+            label={t('auth.forgotPassword.reset')}
+            fullWidth
+            loading={submitting}
+            disabled={code.trim().length < 4 || !isValidPassword(password)}
+            onPress={handleReset}
+          />
+        ) : (
+          <Button
+            testID="forgot-password-submit"
+            label={t('auth.forgotPassword.submit')}
+            fullWidth
+            loading={submitting}
+            disabled={!isValidEmail(email)}
+            onPress={handleSendCode}
+          />
+        )}
       </Screen>
     </KeyboardAvoidingView>
   );
@@ -96,5 +147,8 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  form: {
+    gap: spacing.lg,
   },
 });

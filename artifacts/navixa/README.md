@@ -1,7 +1,6 @@
 # Navixa
 
-A global, multiplayer **Battleship** game built for the Expo showcase. Navixa is an Expo React Native app (iOS / Android / web) backed by Supabase
-(Postgres + Row Level Security + Edge Functions). It ships offline bot matches,
+A global, multiplayer **Battleship** game built for the Expo showcase. Navixa is an Expo React Native app (iOS / Android / web) backed by Replit-native infrastructure: a Replit **PostgreSQL** database (Drizzle schema in `lib/db`) and a server-authoritative Express **api-server** (`artifacts/api-server`) with Socket.IO realtime and Clerk auth. It ships offline bot matches,
 online ranked/casual/private play, matchmaking, tournaments, quests,
 achievements, a cosmetics shop (test currency only), friends/leaderboards, and
 match replays — localized in 14 languages.
@@ -19,17 +18,17 @@ match replays — localized in 14 languages.
 |-------|------|
 | App | Expo SDK 54, React Native 0.81, React 19, expo-router v6 (typed routes), New Architecture + React Compiler |
 | State | Zustand (`store/`), TanStack Query, Zod validation |
-| Game engine | Pure TypeScript in `lib/engine` (no RN imports) — placement, RNG, bots, Elo rating, match state, simulation; tested with Vitest |
+| Game engine | Pure TypeScript in `lib/game-engine` (shared workspace package, no RN imports) — placement, RNG, bots, Glicko-2/Elo rating, match state, simulation; tested with Vitest |
 | i18n | i18next + react-i18next + expo-localization; base locales in `i18n/locales`, extra strings merged from `i18n/partials` in `i18n/index.ts` |
-| Backend | Supabase: Postgres 17 schema in `supabase/migrations`, 18 Deno Edge Functions in `supabase/functions`, RLS everywhere |
-| Client SDK | `@supabase/supabase-js` via `lib/supabase.ts` (anon key only) |
+| Backend | Server-authoritative Express **api-server** (`artifacts/api-server`) on Replit PostgreSQL; Drizzle schema in `lib/db`; all game logic, matchmaking (`FOR UPDATE SKIP LOCKED`), Glicko-2/Elo ratings, timeouts, server-driven bot moves, and Expo push run server-side |
+| Client SDK | Typed REST client `lib/api.ts` (`/api`) + Socket.IO client `lib/socket.ts` (path `/api/socket.io`); Clerk session JWT as bearer token / handshake auth |
 
 ## Project structure
 
 ```
 artifacts/navixa/
 ├─ app/                    expo-router routes
-│  ├─ (auth)/              sign-in, sign-up, magic-link, forgot/complete-profile
+│  ├─ (auth)/              sign-in, sign-up, forgot-password, complete-profile
 │  ├─ (tabs)/              home, compete, friends, leaderboard, profile
 │  ├─ game/                offline bot match (setup → play → result)
 │  ├─ online/              online play (search, private, setup, play, result, join/[code])
@@ -37,93 +36,76 @@ artifacts/navixa/
 │  ├─ shop/  settings/  legal/  history/  profile/  onboarding  devtools
 ├─ features/              domain logic: auth, game, matchmaking, onlineMatch,
 │                          tournaments, quests, shop, social, history, notifications
-├─ lib/                   supabase client, engine, settings, devtools
+├─ lib/                   api client (api.ts), socket client (socket.ts), settings, devtools
 ├─ store/                 zustand stores (game, settings)
 ├─ components/            ui + game components, error boundary
-├─ hooks/                 useColors, useIsGuest, useOnboarding
+├─ hooks/                 useColors, useOnboarding
 ├─ i18n/                  index.ts (merge), locales/, partials/
 ├─ assets/images/         icon.png
-├─ supabase/
-│  ├─ migrations/         Postgres schema (applied in timestamp order)
-│  ├─ functions/          Edge Functions (Deno) + _shared/ + README.md
-│  ├─ seed.sql            dev/preview demo data
-│  └─ config.toml
 ├─ app.json  eas.json  .env.example
 └─ README.md + checklists (SETUP/RELEASE/APP_STORE/GOOGLE_PLAY/SECURITY/…)
 ```
 
+The backend lives in sibling workspace packages: the Express **api-server**
+(`artifacts/api-server`), the Drizzle **database schema** (`lib/db`), and the
+shared **game engine** (`lib/game-engine`).
+
 ## Local setup
 
-Prerequisites: Node 20+, `pnpm`, and (for backend work) the Supabase CLL.
+Prerequisites: Node 20+ and `pnpm`.
 
 ```bash
 # From the workspace root — installs the whole pnpm workspace
 pnpm install
 
-# Copy the example env and fill in your Supabase values (see below)
+# Copy the example env (see below)
 cp artifacts/navixa/.env.example artifacts/navixa/.env
 ```
 
 ### Environment variables
 
 Only `EXPO_PUBLIC_*` variables reach the client bundle. The two required ones
-are `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-(`lib/supabase.ts` throws at startup if they are missing). On Replit these are
-provided through the workspace Secrets / `userenv`. See
+are `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` (Clerk client key) and
+`EXPO_PUBLIC_DOMAIN` (the Replit domain the REST/Socket.IO clients hit). On
+Replit both are provided through the workspace Secrets / `userenv`. See
 [`.env.example`](./.env.example) for the full list (app env, public legal/support
 URLs, optional Sentry DSN).
 
-> The **service_role** key is server-side only and must never appear in a
-> client env var. Supabase auto-injects it into the Edge Function runtime.
+> `CLERK_SECRET_KEY` and `DATABASE_URL` are **server-side only** and must never
+> appear in a client env var. On Replit `CLERK_PUBLISHABLE_KEY` /
+> `CLERK_SECRET_KEY` and `DATABASE_URL` are auto-provisioned to the api-server.
 
-### Supabase setup
+### Database (Replit PostgreSQL)
 
-The full backend guide — schema, tables, security model and functions — lives in
-[SUPABASE_SETUP.md](./SUPABASE_SETUP.md). Quick reference:
+The database is Replit-native PostgreSQL; `DATABASE_URL` is auto-supplied. The
+schema is defined with **Drizzle** in `lib/db` (source of truth). Dev and prod
+databases are **separate**, and the prod schema is applied **automatically on
+Publish** — there is no manual migration step for production.
 
 ```bash
-cd artifacts/navixa
-
-# Apply migrations to the linked hosted project (does NOT run seed.sql)
-supabase db push
-
-# — or — full local reset (Docker): recreates DB, runs migrations + seed.sql
-supabase db reset
+# From lib/db — push the Drizzle schema to the current DATABASE_URL (dev)
+cd lib/db
+pnpm run push
 ```
-
-Migrations in `supabase/migrations/` are applied in filename (timestamp) order.
-**Do not hand-edit or hand-apply migrations** — the CLI/platform manages order.
 
 ### Seeding demo data (dev / preview only)
 
-`supabase/seed.sql` creates ~20 demo players, match history, friendships,
-achievements, cosmetics, quests and tournaments so preview builds look alive.
+`lib/db/src/seed.ts` (`seedDatabase()`) creates ~20 demo players, match history,
+friendships, achievements, cosmetics, quests and tournaments so preview builds
+look alive. It is idempotent (every insert uses `onConflictDoNothing`) and runs
+on boot **in development only**.
 
-```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/seed.sql
-```
+> **Never** seed production — the demo accounts are fake (not real Clerk users).
 
-> **Never** run `seed.sql` against production — it inserts fake `auth.users`.
+### The api-server
 
-### Deploying Edge Functions
-
-18 functions live in `supabase/functions/` (see
-[supabase/functions/README.md](./supabase/functions/README.md) for every payload).
-The pure engine is **copied** into `_shared/engine/` from `lib/engine` — edit the
-source of truth in `lib/engine` and re-sync.
-
-```bash
-cd artifacts/navixa
-bash supabase/functions/scripts/sync-engine.sh   # refresh the engine copy
-
-# Deploy all functions using the management API (no Docker needed)
-supabase functions deploy --use-api
-```
-
-Functions import Deno modules using the **`npm:` specifier** convention
-(e.g. `import { createClient } from 'npm:@supabase/supabase-js'`). `SUPABASE_URL`,
-`SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are auto-injected into the
-runtime by the platform.
+All game logic runs in the Express **api-server** (`artifacts/api-server`):
+matchmaking (`FOR UPDATE SKIP LOCKED`), Glicko-2/Elo ratings, turn timeouts,
+server-driven bot moves, tournaments, moderation, and Expo push. It exposes a
+REST API under `/api` and Socket.IO realtime at path `/api/socket.io`; every
+request/handshake is authenticated with a **Clerk** session JWT. The shared
+game engine is imported from `lib/game-engine` (no copying). The server reads
+`DATABASE_URL`, `CLERK_SECRET_KEY`, and `CLERK_PUBLISHABLE_KEY` from Secrets.
 
 ## Running the app (Replit)
 
@@ -190,38 +172,44 @@ and a `universalLink`.
 
 Handled in `features/notifications/`. The client explains the benefit before
 prompting for OS permission, then registers the Expo push token via the
-`register-push-token` Edge Function. **Remote push requires a development /
-standalone build** — it is a safe no-op in Expo Go and on web.
+api-server (`POST /api/notifications/register-token`); the server sends
+turn/social pushes with the Expo push service. **Remote push requires a
+development / standalone build** — it is a safe no-op in Expo Go and on web.
 
-## Apple / Google Sign-In
+## Sign-in methods
 
-Social OAuth is **stubbed behind a feature flag** (`SOCIAL_AUTH_ENABLED = false`
-in `features/auth/oauth.ts`). The buttons only render when the flag is on, and
-the handlers intentionally throw. Enabling it needs a development build with the
-native auth modules **and** provider configuration in the Supabase dashboard.
-Email/password + magic-link auth work today.
+Auth is handled by **Clerk** (Replit-managed tenant) with custom in-app
+sign-in/sign-up screens. **Email/password and Google** (Clerk SSO, gated by
+`SOCIAL_AUTH_ENABLED = true` in `features/auth/oauth.ts`) work today.
+**Apple Sign-In is not wired up**, and **anonymous/guest and magic-link login
+were removed**. In Expo Go the Google SSO redirect works via the Expo auth
+proxy; a standalone build needs the app scheme registered as a Clerk redirect
+URL.
 
 ## Security model (summary)
 
-- Client uses the **anon key** only; every sensitive operation is enforced by
-  **RLS** or performed inside Edge Functions with the **service_role** key.
-- `private_game_states` (secret boards) has RLS enabled with **no permissive
-  policy** — only the service_role can read/write it. Clients submit shots via
-  `fire-shot`, which resolves hits against the hidden board.
-- `profiles` never expose email; privileged columns can't be self-escalated.
+- The api-server is **server-authoritative**: every request is authenticated
+  with a Clerk session JWT and all sensitive logic runs server-side. The client
+  never talks to the database directly.
+- `private_game_states` (secret boards) is **never sent to clients** — only the
+  api-server reads/writes it. Clients submit shots via the matches API, which
+  resolves hits against the hidden board.
+- `profiles` never expose email (email lives in Clerk); privileged columns can't
+  be self-escalated.
 - Gameplay writes (moves, results, ratings) happen server-side so results can't
   be forged. Blocks hide users across profiles/friends/matchmaking.
 
-Full details: [SECURITY.md](./SECURITY.md), [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
-and [PRIVACY_DATA_MAP.md](./PRIVACY_DATA_MAP.md).
+Full details: [SECURITY.md](./SECURITY.md) and
+[PRIVACY_DATA_MAP.md](./PRIVACY_DATA_MAP.md).
 
 ## Remaining external steps (honest list)
 
 These require accounts/config outside this repo:
 
-- Create the production Supabase project; set `EXPO_PUBLIC_SUPABASE_URL/ANON_KEY`.
-- Apply migrations & deploy Edge Functions to production; do **not** seed.
-- Configure Supabase Auth providers (redirect URLs; Apple/Google for social).
+- Configure the production Clerk instance (providers, redirect URLs for Google
+  SSO); `CLERK_PUBLISHABLE_KEY` / `CLERK_SECRET_KEY` are auto-provisioned on Replit.
+- On **Publish**, the production database schema is applied automatically; do
+  **not** seed production.
 - Apple Developer + Google Play Console enrollment; create app records.
 - Provide real store assets (see [ASSETS_TO_REPLACE.md](./ASSETS_TO_REPLACE.md)).
 - Host the legal/support pages referenced by the `EXPO_PUBLIC_*_URL` vars.

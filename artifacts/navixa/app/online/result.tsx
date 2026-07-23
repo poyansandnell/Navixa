@@ -17,7 +17,8 @@ import { duration, iconSize, spacing } from '@/constants/theme';
 import { Button, Card, Screen, SectionHeader, Spacer, StatTile, Text } from '@/components/ui';
 import { FleetBoard, computeCellSize } from '@/components/game';
 import { useAuth } from '@/features/auth/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { fetchMatchDetail } from '@/features/history/api';
+import { fetchRating } from '@/features/social/api';
 import { useAnimationsEnabled } from '@/features/game/helpers';
 import { useOnlineMatchStore } from '@/features/onlineMatch';
 import type { ShipId, ShotResult } from '@/lib/engine';
@@ -67,31 +68,26 @@ export default function OnlineResultScreen() {
     opacity: opacity.value,
   }));
 
-  // Fetch the rating change for ranked matches from rating_history (owner-readable).
+  // Derive the ranked rating change from the finished-match detail (the
+  // player row carries `ratingDelta`) plus the caller's current rating.
   React.useEffect(() => {
     if (!ranked || !matchId || !user?.id) {
       setRatingLoading(false);
       return;
     }
+    const selfId = user.id;
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await supabase
-          .from('rating_history')
-          .select('rating_before, rating_after, rating_delta')
-          .eq('match_id', matchId)
-          .eq('player_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        const [detail, ratingRow] = await Promise.all([
+          fetchMatchDetail(matchId, selfId),
+          fetchRating(selfId),
+        ]);
         if (cancelled) return;
-        if (!error && data) {
-          const row = data as {
-            rating_before: number;
-            rating_after: number;
-            rating_delta: number;
-          };
-          setRating({ before: row.rating_before, after: row.rating_after, delta: row.rating_delta });
+        const delta = detail?.match.me.ratingDelta;
+        if (typeof delta === 'number' && ratingRow) {
+          const after = ratingRow.rating;
+          setRating({ before: after - delta, after, delta });
         }
       } catch (err) {
         console.warn('[online] rating fetch failed', err);

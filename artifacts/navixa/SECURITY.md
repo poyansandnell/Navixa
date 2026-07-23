@@ -1,64 +1,75 @@
 # Navixa — Security Model
 
 Navixa is designed so a malicious client cannot cheat, read secret data, or
-escalate privileges. The client only ever holds the Supabase **anon key**; all
-trust boundaries are enforced by Postgres **Row Level Security (RLS)** and by
-**Edge Functions** that use the **service_role** key server-side.
+escalate privileges. The client never talks to the database directly; every
+trust boundary is enforced by the **server-authoritative** Express api-server
+(`artifacts/api-server`), which authenticates each request with a **Clerk**
+session JWT and runs all game logic server-side over Replit PostgreSQL.
 
-Full schema-level detail lives in [SUPABASE_SETUP.md](./SUPABASE_SETUP.md); this
-file is the security-focused summary.
+Full schema-level detail lives in the Drizzle schema (`lib/db`); this file is
+the security-focused summary.
 
 ## Keys & secrets
-- Client: `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_ANON_KEY` only
-  (`lib/supabase.ts`). These are public by design.
-- **service_role** key: server-side only, auto-injected into the Edge Function
-  runtime. It **must never** appear in a client env var or the app bundle.
+- Client: `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` (Clerk client key) +
+  `EXPO_PUBLIC_DOMAIN` only. These are public by design.
+- **`CLERK_SECRET_KEY`** and **`DATABASE_URL`**: server-side only, provided to
+  the api-server via Secrets. They **must never** appear in a client env var or
+  the app bundle.
 - No secret is committed; `.env.example` contains placeholders only.
 
 ## Trust boundaries
-- **Secret boards (`private_game_states`)** — RLS enabled with **no permissive
-  policy**, so anon/authenticated are denied by default. Only the service_role
-  reads/writes it. Clients never receive the opponent's board.
-- **Gameplay** — `matches`, `match_moves`, `match_players`, `match_events` have
-  **no client INSERT/UPDATE** policies. Shots are submitted to the `fire-shot`
-  Edge Function, which resolves the hit against the hidden board, enforces turn
-  order/match state, and is **idempotent** on `(match_id, idempotency_key)`.
-  Results and Elo are applied server-side (`finalize_match`, `update_rating`) so
-  they cannot be forged.
-- **Profiles** — never expose email (email lives only in `auth.users`).
-  Privileged columns (`is_admin`, `is_bot`, `is_verified`, `xp`, `level`) are
-  protected by a `BEFORE UPDATE` trigger that resets self-escalation attempts.
-- **Admin** — `is_admin()` (SECURITY DEFINER) gates admin RLS policies; there is
-  no client path to set `is_admin`.
-- **Blocks** — `is_blocked_between()` powers policies so blocked users disappear
-  from profile reads, friend requests, and matchmaking.
+- **Secret boards (`private_game_states`)** — read/written **only** by the
+  api-server; never returned to any client. Clients never receive the
+  opponent's board.
+- **Gameplay** — clients cannot write `matches`, `match_moves`,
+  `match_players`, or `match_events`. Shots are submitted to the matches API,
+  which resolves the hit against the hidden board, enforces turn order/match
+  state, and is **idempotent** on `(match_id, idempotency_key)`. Results and
+  ratings (Glicko-2/Elo) are applied server-side (`finalize_match`,
+  `update_rating`) so they cannot be forged.
+- **Matchmaking** — queue joins run in a transaction using
+  `SELECT ... FOR UPDATE SKIP LOCKED` so two players cannot be paired twice.
+- **Profiles** — never expose email (email lives only in Clerk). Privileged
+  columns (`is_admin`, `is_bot`, `is_verified`, `xp`, `level`) can only be set
+  server-side; there is no client path to self-escalate.
+- **Admin** — admin-only routes are gated by a server-side `is_admin` check;
+  there is no client path to set `is_admin`.
+- **Blocks** — the server filters blocked users out of profile reads, friend
+  requests, and matchmaking.
 
-## Edge Functions
-Every function (18 total, `supabase/functions/`): verifies the caller JWT
-(`requireUser`), zod-validates the payload, enforces permissions/match state,
-and writes `audit_logs` for critical events. Errors use a stable envelope
-`{ error: { code, message, details? } }`. The pure engine is copied into
-`_shared/engine/` from `lib/engine` (source of truth).
+## API surface
+Every api-server route: verifies the caller's Clerk JWT (`requireAuth`),
+zod-validates the payload, enforces permissions/match state, and writes
+`audit_logs` for critical events. Errors use a stable envelope
+`{ error: { code, message } }`. The shared pure engine is imported from
+`lib/game-engine` (source of truth) — no copying.
 
-## RLS coverage
-Every table has `ENABLE ROW LEVEL SECURITY`. Catalog tables are publicly
-readable for active/non-draft rows; per-user tables are owner-scoped; trusted
-writes (ratings, results, grants, moderation, audit) run under the service_role
-which bypasses RLS. `SECURITY DEFINER` functions pin `search_path = public`.
+## Realtime
+Socket.IO is mounted at path `/api/socket.io`. The connection handshake carries
+the Clerk session JWT (`handshake.auth.token`); unauthenticated sockets are
+rejected. The server only emits match/matchmaking/notification/friend events to
+the rooms the authenticated user is entitled to.
+
+## Data-access model
+The api-server is the only component with database credentials; all reads and
+writes go through it. Catalog data (cosmetics, quests, tournaments) is exposed
+read-only; per-user data is owner-scoped by the server; trusted writes
+(ratings, results, grants, moderation, audit) are performed server-side.
 
 ## Auth
-- Email/password + magic-link via Supabase Auth.
-- Social OAuth (Apple/Google) is **stubbed** and disabled
-  (`SOCIAL_AUTH_ENABLED = false`); enabling requires provider config + a dev
-  build (see [KNOWN_LIMITATIONS.md](./KNOWN_LIMITATIONS.md)).
-- Sessions persist via AsyncStorage on native; auto-refresh while foregrounded.
+- Email/password + **Google** (Clerk SSO) via Clerk. Custom in-app
+  sign-in/sign-up screens.
+- **Apple** Sign-In is not wired up yet; **anonymous/guest and magic-link login
+  were removed**.
+- Sessions are managed by Clerk (`@clerk/expo`); tokens are refreshed
+  automatically and used as bearer tokens for REST and Socket.IO.
 
 ## Privacy / data-subject requests
-- `export-user-data` returns the caller's own data (no other user, no
+- `GET /api/account/export` returns the caller's own data (no other user, no
   `private_game_states`).
-- `delete-account` anonymises + soft-deletes the profile, deactivates push
-  tokens, then hard-deletes the auth user (cascades). Refused while a match is
-  active. See [PRIVACY_DATA_MAP.md](./PRIVACY_DATA_MAP.md).
+- `POST /api/account/delete` hard-deletes the profile (FK cascades remove owned
+  rows) and deletes the Clerk user; deactivates push tokens. Refused while a
+  match is active. See [PRIVACY_DATA_MAP.md](./PRIVACY_DATA_MAP.md).
 
 ## Device permissions
 The app requests **no** camera, microphone, location, or contacts access. Push

@@ -9,7 +9,6 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import { showAlert } from '@/lib/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -18,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 
 import { Button, Spacer, Text } from '@/components/ui';
 import { Checkbox } from '@/features/auth';
-import { authService } from '@/features/auth';
 import { useColors } from '@/hooks/useColors';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { iconSize, radii, spacing } from '@/constants/theme';
@@ -72,16 +70,6 @@ export default function OnboardingScreen() {
     },
     [complete],
   );
-
-  const handleGuest = useCallback(async () => {
-    try {
-      await complete();
-      await authService.signInAsGuest();
-      // Root layout redirects to the tabs once a session exists.
-    } catch (error) {
-      showAlert(t('auth.errors.title'), (error as Error).message);
-    }
-  }, [complete, t]);
 
   const isLastPage = page === totalPages - 1;
 
@@ -213,15 +201,6 @@ export default function OnboardingScreen() {
               fullWidth
               disabled={!termsAccepted}
               onPress={() => void finishThen('/(auth)/sign-in')}
-            />
-            <Spacer size="md" />
-            <Button
-              testID="onboarding-guest"
-              label={t('onboarding.getStarted.guest')}
-              variant="ghost"
-              fullWidth
-              disabled={!termsAccepted}
-              onPress={() => void handleGuest()}
             />
           </>
         ) : (

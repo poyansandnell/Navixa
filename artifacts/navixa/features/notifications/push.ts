@@ -17,7 +17,7 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-import { supabase } from '@/lib/supabase';
+import { apiFetch } from '@/lib/api';
 
 export type PushPermissionState = 'granted' | 'denied' | 'undetermined' | 'unsupported';
 
@@ -103,8 +103,8 @@ async function getExpoPushToken(): Promise<string | null> {
 }
 
 /**
- * Register this device's Expo push token with the backend via the
- * `register-push-token` Edge Function. Safe no-op when unsupported.
+ * Register this device's Expo push token with the api-server
+ * (`POST /api/notifications/push-token`). Safe no-op when unsupported.
  */
 export async function registerPushToken(): Promise<{ ok: boolean; reason?: string }> {
   if (!isPushSupported()) return { ok: false, reason: 'unsupported' };
@@ -116,11 +116,15 @@ export async function registerPushToken(): Promise<{ ok: boolean; reason?: strin
   if (!token) return { ok: false, reason: 'no_token' };
 
   const platform = Platform.OS === 'ios' ? 'ios' : 'android';
-  const { error } = await supabase.functions.invoke('register-push-token', {
-    body: { token, platform, provider: 'expo' },
-  });
-  if (error) return { ok: false, reason: 'register_failed' };
-  return { ok: true };
+  try {
+    await apiFetch('/notifications/push-token', {
+      method: 'POST',
+      body: { token, platform, provider: 'expo' },
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: 'register_failed' };
+  }
 }
 
 /**

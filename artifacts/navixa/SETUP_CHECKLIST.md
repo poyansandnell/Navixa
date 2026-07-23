@@ -5,25 +5,23 @@ relative to `artifacts/navixa/` unless noted.
 
 ## Prerequisites
 - [ ] Node 20+ and `pnpm` installed.
-- [ ] Supabase CLI installed (for backend work).
 - [ ] Expo Go app on a physical device (for QR testing), or a dev build.
 
 ## Install & env
 - [ ] From the **workspace root**: `pnpm install`.
 - [ ] `cp .env.example .env` and fill in values (see `.env.example`).
-- [ ] Set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-      (required — `lib/supabase.ts` throws without them). On Replit these come
-      from workspace Secrets / `userenv`.
-- [ ] Confirm the service_role key is **not** in any `EXPO_PUBLIC_*` var.
+- [ ] Set `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` and `EXPO_PUBLIC_DOMAIN`
+      (required). On Replit these come from workspace Secrets / `userenv`.
+- [ ] Confirm `CLERK_SECRET_KEY` / `DATABASE_URL` are **not** in any
+      `EXPO_PUBLIC_*` var (server-side only).
 
-## Supabase backend
-- [ ] Read [SUPABASE_SETUP.md](./SUPABASE_SETUP.md).
-- [ ] Link the project: `supabase link` (or use local `supabase db reset`).
-- [ ] Apply schema: `supabase db push` (migrations in `supabase/migrations/`).
-- [ ] Deploy functions: `bash supabase/functions/scripts/sync-engine.sh` then
-      `supabase functions deploy --use-api`.
-- [ ] (dev/preview only) Seed demo data: `psql "$DATABASE_URL" -f supabase/seed.sql`.
-      **Do NOT seed production.**
+## Backend (Replit-native)
+- [ ] Replit PostgreSQL is provisioned; `DATABASE_URL` is auto-supplied.
+- [ ] Push the Drizzle schema (dev): `cd lib/db && pnpm run push`.
+- [ ] api-server (`artifacts/api-server`) runs and serves `/api`
+      (Socket.IO at `/api/socket.io`); reads `DATABASE_URL` + Clerk keys.
+- [ ] (dev/preview only) Demo data is seeded on boot (`seedDatabase()`, idempotent).
+      **Do NOT seed production** (prod schema is applied automatically on Publish).
 
 ## Run
 - [ ] Start Expo: `pnpm --filter @workspace/navixa run dev`.

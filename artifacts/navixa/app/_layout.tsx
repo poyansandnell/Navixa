@@ -15,29 +15,61 @@ import {
 } from '@expo-google-fonts/inter';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { ClerkProvider, ClerkLoaded, useAuth as useClerkAuth } from '@clerk/expo';
+import { tokenCache } from '@clerk/expo/token-cache';
 
 import '@/i18n';
 import colors from '@/constants/colors';
 import { useSettingsStore } from '@/store/settings';
 import { AuthProvider, useAuth } from '@/features/auth';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { setAuthTokenGetter } from '@/lib/api';
+import { setSocketTokenGetter, disconnectSocket } from '@/lib/socket';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+
 /**
- * Protected routing. Waits for the persisted session + onboarding flag, then
- * redirects:
- *   - onboarding not completed → /onboarding
- *   - no session               → /(auth)/sign-in
- *   - session present          → /(tabs)
+ * Registers the Clerk session-token getter with the REST + Socket clients so
+ * every authenticated request/handshake carries a fresh bearer token. Also
+ * tears down the socket on sign-out.
+ */
+function TokenSync() {
+  const { getToken, isSignedIn } = useClerkAuth();
+
+  useEffect(() => {
+    const getter = () => getToken();
+    setAuthTokenGetter(getter);
+    setSocketTokenGetter(getter);
+    return () => {
+      setAuthTokenGetter(null);
+      setSocketTokenGetter(null);
+    };
+  }, [getToken]);
+
+  useEffect(() => {
+    if (!isSignedIn) disconnectSocket();
+  }, [isSignedIn]);
+
+  return null;
+}
+
+/**
+ * Protected routing. Waits for the Clerk session + profile + onboarding flag,
+ * then redirects:
+ *   - onboarding not completed        → /onboarding
+ *   - no session                      → /(auth)/sign-in
+ *   - session but no profile          → /(auth)/complete-profile
+ *   - session + profile               → /(tabs)
  */
 function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
-  const { session, initializing } = useAuth();
+  const { session, initializing, hasProfile } = useAuth();
   const { loading: onboardingLoading, completed: onboardingCompleted } =
     useOnboarding();
 
@@ -49,9 +81,9 @@ function RootLayoutNav() {
     const group = segments[0];
     const inAuthGroup = group === '(auth)';
     const inOnboarding = group === 'onboarding';
+    const onCompleteProfile = inAuthGroup && segments[1] === 'complete-profile';
 
     if (!onboardingCompleted) {
-      // Force onboarding first.
       if (!inOnboarding) router.replace('/onboarding');
       return;
     }
@@ -64,13 +96,17 @@ function RootLayoutNav() {
       return;
     }
 
-    // Signed in: keep users out of the onboarding stack. The auth stack is
-    // left reachable so complete-profile / guest upgrade still work, and other
-    // authenticated groups (e.g. game) are free to navigate.
-    if (inOnboarding) {
+    // Signed in but no profile yet → force the profile bootstrap screen.
+    if (!hasProfile) {
+      if (!onCompleteProfile) router.replace('/(auth)/complete-profile');
+      return;
+    }
+
+    // Signed in with a profile: keep users out of onboarding / auth stacks.
+    if (inOnboarding || inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [ready, session, onboardingCompleted, segments, router]);
+  }, [ready, session, hasProfile, onboardingCompleted, segments, router]);
 
   useEffect(() => {
     if (ready) {
@@ -79,8 +115,6 @@ function RootLayoutNav() {
   }, [ready]);
 
   return (
-    // Every route group owns its own themed stack header, so the root stack
-    // never renders one (the default white "Back / game" bar was double-header).
     <Stack screenOptions={{ headerShown: false, headerBackTitle: 'Back' }} />
   );
 }
@@ -97,8 +131,6 @@ export default function RootLayout() {
   const isDark = theme !== 'light';
 
   useEffect(() => {
-    // Keep the native window background in sync with the active theme so the
-    // launch/splash transition matches the app surface (dark navy by default).
     SystemUI.setBackgroundColorAsync(
       isDark ? colors.dark.background : colors.light.background,
     );
@@ -107,19 +139,24 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <GestureHandlerRootView>
-            <KeyboardProvider>
-              <AuthProvider>
-                <StatusBar style={isDark ? 'light' : 'dark'} />
-                <RootLayoutNav />
-              </AuthProvider>
-            </KeyboardProvider>
-          </GestureHandlerRootView>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
+      <ClerkLoaded>
+        <SafeAreaProvider>
+          <ErrorBoundary>
+            <QueryClientProvider client={queryClient}>
+              <GestureHandlerRootView>
+                <KeyboardProvider>
+                  <AuthProvider>
+                    <TokenSync />
+                    <StatusBar style={isDark ? 'light' : 'dark'} />
+                    <RootLayoutNav />
+                  </AuthProvider>
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </QueryClientProvider>
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }

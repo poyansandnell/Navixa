@@ -7,13 +7,13 @@ Privacy" and Google Play "Data safety").
 ## Data collected
 | Data | Where stored | Purpose | Linked to user |
 |------|--------------|---------|----------------|
-| Email | `auth.users` (Supabase Auth) — **never** in `profiles` | Account / login | Yes |
-| Auth session tokens | Device (AsyncStorage), Supabase Auth | Keep signed in | Yes |
+| Email | Clerk (managed auth) — **never** in `profiles` | Account / login | Yes |
+| Auth session tokens | Device (Clerk `@clerk/expo` storage) | Keep signed in | Yes |
 | Display name, avatar, country, bio | `profiles` | Public profile, leaderboards | Yes |
 | App settings / preferences | `user_settings` | Personalization (haptics, sound, motion, language, notification opt-ins) | Yes |
 | Ratings / rating history | `ratings`, `rating_history` | Elo, matchmaking, leaderboards | Yes |
 | Match data (matches, players, moves, events) | `matches`, `match_players`, `match_moves`, `match_events` | Gameplay, history, replays, anti-cheat | Yes |
-| Secret board layouts | `private_game_states` (service_role only) | Game integrity | Yes (never exposed to clients) |
+| Secret board layouts | `private_game_states` (api-server only) | Game integrity | Yes (never exposed to clients) |
 | Social graph | `friend_requests`, `friendships`, `blocks` | Friends / blocking | Yes |
 | Reports | `reports`, `moderation_actions` | Trust & safety | Yes |
 | Push tokens | `push_tokens`, `devices` | Turn / social notifications | Yes |
@@ -29,23 +29,25 @@ Privacy" and Google Play "Data safety").
   DSN is configured (`EXPO_PUBLIC_SENTRY_DSN`).
 
 ## Access & sharing
-- Clients use the **anon key**; RLS restricts reads to the user's own rows or
-  public/spectatable data. Emails are never readable by other users.
-- No data is sold. Data is processed by Supabase (backend) and, if configured,
-  Sentry (crash reporting) and Expo push (notification delivery).
+- Clients never access the database directly; the server-authoritative
+  api-server restricts reads to the user's own rows or public/spectatable data.
+  Emails are never readable by other users (email lives in Clerk).
+- No data is sold. Data is processed by Replit (PostgreSQL/hosting), Clerk
+  (authentication) and, if configured, Sentry (crash reporting) and Expo push
+  (notification delivery).
 
 ## User rights (self-service)
-- **Export** — `export-user-data` Edge Function returns the user's own data as
-  JSON (excludes other users and `private_game_states`).
-- **Delete** — `delete-account` Edge Function anonymises + soft-deletes the
-  profile, deactivates push tokens, and hard-deletes the auth user (cascades).
+- **Export** — `GET /api/account/export` returns the user's own data as JSON
+  (excludes other users and `private_game_states`).
+- **Delete** — `POST /api/account/delete` hard-deletes the profile (FK cascades
+  remove owned rows), deactivates push tokens, and deletes the Clerk user.
   Refused while a match is active.
 - **Notification control** — per-category opt-ins in Settings (`user_settings`).
 
 ## Retention
 - Active account data persists until deletion. Soft-deleted rows
   (`deleted_at`) are retained per operational policy; hard deletion removes the
-  auth user and cascades.
+  profile (FK cascades) and deletes the Clerk user.
 
 ## Regions
 Country is user-provided (profile), used for leaderboards/regional matchmaking —

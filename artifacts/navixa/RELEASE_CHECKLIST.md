@@ -20,14 +20,14 @@ Replit; they are not run in this environment.
 - [ ] `eas.json`: `cli.version >= 16`, `appVersionSource: remote`, profiles
       present (development / preview / production).
 
-## 2. Backend (production Supabase)
-- [ ] Migrations applied to prod: `supabase db push` (**do NOT seed prod**).
-- [ ] Edge Functions synced + deployed:
-      `bash supabase/functions/scripts/sync-engine.sh` then
-      `supabase functions deploy --use-api`.
-- [ ] Auth provider redirect URLs set for the production domain.
-- [ ] Production `EXPO_PUBLIC_SUPABASE_URL` / `ANON_KEY` configured; service_role
-      key server-side only.
+## 2. Backend (production, Replit-native)
+- [ ] On **Publish**, the production database schema is applied automatically
+      (dev and prod DBs are separate); confirm it succeeded. **Do NOT seed prod.**
+- [ ] api-server (`artifacts/api-server`) published and reachable under `/api`
+      (Socket.IO at `/api/socket.io`).
+- [ ] Clerk providers + Google SSO redirect URLs set for the production domain.
+- [ ] Production `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` / `EXPO_PUBLIC_DOMAIN`
+      configured; `CLERK_SECRET_KEY` and `DATABASE_URL` server-side only.
 
 ## 3. Config & assets
 - [ ] `.env` / Secrets set for the target environment (`EXPO_PUBLIC_APP_ENV`).
@@ -54,7 +54,7 @@ eas submit --profile production --platform android  # → Play Internal testing
 
 ## 6. Post-release
 - [ ] Tag the release; note the store build numbers.
-- [ ] Monitor crashes (Sentry) and Supabase logs.
+- [ ] Monitor crashes (Sentry) and api-server logs.
 - [ ] Verify deep link `navixa://online/join/<code>` opens the app.
 
 ## Reminders

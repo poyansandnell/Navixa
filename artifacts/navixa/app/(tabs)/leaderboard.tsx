@@ -16,6 +16,7 @@ import {
   fetchYourPosition,
   type LeaderboardEntry,
   type LeaderboardScope,
+  type ProfileRow,
 } from '@/features/social';
 
 const SCOPES: LeaderboardScope[] = ['global', 'national', 'friends'];
@@ -34,13 +35,17 @@ export default function LeaderboardScreen() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [yourPos, setYourPos] = useState<{ rank: number | null; rating: number } | null>(null);
+  const [selfProfile, setSelfProfile] = useState<ProfileRow | null>(null);
 
-  // Resolve the user's country once (for national scope + your-position).
+  // Resolve the user's profile once (for national scope + your-position + avatar).
   useEffect(() => {
     if (!selfId) return;
     let cancelled = false;
     void fetchProfile(selfId).then((p) => {
-      if (!cancelled) setCountryCode(p?.country_code ?? null);
+      if (!cancelled) {
+        setCountryCode(p?.country_code ?? null);
+        setSelfProfile(p);
+      }
     });
     return () => {
       cancelled = true;
@@ -169,7 +174,7 @@ export default function LeaderboardScreen() {
               <Text variant="title" color="primary" style={styles.rank}>
                 {yourPos.rank ?? '—'}
               </Text>
-              <Avatar avatarUrl={user?.user_metadata?.avatar_url as string} name={user?.user_metadata?.username as string} size={32} />
+              <Avatar avatarUrl={selfProfile?.avatar_url ?? undefined} name={selfProfile?.username ?? undefined} size={32} />
               <View style={styles.name}>
                 <Text variant="bodyMedium" numberOfLines={1}>
                   {t('leaderboard.you')}

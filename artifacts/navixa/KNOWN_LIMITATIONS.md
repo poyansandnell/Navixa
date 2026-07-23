@@ -11,31 +11,34 @@ are surfaced. To ship real IAP, integrate a store SDK (RevenueCat, or
 `expo-in-app-purchases` / StoreKit + Google Play Billing) and add server-side
 receipt validation. See `features/shop/service.ts`.
 
-## 2. Social OAuth is stubbed
-Apple / Google Sign-In is behind the feature flag `SOCIAL_AUTH_ENABLED = false`
-(`features/auth/oauth.ts`). Buttons render only when the flag is on and the
-handlers throw on purpose. Enabling requires: (a) a custom **development build**
-with the native auth modules, (b) provider config in the Supabase dashboard, and
-(c) native entitlements / URL schemes in `app.json`. **Email/password and
-magic-link auth work today.**
+## 2. Apple Sign-In is not wired up
+Auth is handled by **Clerk**. **Email/password and Google** (Clerk SSO, gated by
+`SOCIAL_AUTH_ENABLED = true` in `features/auth/oauth.ts`) work today. **Apple
+Sign-In is not implemented** (`oauth.ts` handles Google only). Enabling Apple
+would require: (a) a custom **development build** with the native auth module,
+(b) Apple provider config in the Clerk dashboard, and (c) native entitlements /
+URL schemes in `app.json`. **Anonymous/guest and magic-link login were
+removed.** In Expo Go the Google SSO redirect works via the Expo auth proxy; a
+standalone build needs the app scheme registered as a Clerk redirect URL.
 
 ## 3. Push notifications require a development build
 Remote push (`features/notifications/`) needs a custom dev/standalone build.
 In **Expo Go (SDK 53+)** and on **web** it is a safe no-op reporting
 `unsupported` (`isPushSupported()` returns false). In-app notifications and the
-`register-push-token` / `send-turn-notification` Edge Functions are wired; only
-the OS-level remote delivery needs the dev build.
+api-server's push endpoints (token registration + server-driven turn/social
+sends via the Expo push service) are wired; only the OS-level remote delivery
+needs the dev build.
 
 ## 4. Admin / moderation UI is minimal
-Server-side moderation is real (RLS `is_admin()`, `moderation_actions`,
-`audit_logs`, `report-user` Edge Function), but there is **no rich admin
-dashboard** in-app. `app/devtools.tsx` provides limited developer utilities only.
-Moderation is expected to be done via Supabase Studio / SQL for now.
+Server-side moderation is real (api-server `is_admin` route gating,
+`moderation_actions`, `audit_logs`, report-user endpoint), but there is **no
+rich admin dashboard** in-app. `app/devtools.tsx` provides limited developer
+utilities only. Moderation is expected to be done directly against the database
+/ api-server for now.
 
 ## 5. Tournaments are single-elimination only
-`create-tournament-bracket` builds a seeded **single-elimination** bracket
-(`create_tournament_bracket()`), advanced via `advance-tournament`. No
-round-robin, Swiss, double-elimination, or group stages.
+The api-server builds a seeded **single-elimination** bracket, advanced as
+matches finalize. No round-robin, Swiss, double-elimination, or group stages.
 
 ## 6. Reactions / chat are limited
 There is no free-form in-match text chat. Social interaction is limited to
@@ -62,10 +65,13 @@ documented for completeness and for use outside Replit; they are not executed in
 this environment.
 
 ## 10. External configuration still required
-Production Supabase project, Auth provider redirect URLs, Apple Developer /
-Google Play accounts, hosted legal/support pages, real store assets
+Production Clerk instance (providers + Google SSO redirect URLs), Apple
+Developer / Google Play accounts, hosted legal/support pages, real store assets
 ([ASSETS_TO_REPLACE.md](./ASSETS_TO_REPLACE.md)), and an optional Sentry DSN all
-require setup outside this repository. See the README "Remaining external steps".
+require setup outside this repository. On Replit, `CLERK_PUBLISHABLE_KEY` /
+`CLERK_SECRET_KEY` and `DATABASE_URL` are auto-provisioned, and the production
+database schema is applied automatically on Publish. See the README "Remaining
+external steps".
 
 ## 11. Minimal device permissions
 The app requests **no camera, microphone, location, or contacts** permissions.

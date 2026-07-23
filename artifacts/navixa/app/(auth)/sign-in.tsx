@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useSignIn } from '@clerk/expo/legacy';
 
 import { Button, Screen, Spacer, Text } from '@/components/ui';
 import {
-  authService,
   isValidEmail,
   SocialAuthButtons,
   SOCIAL_AUTH_ENABLED,
@@ -15,6 +15,7 @@ import { spacing } from '@/constants/theme';
 
 export default function SignInScreen() {
   const { t } = useTranslation();
+  const { signIn, setActive, isLoaded } = useSignIn();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,14 +25,23 @@ export default function SignInScreen() {
   const canSubmit = isValidEmail(email) && password.length > 0;
 
   const handleSubmit = async () => {
-    if (!canSubmit || submitting) return;
+    if (!canSubmit || submitting || !isLoaded) return;
     setSubmitting(true);
     setError(null);
     try {
-      await authService.signInWithEmail({ email: email.trim(), password });
-      // Root layout redirects to the tabs on session change.
+      const attempt = await signIn.create({
+        identifier: email.trim(),
+        password,
+      });
+      if (attempt.status === 'complete') {
+        await setActive({ session: attempt.createdSessionId });
+        // Root layout redirects onward (profile bootstrap or tabs).
+      } else {
+        setError(t('auth.errors.title'));
+      }
     } catch (err) {
-      setError((err as Error).message);
+      const clerkErr = err as { errors?: { message?: string }[] };
+      setError(clerkErr.errors?.[0]?.message ?? (err as Error).message);
     } finally {
       setSubmitting(false);
     }
@@ -84,13 +94,6 @@ export default function SignInScreen() {
           loading={submitting}
           disabled={!canSubmit}
           onPress={handleSubmit}
-        />
-        <Spacer size="md" />
-        <Button
-          label={t('auth.magicLink.action')}
-          variant="ghost"
-          fullWidth
-          onPress={() => router.push('/(auth)/magic-link')}
         />
 
         <Spacer size="lg" />

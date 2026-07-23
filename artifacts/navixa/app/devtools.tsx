@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useColors } from '@/hooks/useColors';
 import { radii, spacing } from '@/constants/theme';
-import { supabase } from '@/lib/supabase';
+import { createBotMatch, useOnlineMatchStore } from '@/features/onlineMatch';
 import { useAuth } from '@/features/auth';
 import {
   Badge,
@@ -46,6 +46,7 @@ function DevTools() {
   const { user, session, isGuest } = useAuth();
   const { simulateOffline, setSimulateOffline, testRating, setTestRating } =
     useDevToolsStore();
+  const initMatch = useOnlineMatchStore((s) => s.init);
 
   const [realtime, setRealtime] = useState('…');
   const [ratingInput, setRatingInput] = useState(testRating != null ? String(testRating) : '');
@@ -62,15 +63,12 @@ function DevTools() {
   const startBotMatch = async () => {
     setStarting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('join-matchmaking', {
-        body: { mode: 'bot', boardSize: 10 },
-      });
-      if (error) throw error;
-      const matchId = (data as { matchId?: string })?.matchId;
+      const { matchId } = await createBotMatch({ boardSize: 10 });
       if (matchId) {
-        router.push(`/game/setup?matchId=${matchId}`);
+        initMatch(matchId, false);
+        router.push('/online/setup');
       } else {
-        showAlert('Dev', JSON.stringify(data));
+        showAlert('Dev', 'No matchId returned');
       }
     } catch (e) {
       showAlert('Dev', (e as Error).message);
@@ -113,8 +111,8 @@ function DevTools() {
         <Row label={t('devtools.email')} value={user?.email ?? t('devtools.none')} />
         <Row label={t('devtools.isGuest')} value={isGuest ? 'true' : 'false'} />
         <Row
-          label="expires"
-          value={session?.expires_at ? String(session.expires_at) : t('devtools.none')}
+          label="session"
+          value={session?.userId ? 'active' : t('devtools.none')}
         />
       </Card>
 
@@ -124,7 +122,7 @@ function DevTools() {
       <SectionHeader title={t('devtools.seededInfo')} />
       <Card>
         <Text variant="caption" color="muted">
-          {`env: ${process.env.EXPO_PUBLIC_SUPABASE_URL ? 'supabase configured' : 'no supabase url'}`}
+          {`env: ${process.env.EXPO_PUBLIC_DOMAIN ? 'api configured' : 'no api domain'}`}
         </Text>
       </Card>
 

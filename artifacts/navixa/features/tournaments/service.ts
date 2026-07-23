@@ -1,98 +1,207 @@
 /**
- * Navixa — tournament data access.
+ * Navixa — tournament data access via the api-server.
  *
- * Reads the public tournament tables via the anon Supabase client (RLS allows
- * public read of non-draft tournaments, entries, rounds and matches).
- * Registration is a direct insert into `tournament_entries` and withdrawal a
- * delete — both permitted by the `tournament_entries_register` /
- * `_withdraw` RLS policies (player_id must equal auth.uid()).
+ *   GET  /api/tournaments             → { tournaments }
+ *   GET  /api/tournaments/:id         → { tournament, entries, rounds, matches }
+ *   POST /api/tournaments/:id/register → { ok, alreadyRegistered }
  *
- * Max-participant enforcement is best-effort on the client (we count existing
- * entries before inserting); the authoritative check lives server-side.
+ * The server returns camelCase drizzle rows which we normalise into the app's
+ * snake_case view models. The detail endpoint returns entries/rounds/matches
+ * together, so `fetchRounds`/`fetchMatches`/`fetchEntries` share a short-lived
+ * per-tournament cache to avoid refetching on a single screen load.
+ *
+ * Contract gap: there is no unregister/withdraw endpoint, so
+ * `unregisterFromTournament` is a no-op that reports failure.
  */
-import { supabase } from '@/lib/supabase';
+import { apiFetch, ApiError } from '@/lib/api';
 import type {
   Tournament,
   TournamentEntry,
+  TournamentFormat,
   TournamentMatch,
   TournamentRound,
+  TournamentStatus,
 } from './types';
 
-/** Fetch visible tournaments ordered by soonest start first. */
+// --- server row shapes -------------------------------------------------------
+
+interface ServerTournament {
+  id: string;
+  name: string;
+  description?: string | null;
+  format: TournamentFormat;
+  status: TournamentStatus;
+  maxPlayers?: number | null;
+  minPlayers?: number | null;
+  registrationOpensAt?: string | null;
+  registrationClosesAt?: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+}
+
+interface ServerEntry {
+  id: string;
+  tournamentId: string;
+  playerId: string;
+  seed?: number | null;
+  finalRank?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  eliminated?: boolean | null;
+}
+
+interface ServerRound {
+  id: string;
+  tournamentId: string;
+  roundNumber: number;
+  name?: string | null;
+  status: TournamentStatus;
+}
+
+interface ServerMatch {
+  id: string;
+  tournamentId: string;
+  roundId: string;
+  bracketPosition: number;
+  playerOneId?: string | null;
+  playerTwoId?: string | null;
+  winnerId?: string | null;
+  status: string;
+}
+
+interface ServerDetail {
+  tournament: ServerTournament;
+  entries: ServerEntry[];
+  rounds: ServerRound[];
+  matches: ServerMatch[];
+}
+
+function toTournament(t: ServerTournament): Tournament {
+  return {
+    id: t.id,
+    name: t.name,
+    description: t.description ?? null,
+    format: t.format,
+    status: t.status,
+    max_players: t.maxPlayers ?? 16,
+    min_players: t.minPlayers ?? 2,
+    registration_opens_at: t.registrationOpensAt ?? null,
+    registration_closes_at: t.registrationClosesAt ?? null,
+    starts_at: t.startsAt ?? null,
+    ends_at: t.endsAt ?? null,
+  };
+}
+
+function toEntry(e: ServerEntry): TournamentEntry {
+  return {
+    id: e.id,
+    tournament_id: e.tournamentId,
+    player_id: e.playerId,
+    seed: e.seed ?? null,
+    final_rank: e.finalRank ?? null,
+    wins: e.wins ?? 0,
+    losses: e.losses ?? 0,
+    eliminated: Boolean(e.eliminated),
+  };
+}
+
+function toRound(r: ServerRound): TournamentRound {
+  return {
+    id: r.id,
+    tournament_id: r.tournamentId,
+    round_number: r.roundNumber,
+    name: r.name ?? null,
+    status: r.status,
+  };
+}
+
+function toMatch(m: ServerMatch): TournamentMatch {
+  return {
+    id: m.id,
+    tournament_id: m.tournamentId,
+    round_id: m.roundId,
+    bracket_position: m.bracketPosition,
+    player_one_id: m.playerOneId ?? null,
+    player_two_id: m.playerTwoId ?? null,
+    winner_id: m.winnerId ?? null,
+    status: m.status,
+  };
+}
+
+// --- short-lived detail cache ------------------------------------------------
+
+const DETAIL_TTL_MS = 3000;
+const detailCache = new Map<string, { at: number; promise: Promise<ServerDetail> }>();
+
+async function getDetail(tournamentId: string): Promise<ServerDetail> {
+  const now = Date.now();
+  const cached = detailCache.get(tournamentId);
+  if (cached && now - cached.at < DETAIL_TTL_MS) return cached.promise;
+  const promise = apiFetch<ServerDetail>(`/tournaments/${tournamentId}`);
+  detailCache.set(tournamentId, { at: now, promise });
+  try {
+    return await promise;
+  } catch (err) {
+    detailCache.delete(tournamentId);
+    throw err;
+  }
+}
+
+/** Fetch visible tournaments (drafts excluded) ordered by soonest start first. */
 export async function fetchTournaments(): Promise<Tournament[]> {
-  const { data, error } = await supabase
-    .from('tournaments')
-    .select(
-      'id, name, description, format, status, max_players, min_players, registration_opens_at, registration_closes_at, starts_at, ends_at',
-    )
-    .neq('status', 'draft')
-    .is('deleted_at', null)
-    .order('starts_at', { ascending: true, nullsFirst: false });
-  if (error) throw error;
-  return (data ?? []) as Tournament[];
+  const res = await apiFetch<{ tournaments: ServerTournament[] }>('/tournaments');
+  return res.tournaments
+    .filter((t) => t.status !== 'draft')
+    .map(toTournament)
+    .sort((a, b) => {
+      if (a.starts_at && b.starts_at) return a.starts_at.localeCompare(b.starts_at);
+      if (a.starts_at) return -1;
+      if (b.starts_at) return 1;
+      return 0;
+    });
 }
 
 /** Fetch all entries for a set of tournaments (used for counts + my status). */
-export async function fetchEntries(
-  tournamentIds: string[],
-): Promise<TournamentEntry[]> {
+export async function fetchEntries(tournamentIds: string[]): Promise<TournamentEntry[]> {
   if (tournamentIds.length === 0) return [];
-  const { data, error } = await supabase
-    .from('tournament_entries')
-    .select(
-      'id, tournament_id, player_id, seed, final_rank, wins, losses, eliminated',
-    )
-    .in('tournament_id', tournamentIds);
-  if (error) throw error;
-  return (data ?? []) as TournamentEntry[];
+  const details = await Promise.all(
+    tournamentIds.map((id) => getDetail(id).catch(() => null)),
+  );
+  const out: TournamentEntry[] = [];
+  for (const d of details) {
+    if (d) for (const e of d.entries) out.push(toEntry(e));
+  }
+  return out;
 }
 
 /** Rounds for one tournament, ordered by round number. */
-export async function fetchRounds(
-  tournamentId: string,
-): Promise<TournamentRound[]> {
-  const { data, error } = await supabase
-    .from('tournament_rounds')
-    .select('id, tournament_id, round_number, name, status')
-    .eq('tournament_id', tournamentId)
-    .order('round_number', { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as TournamentRound[];
+export async function fetchRounds(tournamentId: string): Promise<TournamentRound[]> {
+  const d = await getDetail(tournamentId);
+  return d.rounds.map(toRound);
 }
 
 /** Bracket matches for one tournament, ordered by bracket position. */
-export async function fetchMatches(
-  tournamentId: string,
-): Promise<TournamentMatch[]> {
-  const { data, error } = await supabase
-    .from('tournament_matches')
-    .select(
-      'id, tournament_id, round_id, bracket_position, player_one_id, player_two_id, winner_id, status',
-    )
-    .eq('tournament_id', tournamentId)
-    .order('bracket_position', { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as TournamentMatch[];
+export async function fetchMatches(tournamentId: string): Promise<TournamentMatch[]> {
+  const d = await getDetail(tournamentId);
+  return d.matches.map(toMatch);
 }
 
 /** Fetch display names for a set of player ids (for bracket rendering). */
-export async function fetchPlayerNames(
-  ids: string[],
-): Promise<Map<string, string>> {
+export async function fetchPlayerNames(ids: string[]): Promise<Map<string, string>> {
   const unique = Array.from(new Set(ids.filter(Boolean)));
-  if (unique.length === 0) return new Map();
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, username, display_name')
-    .in('id', unique);
-  if (error || !data) return new Map();
   const map = new Map<string, string>();
-  for (const row of data as {
-    id: string;
-    username: string | null;
-    display_name: string | null;
-  }[]) {
-    map.set(row.id, row.display_name ?? row.username ?? row.id.slice(0, 6));
+  if (unique.length === 0) return map;
+  const results = await Promise.all(
+    unique.map((id) =>
+      apiFetch<{ profile: { username?: string | null; displayName?: string | null } }>(
+        `/profile/${id}`,
+      )
+        .then((r) => [id, r.profile] as const)
+        .catch(() => [id, null] as const),
+    ),
+  );
+  for (const [id, profile] of results) {
+    map.set(id, profile?.displayName ?? profile?.username ?? id.slice(0, 6));
   }
   return map;
 }
@@ -102,38 +211,33 @@ export interface RegisterResult {
   reason?: 'full' | 'error';
 }
 
-/**
- * Register the current user for a tournament. Counts existing entries first to
- * respect `max_players` (server-side RLS/triggers remain the source of truth).
- */
+/** Register the current user for a tournament (server-authoritative capacity). */
 export async function registerForTournament(
   tournamentId: string,
-  playerId: string,
-  maxPlayers: number,
+  _playerId: string,
+  _maxPlayers: number,
 ): Promise<RegisterResult> {
-  const { count, error: countError } = await supabase
-    .from('tournament_entries')
-    .select('id', { count: 'exact', head: true })
-    .eq('tournament_id', tournamentId);
-  if (countError) return { ok: false, reason: 'error' };
-  if ((count ?? 0) >= maxPlayers) return { ok: false, reason: 'full' };
-
-  const { error } = await supabase
-    .from('tournament_entries')
-    .insert({ tournament_id: tournamentId, player_id: playerId });
-  if (error) return { ok: false, reason: 'error' };
-  return { ok: true };
+  try {
+    await apiFetch(`/tournaments/${tournamentId}/register`, { method: 'POST', body: {} });
+    detailCache.delete(tournamentId);
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiError && /full/i.test(err.message)) {
+      return { ok: false, reason: 'full' };
+    }
+    return { ok: false, reason: 'error' };
+  }
 }
 
-/** Withdraw the current user from a tournament. */
+/**
+ * Withdraw the current user from a tournament.
+ *
+ * Contract gap: the api-server exposes no unregister/withdraw endpoint, so this
+ * always reports failure. Kept for signature compatibility with callers.
+ */
 export async function unregisterFromTournament(
-  tournamentId: string,
-  playerId: string,
+  _tournamentId: string,
+  _playerId: string,
 ): Promise<boolean> {
-  const { error } = await supabase
-    .from('tournament_entries')
-    .delete()
-    .eq('tournament_id', tournamentId)
-    .eq('player_id', playerId);
-  return !error;
+  return false;
 }

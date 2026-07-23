@@ -172,14 +172,23 @@
       "sentTitle": "Link sent",
       "sentBody": "Check {{email}} and tap the link to sign in."
     },
+    "verify": {
+      "heading": "Verify your email",
+      "subtitle": "Enter the code we sent to {{email}}.",
+      "code": "Verification code",
+      "codePlaceholder": "123456",
+      "submit": "Verify"
+    },
     "forgotPassword": {
       "title": "Reset password",
       "action": "Forgot your password?",
       "heading": "Reset your password",
-      "subtitle": "Enter your email and we'll send you a reset link.",
-      "submit": "Send reset link",
+      "subtitle": "Enter your email and we'll send you a reset code.",
+      "submit": "Send reset code",
+      "newPassword": "New password",
+      "reset": "Reset password",
       "sentTitle": "Email sent",
-      "sentBody": "Check {{email}} for a link to reset your password."
+      "sentBody": "Check {{email}} for a code to reset your password."
     },
     "completeProfile": {
       "title": "Set up profile",

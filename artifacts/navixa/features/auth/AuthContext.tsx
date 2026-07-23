@@ -1,79 +1,113 @@
 /**
- * Navixa — authentication context.
+ * Navixa — authentication context (Clerk adapter).
  *
- * Owns the Supabase session lifecycle via supabase.auth.onAuthStateChange and
- * exposes it to the app. Protected routing in app/_layout.tsx reads `session`
- * and `initializing` to decide between the onboarding/auth stack and the
- * (tabs) stack.
+ * Wraps Clerk's `useUser` / `useAuth` and the app's own profile (fetched from
+ * `GET /api/profile/me`) behind the historical AuthContext shape so consuming
+ * components need minimal changes. Protected routing in app/_layout.tsx reads
+ * `session` / `initializing` (and `hasProfile`) to decide between the
+ * onboarding/auth stack and the (tabs) stack.
+ *
+ * Guest / anonymous sessions are no longer supported, so `isGuest` is always
+ * false; it is retained only to avoid churning every consumer.
  */
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
+import { useAuth as useClerkAuth, useUser } from '@clerk/expo';
 
-import { supabase } from '@/lib/supabase';
-import { isGuestSession } from './authService';
+import { apiFetch, ApiError } from '@/lib/api';
+import { toProfileRow, type ServerProfile } from '@/lib/normalize';
+import type { ProfileRow } from '@/features/social/api';
+
+/** Minimal user shape consumed by the app (Clerk user id). */
+export interface AuthUser {
+  id: string;
+  email: string | null;
+}
 
 interface AuthContextValue {
-  /** Current Supabase session, or null when signed out. */
-  session: Session | null;
+  /** Truthy sentinel when signed in, null when signed out. */
+  session: { userId: string } | null;
   /** Convenience accessor for the current user. */
-  user: User | null;
-  /** True while the initial session is being restored. */
+  user: AuthUser | null;
+  /** True while Clerk is loading or the profile is being restored. */
   initializing: boolean;
-  /** True when the active session is an anonymous / guest session. */
+  /** Retained for compatibility — always false (guest sessions removed). */
   isGuest: boolean;
+  /** The app profile from GET /api/profile/me, or null when not bootstrapped. */
+  profile: ProfileRow | null;
+  /** True once the profile has been fetched (created via bootstrap). */
+  hasProfile: boolean;
+  /** True while the profile fetch is in flight. */
+  profileLoading: boolean;
+  /** Re-fetch the profile (call after bootstrap / profile edits). */
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [initializing, setInitializing] = useState(true);
+  const { isLoaded, isSignedIn, userId } = useClerkAuth();
+  const { user: clerkUser } = useUser();
+
+  const [profile, setProfile] = useState<ProfileRow | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileChecked, setProfileChecked] = useState(false);
+
+  const refreshProfile = useCallback(async () => {
+    if (!isSignedIn) {
+      setProfile(null);
+      setProfileChecked(true);
+      return;
+    }
+    setProfileLoading(true);
+    try {
+      const res = await apiFetch<{ profile: ServerProfile }>('/profile/me');
+      setProfile(toProfileRow(res.profile));
+    } catch (err) {
+      // A NOT_FOUND means the profile has not been bootstrapped yet.
+      if (err instanceof ApiError && (err.code === 'NOT_FOUND' || err.status === 404)) {
+        setProfile(null);
+      } else {
+        console.warn('[auth] profile fetch failed', err);
+      }
+    } finally {
+      setProfileLoading(false);
+      setProfileChecked(true);
+    }
+  }, [isSignedIn]);
 
   useEffect(() => {
-    let mounted = true;
+    if (!isLoaded) return;
+    if (isSignedIn) {
+      void refreshProfile();
+    } else {
+      setProfile(null);
+      setProfileChecked(true);
+    }
+  }, [isLoaded, isSignedIn, refreshProfile]);
 
-    // Restore any persisted session on mount.
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (!mounted) return;
-        setSession(data.session);
-      })
-      .finally(() => {
-        if (mounted) setInitializing(false);
-      });
-
-    // Subscribe to all subsequent auth state changes (login, logout, token
-    // refresh, guest upgrade, etc.).
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (!mounted) return;
-      setSession(nextSession);
-      setInitializing(false);
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
+  const value = useMemo<AuthContextValue>(() => {
+    const email =
+      clerkUser?.primaryEmailAddress?.emailAddress ??
+      clerkUser?.emailAddresses?.[0]?.emailAddress ??
+      null;
+    return {
+      session: isSignedIn && userId ? { userId } : null,
+      user: isSignedIn && userId ? { id: userId, email } : null,
+      initializing: !isLoaded || (isSignedIn ? !profileChecked : false),
+      isGuest: false,
+      profile,
+      hasProfile: profile !== null,
+      profileLoading,
+      refreshProfile,
     };
-  }, []);
-
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      user: session?.user ?? null,
-      initializing,
-      isGuest: isGuestSession(session?.user),
-    }),
-    [session, initializing],
-  );
+  }, [isLoaded, isSignedIn, userId, clerkUser, profile, profileChecked, profileLoading, refreshProfile]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

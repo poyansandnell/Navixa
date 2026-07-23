@@ -1,13 +1,13 @@
 /**
- * Navixa — daily/weekly quests data access.
+ * Navixa — daily/weekly quests data access via the api-server.
  *
- * `daily_quests` is a public catalog (RLS: active rows readable by all).
- * `user_quests` holds per-user progress and is readable by the owner. Writes
- * to `user_quests` are normally server-side (progress is granted by verified
- * game events). The client attempts a claim (update claimed_at/status) and
- * gracefully surfaces a TODO note if RLS blocks it — see claimQuest().
+ *   GET  /api/quests?period=daily|weekly|event → { quests, progress }
+ *   POST /api/quests/claim { userQuestId }      → { ok, rewardXp, rewardCoins }
+ *
+ * Reward granting is fully server-authoritative. The server returns camelCase
+ * rows which we normalise to the app's snake_case view models here.
  */
-import { supabase } from '@/lib/supabase';
+import { apiFetch } from '@/lib/api';
 
 export type QuestPeriod = 'daily' | 'weekly' | 'event';
 export type QuestStatus = 'in_progress' | 'completed' | 'claimed' | 'expired';
@@ -36,29 +36,70 @@ export interface QuestView extends DailyQuest {
   progress: number;
   status: QuestStatus;
   claimed: boolean;
+  /** The user_quests row id, needed to claim (null when no progress yet). */
+  userQuestId: string | null;
 }
 
-/** Fetch active quest definitions for a given period. */
+interface ServerDailyQuest {
+  id: string;
+  code: string;
+  period: QuestPeriod;
+  titleKey: string;
+  descriptionKey: string;
+  metric: string;
+  goal: number;
+  rewardXp: number;
+  rewardCoins: number;
+}
+
+interface ServerUserQuest {
+  id: string;
+  questId: string;
+  progress: number;
+  status: QuestStatus;
+  claimedAt: string | null;
+}
+
+function toDailyQuest(q: ServerDailyQuest): DailyQuest {
+  return {
+    id: q.id,
+    code: q.code,
+    period: q.period,
+    title_key: q.titleKey,
+    description_key: q.descriptionKey,
+    metric: q.metric,
+    goal: q.goal,
+    reward_xp: q.rewardXp ?? 0,
+    reward_coins: q.rewardCoins ?? 0,
+  };
+}
+
+function toUserQuest(u: ServerUserQuest): UserQuest {
+  return {
+    id: u.id,
+    quest_id: u.questId,
+    progress: u.progress ?? 0,
+    status: u.status,
+    claimed_at: u.claimedAt ?? null,
+  };
+}
+
+/** Fetch active quest definitions for a given period (+ the caller's progress). */
 export async function fetchQuests(period: QuestPeriod): Promise<DailyQuest[]> {
-  const { data, error } = await supabase
-    .from('daily_quests')
-    .select(
-      'id, code, period, title_key, description_key, metric, goal, reward_xp, reward_coins',
-    )
-    .eq('period', period)
-    .eq('is_active', true);
-  if (error) throw error;
-  return (data ?? []) as DailyQuest[];
+  const res = await apiFetch<{ quests: ServerDailyQuest[]; progress: ServerUserQuest[] }>(
+    '/quests',
+    { query: { period } },
+  );
+  return res.quests.map(toDailyQuest);
 }
 
-/** Fetch the current user's progress rows. */
-export async function fetchUserQuests(userId: string): Promise<UserQuest[]> {
-  const { data, error } = await supabase
-    .from('user_quests')
-    .select('id, quest_id, progress, status, claimed_at')
-    .eq('user_id', userId);
-  if (error) throw error;
-  return (data ?? []) as UserQuest[];
+/** Fetch the current user's progress rows (all periods). */
+export async function fetchUserQuests(_userId: string): Promise<UserQuest[]> {
+  const res = await apiFetch<{ quests: ServerDailyQuest[]; progress: ServerUserQuest[] }>(
+    '/quests',
+    { query: { period: 'daily' } },
+  );
+  return res.progress.map(toUserQuest);
 }
 
 /** Join quest definitions with the user's progress into view models. */
@@ -74,37 +115,39 @@ export function mergeQuests(
       progress: p?.progress ?? 0,
       status: p?.status ?? 'in_progress',
       claimed: Boolean(p?.claimed_at) || p?.status === 'claimed',
+      userQuestId: p?.id ?? null,
     };
   });
 }
 
 export interface ClaimResult {
   ok: boolean;
-  /** True when the client write was rejected (typically server-only RLS). */
+  /** True when the reward cannot be claimed client-side (no progress row). */
   needsServer: boolean;
+  rewardXp?: number;
+  rewardCoins?: number;
 }
 
 /**
- * Attempt to claim a completed quest's reward.
- *
- * TODO(server): Reward granting (XP/coins ledger + inventory) must run in a
- * verified Edge Function so it cannot be forged from the client. Here we only
- * try to stamp the `user_quests` row as claimed; if RLS rejects the write we
- * report `needsServer` so the UI can show the "coming soon" note instead of a
- * hard error.
+ * Claim a completed quest's reward. Pass the `userQuestId` from the merged
+ * QuestView; when it is null there is no progress row to claim yet.
  */
 export async function claimQuest(
-  userId: string,
-  questId: string,
+  userQuestId: string | null,
 ): Promise<ClaimResult> {
-  const { error } = await supabase
-    .from('user_quests')
-    .update({ status: 'claimed', claimed_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .eq('quest_id', questId)
-    .eq('status', 'completed');
-  if (error) {
+  if (!userQuestId) return { ok: false, needsServer: true };
+  try {
+    const res = await apiFetch<{ ok: boolean; rewardXp: number; rewardCoins: number }>(
+      '/quests/claim',
+      { method: 'POST', body: { userQuestId } },
+    );
+    return {
+      ok: res.ok,
+      needsServer: false,
+      rewardXp: res.rewardXp,
+      rewardCoins: res.rewardCoins,
+    };
+  } catch {
     return { ok: false, needsServer: true };
   }
-  return { ok: true, needsServer: false };
 }

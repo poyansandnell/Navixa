@@ -7,24 +7,26 @@ change; run the manual matrix before a release build.
 
 | Gate | Command | Scope |
 |------|---------|-------|
-| Types | `pnpm run typecheck` | `tsc --strict --noEmit` over app + engine (`supabase/` excluded) |
+| Types | `pnpm run typecheck` | `tsc --strict --noEmit` over the app |
 | Lint | `pnpm run lint` | `expo lint` |
 | Unit | `pnpm run test` | Vitest — pure engine only (`lib/engine/**/*.test.ts`) |
 
-The engine (`lib/engine`) is intentionally free of react-native imports so it
-runs in plain Node. Suites cover coordinate math (`coord`), placement rules
-(`placement`), deterministic RNG (`rng`), bot logic (`bots`), Elo (`rating`),
-match state / shot application (`match`), and simulation (`simulate`).
+The engine is intentionally free of react-native imports so it runs in plain
+Node. Suites cover coordinate math (`coord`), placement rules (`placement`),
+deterministic RNG (`rng`), bot logic (`bots`), Glicko-2/Elo (`rating`), match
+state / shot application (`match`), and simulation (`simulate`).
 
-> Edge Functions are excluded from tsc/vitest here (they are Deno + copied
-> engine). Validate them against a running Supabase project.
+> The api-server (`artifacts/api-server`) and shared engine (`lib/game-engine`)
+> are separate workspace packages with their own gates. Validate server-side
+> flows against a running api-server (Replit PostgreSQL + Clerk).
 
 ## Manual QA matrix
 
 ### Auth & onboarding
-- [ ] Onboarding flow; guest browsing where allowed.
-- [ ] Sign-up, sign-in, magic-link, forgot-password, complete-profile.
-- [ ] Social buttons hidden while `SOCIAL_AUTH_ENABLED = false`.
+- [ ] Onboarding flow.
+- [ ] Sign-up, sign-in (email/password), forgot-password, complete-profile.
+- [ ] Google sign-in (Clerk SSO) completes and activates a session.
+- [ ] No anonymous/guest or magic-link entry points remain.
 - [ ] Session persists across app restart; sign-out clears it.
 
 ### Offline bot match (`app/game`)

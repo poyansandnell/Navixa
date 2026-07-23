@@ -27,10 +27,6 @@ export default function AuthLayout() {
         options={{ title: t('auth.signUp.title') }}
       />
       <Stack.Screen
-        name="magic-link"
-        options={{ title: t('auth.magicLink.title') }}
-      />
-      <Stack.Screen
         name="forgot-password"
         options={{ title: t('auth.forgotPassword.title') }}
       />

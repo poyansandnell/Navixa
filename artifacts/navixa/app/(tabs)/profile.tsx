@@ -11,8 +11,10 @@ import {
   useSettingsStore,
   type ThemePreference,
 } from '@/store/settings';
-import { authService, useAuth } from '@/features/auth';
+import { useAuth as useClerkAuth } from '@clerk/expo';
+import { useAuth } from '@/features/auth';
 import { useIsGuest } from '@/hooks/useIsGuest';
+import { disconnectSocket } from '@/lib/socket';
 import {
   Badge,
   Button,
@@ -74,6 +76,7 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const colors = useColors();
   const { user } = useAuth();
+  const { signOut } = useClerkAuth();
   const isGuest = useIsGuest();
   const selfId = user?.id ?? null;
 
@@ -116,8 +119,6 @@ export default function ProfileScreen() {
   const displayName =
     profile?.display_name ??
     profile?.username ??
-    (user?.user_metadata?.display_name as string | undefined) ??
-    (user?.user_metadata?.username as string | undefined) ??
     t('profile.guest');
 
   const rating = stats?.current_rating ?? 1200;
@@ -147,7 +148,8 @@ export default function ProfileScreen() {
           onPress: async () => {
             setLoggingOut(true);
             try {
-              await authService.signOut();
+              disconnectSocket();
+              await signOut();
               // Root layout redirects to the auth stack on session change.
             } catch (error) {
               showAlert(t('auth.errors.title'), (error as Error).message);

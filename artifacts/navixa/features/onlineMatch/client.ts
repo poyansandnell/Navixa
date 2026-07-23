@@ -1,14 +1,14 @@
 /**
- * Navixa — thin client wrappers around the deployed Supabase Edge
- * Functions used by the online-play flow, plus a couple of shared helpers
- * (idempotency keys, app_config fetch, deep-link code parsing).
+ * Navixa — REST client wrappers for the online-play flow against the
+ * api-server, plus a couple of shared helpers (idempotency keys, deep-link code
+ * parsing).
  *
- * Every wrapper unwraps the stable error envelope
- * `{ error: { code, message } }` and throws an `OnlineError` so callers can
- * `try/catch` uniformly. All network chatter is logged with a stable prefix so
- * the two-client flow is debuggable from a single device.
+ * Every wrapper goes through `apiFetch`, which unwraps the stable error
+ * envelope `{ error: { code, message } }` into a thrown `ApiError`. We re-throw
+ * as `OnlineError` so existing callers keep working. All network chatter is
+ * logged with a stable prefix so the two-client flow is debuggable.
  */
-import { supabase } from '@/lib/supabase';
+import { apiFetch, ApiError } from '@/lib/api';
 import type {
   MatchClock,
   ServerMatchMode,
@@ -28,44 +28,26 @@ export class OnlineError extends Error {
 }
 
 /**
- * Invoke an Edge Function and return its data, translating the error envelope
- * into a thrown OnlineError. `supabase.functions.invoke` resolves with
- * `{ data, error }` where `error` is a FunctionsHttpError whose response body
- * still carries our envelope, so we defensively read both.
+ * Perform an api-server request, translating an `ApiError` into an
+ * `OnlineError` so callers can `try/catch` uniformly.
  */
-export async function invokeEdge<T>(name: string, body: Record<string, unknown>): Promise<T> {
-  console.log(`${LOG} → ${name}`, safeBody(body));
-  const { data, error } = await supabase.functions.invoke(name, { body });
-
-  if (error) {
-    // Try to extract our envelope from the failed response.
-    let code = 'FUNCTION_ERROR';
-    let message = error.message ?? 'Edge function failed';
-    try {
-      const ctx = (error as { context?: Response }).context;
-      if (ctx && typeof ctx.json === 'function') {
-        const parsed = await ctx.json();
-        if (parsed?.error) {
-          code = parsed.error.code ?? code;
-          message = parsed.error.message ?? message;
-        }
-      }
-    } catch {
-      // ignore parse failures; fall back to the generic message
+async function call<T>(
+  method: 'GET' | 'POST',
+  path: string,
+  body?: Record<string, unknown>,
+): Promise<T> {
+  console.log(`${LOG} → ${method} ${path}`, body ? safeBody(body) : '');
+  try {
+    const data = await apiFetch<T>(path, { method, body });
+    console.log(`${LOG} ✓ ${path}`);
+    return data;
+  } catch (err) {
+    if (err instanceof ApiError) {
+      console.warn(`${LOG} ✗ ${path}`, err.code, err.message);
+      throw new OnlineError(err.code, err.message);
     }
-    console.warn(`${LOG} ✗ ${name}`, code, message);
-    throw new OnlineError(code, message);
+    throw err;
   }
-
-  // Some functions may return their own envelope in the success path.
-  if (data && typeof data === 'object' && 'error' in data && (data as { error?: unknown }).error) {
-    const env = (data as { error: { code?: string; message?: string } }).error;
-    console.warn(`${LOG} ✗ ${name}`, env.code, env.message);
-    throw new OnlineError(env.code ?? 'FUNCTION_ERROR', env.message ?? 'Edge function failed');
-  }
-
-  console.log(`${LOG} ✓ ${name}`);
-  return data as T;
 }
 
 /** Never log a full fleet in plaintext. */
@@ -82,11 +64,9 @@ function safeBody(body: Record<string, unknown>): Record<string, unknown> {
 // ---------------------------------------------------------------------------
 
 /**
- * Generate an idempotency key for a fire-shot attempt. We avoid a hard
- * dependency on expo-crypto (not installed) and use a timestamp + random
- * suffix, which comfortably satisfies the server's 8..128 char requirement and
- * is unique per attempt. The caller is responsible for reusing the SAME key
- * for retries of the same cell so a shot is never double-applied.
+ * Generate an idempotency key for a fire-shot attempt (timestamp + random
+ * suffix). Callers must reuse the SAME key for retries of the same cell so a
+ * shot is never double-applied.
  */
 export function makeIdempotencyKey(): string {
   const rand = Math.random().toString(36).slice(2, 10);
@@ -95,7 +75,7 @@ export function makeIdempotencyKey(): string {
 }
 
 // ---------------------------------------------------------------------------
-// Edge function wrappers
+// Matchmaking
 // ---------------------------------------------------------------------------
 
 export interface JoinMatchmakingResult {
@@ -109,12 +89,16 @@ export function joinMatchmaking(params: {
   boardSize?: number;
   region?: string;
 }): Promise<JoinMatchmakingResult> {
-  return invokeEdge<JoinMatchmakingResult>('join-matchmaking', params);
+  return call<JoinMatchmakingResult>('POST', '/matchmaking/join', params);
 }
 
 export function leaveMatchmaking(mode: ServerMatchMode): Promise<{ cancelled: boolean }> {
-  return invokeEdge<{ cancelled: boolean }>('leave-matchmaking', { mode });
+  return call<{ cancelled: boolean }>('POST', '/matchmaking/leave', { mode });
 }
+
+// ---------------------------------------------------------------------------
+// Private + bot matches
+// ---------------------------------------------------------------------------
 
 export interface CreatePrivateResult {
   matchId: string;
@@ -129,12 +113,24 @@ export function createPrivateMatch(params: {
   turnSeconds?: number;
   isRated?: boolean;
 }): Promise<CreatePrivateResult> {
-  return invokeEdge<CreatePrivateResult>('create-private-match', params);
+  return call<CreatePrivateResult>('POST', '/matches/private', params);
 }
 
 export function joinPrivateMatch(code: string): Promise<{ matchId: string; status: string }> {
-  return invokeEdge<{ matchId: string; status: string }>('join-private-match', { code });
+  return call<{ matchId: string; status: string }>('POST', '/matches/private/join', { code });
 }
+
+export function createBotMatch(params: {
+  boardSize?: number;
+  turnSeconds?: number;
+  difficulty?: string;
+}): Promise<{ matchId: string; status: string }> {
+  return call<{ matchId: string; status: string }>('POST', '/matches/bot', params);
+}
+
+// ---------------------------------------------------------------------------
+// Fleet + shots
+// ---------------------------------------------------------------------------
 
 export interface SubmitFleetResult {
   ok: boolean;
@@ -148,7 +144,7 @@ export function submitFleet(params: {
   boardHash?: string;
   salt?: string;
 }): Promise<SubmitFleetResult> {
-  return invokeEdge<SubmitFleetResult>('submit-fleet', params);
+  return call<SubmitFleetResult>('POST', '/matches/submit-fleet', params);
 }
 
 export interface FireShotResult {
@@ -168,72 +164,47 @@ export function fireShot(params: {
   y: number;
   idempotencyKey: string;
 }): Promise<FireShotResult> {
-  return invokeEdge<FireShotResult>('fire-shot', params);
-}
-
-export interface BotMoveResult {
-  botShot: { x: number; y: number };
-  result: 'miss' | 'hit' | 'sunk';
-  sunkShip?: string | null;
-  moveNumber: number;
-  winner: 'A' | 'B' | null;
-  winnerId: string | null;
-  view: ServerPublicView;
-}
-
-export function botMove(matchId: string): Promise<BotMoveResult> {
-  return invokeEdge<BotMoveResult>('bot-move', { matchId });
+  return call<FireShotResult>('POST', '/matches/fire', params);
 }
 
 export function resignMatch(matchId: string): Promise<{ ok: boolean; winnerId: string | null }> {
-  return invokeEdge<{ ok: boolean; winnerId: string | null; abandoned?: boolean }>(
-    'resign-match',
-    { matchId },
+  return call<{ ok: boolean; winnerId: string | null; abandoned?: boolean }>(
+    'POST',
+    `/matches/${matchId}/resign`,
+    {},
   );
 }
 
 export function handleTimeout(
   matchId: string,
 ): Promise<{ ok: boolean; timedOut: boolean; winnerId: string | null }> {
-  return invokeEdge('handle-timeout', { matchId });
+  return call('POST', `/matches/${matchId}/timeout`, {});
 }
 
 export interface ReconnectResult {
-  view: ServerPublicView;
+  view: ServerPublicView | null;
   status: string;
   seat: number;
   yourTurn: boolean;
   winnerId: string | null;
-  clock: MatchClock;
+  clock: MatchClock | null;
 }
 
 export function reconnectMatch(matchId: string): Promise<ReconnectResult> {
-  return invokeEdge<ReconnectResult>('reconnect-match', { matchId });
+  return call<ReconnectResult>('GET', `/matches/${matchId}/reconnect`);
 }
 
 // ---------------------------------------------------------------------------
-// app_config (public flags)
+// Dev config
 // ---------------------------------------------------------------------------
 
 /**
- * Read the dev bot-fallback delay from app_config (public key
- * `dev_bot_fallback_ms`) with a hard-coded default. Never throws; on any error
- * it falls back to the constant so the search screen keeps working offline.
+ * Dev bot-fallback delay. The api-server has no app_config equivalent, so this
+ * always returns the compiled-in default (kept async for call-site
+ * compatibility).
  */
 export async function getDevBotFallbackMs(): Promise<number> {
-  try {
-    const { data, error } = await supabase
-      .from('app_config')
-      .select('value')
-      .eq('key', 'dev_bot_fallback_ms')
-      .maybeSingle();
-    if (error || !data) return DEV_BOT_FALLBACK_MS;
-    const value = (data as { value: unknown }).value;
-    const n = typeof value === 'number' ? value : Number(value);
-    return Number.isFinite(n) && n > 0 ? n : DEV_BOT_FALLBACK_MS;
-  } catch {
-    return DEV_BOT_FALLBACK_MS;
-  }
+  return DEV_BOT_FALLBACK_MS;
 }
 
 // ---------------------------------------------------------------------------
@@ -241,16 +212,14 @@ export async function getDevBotFallbackMs(): Promise<number> {
 // ---------------------------------------------------------------------------
 
 /**
- * Extract an invite code from a deep link such as `navixa://join/ABCD` or
- * `navixa://join/ABCD`, a universal link `https://.../join/ABCD`, or a
- * bare code. Returns the trimmed uppercase code, or null when nothing usable
- * is found.
+ * Extract an invite code from a deep link (`navixa://join/ABCD`), a universal
+ * link (`https://.../join/ABCD`), or a bare code. Returns the trimmed uppercase
+ * code, or null when nothing usable is found.
  */
 export function parseInviteCode(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
 
-  // Bare code (4..12 alphanumerics).
   if (/^[a-z0-9]{4,12}$/i.test(trimmed)) return trimmed.toUpperCase();
 
   const match = trimmed.match(/join\/([a-z0-9]{4,12})/i);

@@ -3,7 +3,7 @@
  *
  * These mirror the relevant columns of the `tournaments`, `tournament_entries`,
  * `tournament_rounds` and `tournament_matches` tables (see
- * supabase/migrations/20260721120500_tournaments.sql). Only the fields the UI
+ * server schema). Only the fields the UI
  * reads are typed here.
  */
 

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useSignUp } from '@clerk/expo/legacy';
 
-import { Button, Card, Screen, Spacer, Text } from '@/components/ui';
+import { Button, Screen, Spacer, Text } from '@/components/ui';
 import {
-  authService,
   isValidEmail,
   isValidPassword,
   SocialAuthButtons,
@@ -16,57 +16,94 @@ import { spacing } from '@/constants/theme';
 
 export default function SignUpScreen() {
   const { t } = useTranslation();
+  const { signUp, setActive, isLoaded } = useSignUp();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [pendingVerification, setPendingVerification] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [checkEmail, setCheckEmail] = useState(false);
 
   const canSubmit = isValidEmail(email) && isValidPassword(password);
+  const canVerify = code.trim().length >= 4;
+
+  const clerkMessage = (err: unknown): string => {
+    const clerkErr = err as { errors?: { message?: string }[] };
+    return clerkErr.errors?.[0]?.message ?? (err as Error).message;
+  };
 
   const handleSubmit = async () => {
-    if (!canSubmit || submitting) return;
+    if (!canSubmit || submitting || !isLoaded) return;
     setSubmitting(true);
     setError(null);
     try {
-      const result = await authService.signUpWithEmail({
-        email: email.trim(),
-        password,
-      });
-      if (result.session) {
-        // Email confirmation disabled → we have a session, finish the profile.
-        router.replace('/(auth)/complete-profile');
-      } else {
-        // Confirmation required → prompt the user to verify their email.
-        setCheckEmail(true);
-      }
+      await signUp.create({ emailAddress: email.trim(), password });
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      setPendingVerification(true);
     } catch (err) {
-      setError((err as Error).message);
+      setError(clerkMessage(err));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (checkEmail) {
+  const handleVerify = async () => {
+    if (!canVerify || submitting || !isLoaded) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const attempt = await signUp.attemptEmailAddressVerification({
+        code: code.trim(),
+      });
+      if (attempt.status === 'complete') {
+        await setActive({ session: attempt.createdSessionId });
+        // Root layout routes to profile bootstrap next (no profile yet).
+      } else {
+        setError(t('auth.errors.title'));
+      }
+    } catch (err) {
+      setError(clerkMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (pendingVerification) {
     return (
-      <Screen testID="sign-up-check-email">
-        <Spacer size="xxl" />
-        <Card elevated>
-          <Text variant="h3">{t('auth.signUp.checkEmailTitle')}</Text>
-          <Spacer size="sm" />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Screen testID="sign-up-verify">
+          <Text variant="h2">{t('auth.verify.heading')}</Text>
+          <Spacer size="xs" />
           <Text variant="body" color="muted">
-            {t('auth.signUp.checkEmailBody', { email: email.trim() })}
+            {t('auth.verify.subtitle', { email: email.trim() })}
           </Text>
-        </Card>
-        <Spacer size="xl" />
-        <Button
-          label={t('auth.signIn.action')}
-          variant="secondary"
-          fullWidth
-          onPress={() => router.replace('/(auth)/sign-in')}
-        />
-      </Screen>
+          <Spacer size="xxl" />
+          <TextField
+            label={t('auth.verify.code')}
+            value={code}
+            onChangeText={setCode}
+            keyboardType="number-pad"
+            autoCapitalize="none"
+            placeholder={t('auth.verify.codePlaceholder')}
+            error={error}
+            onSubmitEditing={handleVerify}
+            returnKeyType="go"
+          />
+          <Spacer size="xl" />
+          <Button
+            testID="sign-up-verify-submit"
+            label={t('auth.verify.submit')}
+            fullWidth
+            loading={submitting}
+            disabled={!canVerify}
+            onPress={handleVerify}
+          />
+        </Screen>
+      </KeyboardAvoidingView>
     );
   }
 

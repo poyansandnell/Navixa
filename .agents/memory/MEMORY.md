@@ -1,5 +1,4 @@
 # Memory Index
 
-- [Supabase setup](supabase-setup.md) — connector is broken, use EXPO_PUBLIC_* env/secret only in Expo client; ask before requesting service-role/DB secrets.
-- [Supabase deploy lessons](supabase-deploy-lessons.md) — Edge Functions need `--use-api` + explicit npm: specifiers; RLS needs base grants too or everything 403s; auth config via management API.
+- [Replit-native stack](replit-native-stack.md) — Supabase is fully removed (July 2026): Replit PG + Drizzle, Clerk auth (expo/legacy hooks), Socket.IO at /api/socket.io, server-authoritative api-server.
 - [Expo web pitfalls](expo-web-pitfalls.md) — Alert.alert is a no-op on web (use lib/alert.ts showAlert); cross-cutting flags must live in shared stores, not hook-local state.

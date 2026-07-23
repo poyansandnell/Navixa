@@ -1,10 +1,15 @@
 /**
- * Data-access for match history & replay. Everything here reads only public,
- * post-finish data: matches (finished/abandoned), match_players (public after
- * finish), match_moves (public after finish). Private board layouts are never
- * loaded — the replay is reconstructed purely from the move log.
+ * Data-access for match history & replay via the api-server.
+ *
+ *   GET /api/history            → { matches: [{ ...match, me, opponent, opponentProfile }] }
+ *   GET /api/history/:matchId   → { match, players, moves, profiles }
+ *
+ * The server returns camelCase drizzle rows; we normalise them into the app's
+ * view models here. Only public post-finish data is exposed — replays are
+ * rebuilt from the move log, never from private board layouts.
  */
-import { supabase } from '@/lib/supabase';
+import { apiFetch } from '@/lib/api';
+import { toProfileRow, type ServerProfile } from '@/lib/normalize';
 import type { ProfileRow } from '@/features/social/api';
 
 export interface HistoryMatch {
@@ -45,103 +50,101 @@ export interface MoveRow {
   createdAt: string;
 }
 
-const PROFILE_COLS =
-  'id, username, display_name, avatar_url, country_code, xp, level, last_seen_at, created_at, is_bot';
+/** Server match row (camelCase). */
+interface ServerMatch {
+  id: string;
+  mode: string;
+  status: string;
+  boardSize?: number | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  createdAt?: string;
+  winnerId?: string | null;
+}
 
-function toPlayer(row: Record<string, unknown>): MatchPlayer {
+interface ServerMatchPlayer {
+  id: string;
+  playerId?: string | null;
+  seat: number;
+  result?: string | null;
+  ratingDelta?: number | null;
+  shotsFired?: number | null;
+  hits?: number | null;
+  shipsSunk?: number | null;
+  forfeited?: boolean | null;
+}
+
+interface ServerMove {
+  moveNumber: number;
+  playerId?: string | null;
+  targetX: number;
+  targetY: number;
+  isHit?: boolean | null;
+  sunkShip?: string | null;
+  createdAt: string;
+}
+
+function toPlayer(row: ServerMatchPlayer | null | undefined, fallbackSeat = 1): MatchPlayer {
+  if (!row) {
+    return {
+      id: '',
+      playerId: null,
+      seat: fallbackSeat,
+      result: null,
+      ratingDelta: null,
+      shotsFired: 0,
+      hits: 0,
+      shipsSunk: 0,
+      forfeited: false,
+    };
+  }
   return {
-    id: row.id as string,
-    playerId: (row.player_id as string | null) ?? null,
-    seat: row.seat as number,
-    result: (row.result as string | null) ?? null,
-    ratingDelta: (row.rating_delta as number | null) ?? null,
-    shotsFired: (row.shots_fired as number) ?? 0,
-    hits: (row.hits as number) ?? 0,
-    shipsSunk: (row.ships_sunk as number) ?? 0,
+    id: row.id,
+    playerId: row.playerId ?? null,
+    seat: row.seat,
+    result: row.result ?? null,
+    ratingDelta: row.ratingDelta ?? null,
+    shotsFired: row.shotsFired ?? 0,
+    hits: row.hits ?? 0,
+    shipsSunk: row.shipsSunk ?? 0,
     forfeited: Boolean(row.forfeited),
   };
 }
 
+function toHistoryMatch(
+  m: ServerMatch,
+  me: ServerMatchPlayer | null | undefined,
+  opponent: ServerMatchPlayer | null | undefined,
+  opponentProfile: ServerProfile | null | undefined,
+): HistoryMatch {
+  const meSeat = me?.seat ?? 0;
+  return {
+    id: m.id,
+    mode: m.mode,
+    status: m.status,
+    boardSize: m.boardSize ?? 10,
+    startedAt: m.startedAt ?? null,
+    finishedAt: m.finishedAt ?? null,
+    createdAt: m.createdAt ?? new Date(0).toISOString(),
+    winnerId: m.winnerId ?? null,
+    me: toPlayer(me, meSeat),
+    opponent: toPlayer(opponent, meSeat === 0 ? 1 : 0),
+    opponentProfile: toProfileRow(opponentProfile),
+  };
+}
+
+interface HistoryListEntry extends ServerMatch {
+  me: ServerMatchPlayer | null;
+  opponent: ServerMatchPlayer | null;
+  opponentProfile: ServerProfile | null;
+}
+
 /** List the current user's finished matches, newest first. */
-export async function fetchMatchHistory(selfId: string): Promise<HistoryMatch[]> {
-  // Match rows the user participated in that are finished/abandoned.
-  const { data: myRows, error: myErr } = await supabase
-    .from('match_players')
-    .select('id, match_id, player_id, seat, result, rating_delta, shots_fired, hits, ships_sunk, forfeited')
-    .eq('player_id', selfId);
-  if (myErr) throw myErr;
-  const mine = (myRows ?? []) as Record<string, unknown>[];
-  const matchIds = Array.from(new Set(mine.map((r) => r.match_id as string)));
-  if (matchIds.length === 0) return [];
-
-  const { data: matchRows, error: mErr } = await supabase
-    .from('matches')
-    .select('id, mode, status, board_size, started_at, finished_at, created_at, winner_id')
-    .in('id', matchIds)
-    .in('status', ['finished', 'abandoned'])
-    .order('finished_at', { ascending: false, nullsFirst: false });
-  if (mErr) throw mErr;
-  const matches = (matchRows ?? []) as Record<string, unknown>[];
-  const finishedIds = matches.map((m) => m.id as string);
-  if (finishedIds.length === 0) return [];
-
-  // All player rows for those matches (public after finish).
-  const { data: allPlayers, error: apErr } = await supabase
-    .from('match_players')
-    .select('id, match_id, player_id, seat, result, rating_delta, shots_fired, hits, ships_sunk, forfeited')
-    .in('match_id', finishedIds);
-  if (apErr) throw apErr;
-  const playersByMatch = new Map<string, Record<string, unknown>[]>();
-  for (const p of (allPlayers ?? []) as Record<string, unknown>[]) {
-    const key = p.match_id as string;
-    const list = playersByMatch.get(key) ?? [];
-    list.push(p);
-    playersByMatch.set(key, list);
-  }
-
-  // Opponent profiles.
-  const oppIds = new Set<string>();
-  for (const list of playersByMatch.values()) {
-    for (const p of list) {
-      const pid = p.player_id as string | null;
-      if (pid && pid !== selfId) oppIds.add(pid);
-    }
-  }
-  const profMap = new Map<string, ProfileRow>();
-  if (oppIds.size > 0) {
-    const { data: profs } = await supabase
-      .from('profiles')
-      .select(PROFILE_COLS)
-      .in('id', Array.from(oppIds));
-    for (const p of (profs ?? []) as ProfileRow[]) profMap.set(p.id, p);
-  }
-
-  const out: HistoryMatch[] = [];
-  for (const m of matches) {
-    const matchId = m.id as string;
-    const players = playersByMatch.get(matchId) ?? [];
-    const meRow = players.find((p) => p.player_id === selfId);
-    const oppRow = players.find((p) => p.id !== meRow?.id);
-    if (!meRow) continue;
-    const oppPid = (oppRow?.player_id as string | null) ?? null;
-    out.push({
-      id: matchId,
-      mode: m.mode as string,
-      status: m.status as string,
-      boardSize: (m.board_size as number) ?? 10,
-      startedAt: (m.started_at as string | null) ?? null,
-      finishedAt: (m.finished_at as string | null) ?? null,
-      createdAt: m.created_at as string,
-      winnerId: (m.winner_id as string | null) ?? null,
-      me: toPlayer(meRow),
-      opponent: oppRow ? toPlayer(oppRow) : {
-        id: '', playerId: null, seat: meRow.seat === 0 ? 1 : 0, result: null,
-        ratingDelta: null, shotsFired: 0, hits: 0, shipsSunk: 0, forfeited: false,
-      },
-      opponentProfile: oppPid ? profMap.get(oppPid) ?? null : null,
-    });
-  }
-  return out;
+export async function fetchMatchHistory(_selfId: string): Promise<HistoryMatch[]> {
+  const res = await apiFetch<{ matches: HistoryListEntry[] }>('/history');
+  return res.matches.map((m) =>
+    toHistoryMatch(m, m.me, m.opponent, m.opponentProfile),
+  );
 }
 
 export interface MatchDetail {
@@ -150,73 +153,43 @@ export interface MatchDetail {
 }
 
 /** Load a single finished match + its full ordered move log for replay. */
-export async function fetchMatchDetail(matchId: string, selfId: string): Promise<MatchDetail | null> {
-  const { data: m, error: mErr } = await supabase
-    .from('matches')
-    .select('id, mode, status, board_size, started_at, finished_at, created_at, winner_id')
-    .eq('id', matchId)
-    .maybeSingle();
-  if (mErr) throw mErr;
-  if (!m) return null;
-
-  const { data: players, error: pErr } = await supabase
-    .from('match_players')
-    .select('id, match_id, player_id, seat, result, rating_delta, shots_fired, hits, ships_sunk, forfeited')
-    .eq('match_id', matchId);
-  if (pErr) throw pErr;
-  const plist = (players ?? []) as Record<string, unknown>[];
-  const meRow = plist.find((p) => p.player_id === selfId) ?? plist[0];
-  const oppRow = plist.find((p) => p.id !== meRow?.id);
-
-  const oppPid = (oppRow?.player_id as string | null) ?? null;
-  let opponentProfile: ProfileRow | null = null;
-  if (oppPid) {
-    const { data: prof } = await supabase
-      .from('profiles')
-      .select(PROFILE_COLS)
-      .eq('id', oppPid)
-      .maybeSingle();
-    opponentProfile = (prof as ProfileRow) ?? null;
+export async function fetchMatchDetail(
+  matchId: string,
+  selfId: string,
+): Promise<MatchDetail | null> {
+  let res: {
+    match: ServerMatch;
+    players: ServerMatchPlayer[];
+    moves: ServerMove[];
+    profiles: ServerProfile[];
+  };
+  try {
+    res = await apiFetch(`/history/${matchId}`);
+  } catch {
+    return null;
   }
 
-  const { data: moveRows, error: moveErr } = await supabase
-    .from('match_moves')
-    .select('move_number, player_id, target_x, target_y, is_hit, sunk_ship, created_at')
-    .eq('match_id', matchId)
-    .order('move_number', { ascending: true });
-  if (moveErr) throw moveErr;
+  const players = res.players ?? [];
+  const me = players.find((p) => p.playerId === selfId) ?? players[0] ?? null;
+  const opponent = players.find((p) => p.id !== me?.id) ?? null;
+  const oppProfile = opponent?.playerId
+    ? res.profiles.find((p) => p.id === opponent.playerId) ?? null
+    : null;
 
-  const moves: MoveRow[] = ((moveRows ?? []) as Record<string, unknown>[]).map((r) => ({
-    moveNumber: r.move_number as number,
-    playerId: (r.player_id as string | null) ?? null,
-    x: r.target_x as number,
-    y: r.target_y as number,
-    isHit: Boolean(r.is_hit),
-    sunkShip: (r.sunk_ship as string | null) ?? null,
-    createdAt: r.created_at as string,
+  const moves: MoveRow[] = (res.moves ?? []).map((r) => ({
+    moveNumber: r.moveNumber,
+    playerId: r.playerId ?? null,
+    x: r.targetX,
+    y: r.targetY,
+    isHit: Boolean(r.isHit),
+    sunkShip: r.sunkShip ?? null,
+    createdAt: r.createdAt,
   }));
 
-  const match: HistoryMatch = {
-    id: m.id as string,
-    mode: m.mode as string,
-    status: m.status as string,
-    boardSize: (m.board_size as number) ?? 10,
-    startedAt: (m.started_at as string | null) ?? null,
-    finishedAt: (m.finished_at as string | null) ?? null,
-    createdAt: m.created_at as string,
-    winnerId: (m.winner_id as string | null) ?? null,
-    me: meRow ? toPlayer(meRow) : {
-      id: '', playerId: selfId, seat: 0, result: null, ratingDelta: null,
-      shotsFired: 0, hits: 0, shipsSunk: 0, forfeited: false,
-    },
-    opponent: oppRow ? toPlayer(oppRow) : {
-      id: '', playerId: null, seat: 1, result: null, ratingDelta: null,
-      shotsFired: 0, hits: 0, shipsSunk: 0, forfeited: false,
-    },
-    opponentProfile,
+  return {
+    match: toHistoryMatch(res.match, me, opponent, oppProfile),
+    moves,
   };
-
-  return { match, moves };
 }
 
 /** Compute a match's wall-clock duration in ms (started→finished). */
@@ -233,7 +206,6 @@ export function myResult(match: HistoryMatch): 'win' | 'loss' | 'draw' {
   if (match.me.result === 'win') return 'win';
   if (match.me.result === 'loss') return 'loss';
   if (match.me.result === 'draw') return 'draw';
-  // Fall back to winner_id.
   if (match.winnerId && match.me.playerId) {
     return match.winnerId === match.me.playerId ? 'win' : 'loss';
   }

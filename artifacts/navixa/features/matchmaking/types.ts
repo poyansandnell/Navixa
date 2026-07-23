@@ -1,8 +1,8 @@
 /**
  * Navixa — online-play shared types.
  *
- * These mirror the Supabase enums (see supabase/migrations) and the Edge
- * Function payloads (see supabase/functions/README.md). They are intentionally
+ * These mirror the server enums and the API
+ * payloads. They are intentionally
  * duplicated on the client (rather than imported from the server) so the app
  * stays decoupled from the Deno functions.
  */

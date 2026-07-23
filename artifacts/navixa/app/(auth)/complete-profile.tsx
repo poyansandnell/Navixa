@@ -9,6 +9,7 @@ import {
   Checkbox,
   isValidUsername,
   TextField,
+  useAuth,
 } from '@/features/auth';
 import { spacing } from '@/constants/theme';
 import { useSettingsStore } from '@/store/settings';
@@ -18,6 +19,7 @@ type Availability = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 export default function CompleteProfileScreen() {
   const { t } = useTranslation();
+  const { refreshProfile } = useAuth();
   const languagePref = useSettingsStore((s) => s.language);
 
   const [username, setUsername] = useState('');
@@ -97,6 +99,7 @@ export default function CompleteProfileScreen() {
         termsAcceptedAt,
         locale,
       });
+      await refreshProfile();
       router.replace('/(tabs)');
     } catch (err) {
       setError((err as Error).message);

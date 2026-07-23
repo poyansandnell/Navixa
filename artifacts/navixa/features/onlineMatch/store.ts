@@ -18,7 +18,6 @@ import {
   fireShot,
   reconnectMatch,
   resignMatch,
-  botMove,
   makeIdempotencyKey,
   OnlineError,
   type FireShotResult,
@@ -98,8 +97,6 @@ interface OnlineMatchState {
   retryPendingShot: () => Promise<void>;
   /** Abandon the pending shot and resync authoritative state from the server. */
   cancelPendingShot: () => Promise<void>;
-  /** Ask the server to play the bot's turn (bot matches only). */
-  playBotTurn: () => Promise<void>;
   /** Resign the match. */
   resign: () => Promise<void>;
   /** Record a locally-visible reaction (see NOTE in play screen). */
@@ -192,10 +189,9 @@ async function sendPendingShot(set: Set, get: Get, pending: PendingShot): Promis
       finished: res.view.winner !== null,
     });
 
-    // Bot matches: nudge the server to play the bot's reply.
-    if (res.botToMove) {
-      void get().playBotTurn();
-    }
+    // Bot matches: the server plays the bot's reply autonomously and pushes the
+    // resulting `match:move` / `match:update` over the socket, so there is
+    // nothing for the client to trigger here.
   } catch (err) {
     const message = err instanceof OnlineError ? err.message : 'Shot failed';
     // Keep the pending shot so a manual retry reuses the same idempotency key
@@ -303,16 +299,22 @@ export const useOnlineMatchStore = create<OnlineMatchState>((set, get) => ({
         const serverNow = deadlineMs - res.clock.currentTurnRemainingMs;
         clockOffsetMs = serverNow - Date.now();
       }
-      const events = buildEventsFromView(get().view, res.view, get().events);
+      const nextView = res.view ?? get().view;
+      const events = res.view
+        ? buildEventsFromView(get().view, res.view, get().events)
+        : get().events;
       set({
-        view: res.view,
+        view: nextView,
         status: res.status as MatchStatus,
         seat: res.seat,
-        clock: res.clock,
+        clock: res.clock ?? null,
         clockOffsetMs,
         winnerId: res.winnerId,
         events,
-        finished: res.view.winner !== null || res.status === 'finished' || res.status === 'abandoned',
+        finished:
+          (nextView?.winner ?? null) !== null ||
+          res.status === 'finished' ||
+          res.status === 'abandoned',
         pendingShot: null,
       });
       console.log('[online] reconnect rebuilt state', { status: res.status, seat: res.seat });
@@ -347,23 +349,6 @@ export const useOnlineMatchStore = create<OnlineMatchState>((set, get) => ({
     // actually landed server-side, reconnect returns the authoritative view.
     set({ pendingShot: null, firing: false, errorMessage: null });
     await get().reconnect();
-  },
-
-  playBotTurn: async () => {
-    const matchId = get().matchId;
-    if (!matchId) return;
-    try {
-      const res = await botMove(matchId);
-      const events = buildEventsFromView(get().view, res.view, get().events);
-      set({
-        view: res.view,
-        events,
-        winnerId: res.winnerId ?? get().winnerId,
-        finished: res.view.winner !== null,
-      });
-    } catch (err) {
-      console.warn('[online] botMove failed', err);
-    }
   },
 
   resign: async () => {
