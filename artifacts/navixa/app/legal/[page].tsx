@@ -7,8 +7,10 @@
  * fall back to English). Each doc declares a `sectionCount`; this screen reads
  * that and renders `s1 … sN` (heading + body).
  *
- * Support/contact pages keep an external-link / mailto action driven by
- * EXPO_PUBLIC_* env vars with safe fallbacks so nothing 404s in the expo build.
+ * The legacy support/contact pages redirect to the dedicated /support portal
+ * (FAQ + contact form). The only remaining external-link action is the
+ * open-source licenses page, driven by an EXPO_PUBLIC_* env var with a safe
+ * fallback so nothing 404s in the expo build.
  *
  * If a doc still contains company placeholder tokens (e.g. [COMPANY_NAME]) a
  * small subtle note reminds that details must be filled in before store
@@ -37,16 +39,13 @@ type LegalPage =
 interface PageConfig {
   /** Key of the document under the `legalDocs` namespace. */
   doc: LegalPage;
-  /** External web/mailto action, when the page has one. */
+  /** External open-in-browser action, when the page has one. */
   action?: {
     url: string;
-    /** When true, render a mail action instead of an open-external action. */
-    email?: boolean;
   };
 }
 
 const SITE = process.env.EXPO_PUBLIC_WEBSITE_URL ?? 'https://example.com';
-const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? 'support@example.com';
 
 /** Matches any leftover [PLACEHOLDER] company token in rendered strings. */
 const PLACEHOLDER_RE = /\[[A-Z_]+\]/;
@@ -57,14 +56,9 @@ const PAGES: Record<LegalPage, PageConfig> = {
   community: { doc: 'community' },
   'fair-play': { doc: 'fair-play' },
   'data-deletion': { doc: 'data-deletion' },
-  support: {
-    doc: 'support',
-    action: { url: `mailto:${SUPPORT_EMAIL}`, email: true },
-  },
-  contact: {
-    doc: 'contact',
-    action: { url: `mailto:${SUPPORT_EMAIL}`, email: true },
-  },
+  // support/contact redirect to /support before their config is used.
+  support: { doc: 'support' },
+  contact: { doc: 'contact' },
   licenses: {
     doc: 'licenses',
     action: { url: process.env.EXPO_PUBLIC_LICENSES_URL ?? `${SITE}/licenses` },
@@ -161,8 +155,8 @@ export default function LegalPageScreen() {
         <>
           <Spacer size="xl" />
           <Button
-            label={config.action.email ? t('legal.contactEmailLabel') : t('legal.openExternal')}
-            icon={config.action.email ? 'mail' : 'external-link'}
+            label={t('legal.openExternal')}
+            icon="external-link"
             variant="ghost"
             fullWidth
             onPress={openExternal}

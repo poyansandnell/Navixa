@@ -15,9 +15,10 @@
  * `s1 … sN`. Only `en` and `sv` are authored here; the other 12 locales fall
  * back to `en` via i18next's `fallbackLng`.
  *
- * Real, finished text. The ONLY placeholders are company-specific details that
- * a human must supply before store submission:
- *   [COMPANY_NAME], [COMPANY_ADDRESS], [SUPPORT_EMAIL], [COUNTRY]
+ * Real, finished text. Company details are filled in (Sandnell Holding,
+ * Bresättersvägen 23, 641 35 Katrineholm, Sweden) and all contact is routed
+ * through the web support form at https://sanka-skepp.replit.app/support — there
+ * is no support email address.
  */
 
 const UPDATED = '2026-07-21';
@@ -34,7 +35,7 @@ export default {
         sectionCount: '11',
         s1: {
           heading: 'Who we are',
-          body: 'Navixa is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is [COMPANY_NAME], [COMPANY_ADDRESS]. For any privacy question you can reach us at [SUPPORT_EMAIL].',
+          body: 'Navixa is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden. For any privacy question you can reach us via the support form at https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Accounts and sign-in',
@@ -66,15 +67,15 @@ export default {
         },
         s9: {
           heading: 'Your rights',
-          body: 'Under the GDPR and similar laws you have the right to access, rectify, erase, restrict and object to the processing of your personal data, and the right to data portability. You can exercise the most important rights yourself in the app: use Settings → Export data to download a copy of your data as JSON, and Settings → Account → Delete account to erase it. For any other request, contact [SUPPORT_EMAIL]. You also have the right to lodge a complaint with a supervisory authority — in Sweden this is the Swedish Authority for Privacy Protection (IMY).',
+          body: 'Under the GDPR and similar laws you have the right to access, rectify, erase, restrict and object to the processing of your personal data, and the right to data portability. You can exercise the most important rights yourself in the app: use Settings → Export data to download a copy of your data as JSON, and Settings → Account → Delete account to erase it. For any other request, contact us via the support form at https://sanka-skepp.replit.app/support. You also have the right to lodge a complaint with a supervisory authority — in Sweden this is the Swedish Authority for Privacy Protection (IMY).',
         },
         s10: {
           heading: 'Children',
-          body: 'Navixa is a strategy game suitable for a general audience. It contains no targeted advertising and no content directed at children. If you believe a child has provided us personal data in a way that requires action, contact us at [SUPPORT_EMAIL] and we will address it.',
+          body: 'Navixa is a strategy game suitable for a general audience. It contains no targeted advertising and no content directed at children. If you believe a child has provided us personal data in a way that requires action, contact us via the support form at https://sanka-skepp.replit.app/support and we will address it.',
         },
         s11: {
           heading: 'Changes and contact',
-          body: 'We may update this policy as the app evolves; the "Last updated" date above always reflects the current version, and material changes will be highlighted in the app. Questions or requests: [SUPPORT_EMAIL], [COMPANY_NAME], [COMPANY_ADDRESS].',
+          body: 'We may update this policy as the app evolves; the "Last updated" date above always reflects the current version, and material changes will be highlighted in the app. Questions or requests: use the support form at https://sanka-skepp.replit.app/support, or write to Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden.',
         },
       },
 
@@ -87,7 +88,7 @@ export default {
         sectionCount: '10',
         s1: {
           heading: 'Acceptance',
-          body: 'By downloading, accessing or playing Navixa you agree to these Terms of Service. If you do not agree, please do not use the app. These Terms are a legal agreement between you and [COMPANY_NAME], [COMPANY_ADDRESS].',
+          body: 'By downloading, accessing or playing Navixa you agree to these Terms of Service. If you do not agree, please do not use the app. These Terms are a legal agreement between you and Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden.',
         },
         s2: {
           heading: 'Licence to use the app',
@@ -119,11 +120,11 @@ export default {
         },
         s9: {
           heading: 'Limitation of liability',
-          body: 'To the maximum extent permitted by law, [COMPANY_NAME] is not liable for indirect, incidental, special or consequential damages, or for loss of data, progress or virtual items, arising from your use of the app. Nothing in these Terms limits liability that cannot be limited by law, including your statutory consumer rights.',
+          body: 'To the maximum extent permitted by law, Sandnell Holding is not liable for indirect, incidental, special or consequential damages, or for loss of data, progress or virtual items, arising from your use of the app. Nothing in these Terms limits liability that cannot be limited by law, including your statutory consumer rights.',
         },
         s10: {
           heading: 'Governing law and changes',
-          body: 'These Terms are governed by the laws of [COUNTRY], without regard to conflict-of-law rules, subject to any mandatory consumer protections in your country of residence. We may update these Terms as the app changes; the "Last updated" date reflects the current version and continued use after an update means you accept the revised Terms. Questions: [SUPPORT_EMAIL].',
+          body: 'These Terms are governed by the laws of Sweden, without regard to conflict-of-law rules, subject to any mandatory consumer protections in your country of residence. We may update these Terms as the app changes; the "Last updated" date reflects the current version and continued use after an update means you accept the revised Terms. Questions: use the support form at https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -156,7 +157,7 @@ export default {
         },
         s6: {
           heading: 'Moderation',
-          body: 'Breaking these guidelines can lead to content removal, a warning, temporary suspension or a permanent ban, depending on the severity and history. We aim to be fair and proportionate. If you think a decision was wrong, contact us at [SUPPORT_EMAIL].',
+          body: 'Breaking these guidelines can lead to content removal, a warning, temporary suspension or a permanent ban, depending on the severity and history. We aim to be fair and proportionate. If you think a decision was wrong, contact us via the support form at https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -189,7 +190,7 @@ export default {
         },
         s6: {
           heading: 'Appeals',
-          body: 'If you believe enforcement action was taken in error, you can appeal by contacting support at [SUPPORT_EMAIL]. Please include your display name and any relevant details so we can review your case.',
+          body: 'If you believe enforcement action was taken in error, you can appeal via the support form at https://sanka-skepp.replit.app/support. Please include your display name and any relevant details so we can review your case.',
         },
       },
 
@@ -222,7 +223,7 @@ export default {
         },
         s6: {
           heading: 'Export your data',
-          body: 'Before deleting, you can download a copy of your data with Settings → Export data. Questions: [SUPPORT_EMAIL].',
+          body: 'Before deleting, you can download a copy of your data with Settings → Export data. Questions: use the support form at https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -235,7 +236,7 @@ export default {
         sectionCount: '4',
         s1: {
           heading: 'How to get help',
-          body: 'Need a hand? Email us at [SUPPORT_EMAIL] and we will do our best to help. Many questions about accounts, data and fair play are already answered in the Privacy Policy, Terms of Service, Community Guidelines and Fair Play Policy documents in this section.',
+          body: 'Need a hand? Contact us via the support form at https://sanka-skepp.replit.app/support and we will do our best to help. Many questions about accounts, data and fair play are already answered in the Privacy Policy, Terms of Service, Community Guidelines and Fair Play Policy documents in this section.',
         },
         s2: {
           heading: 'What to include',
@@ -247,7 +248,7 @@ export default {
         },
         s4: {
           heading: 'Account and data requests',
-          body: 'You can export your data (Settings → Export data) or delete your account (Settings → Account → Delete account) yourself. For anything else, contact [SUPPORT_EMAIL].',
+          body: 'You can export your data (Settings → Export data) or delete your account (Settings → Account → Delete account) yourself. For anything else, contact us via the support form at https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -260,11 +261,11 @@ export default {
         sectionCount: '2',
         s1: {
           heading: 'Get in touch',
-          body: 'Navixa is operated by [COMPANY_NAME], [COMPANY_ADDRESS]. For support, feedback, or privacy and legal enquiries, email us at [SUPPORT_EMAIL].',
+          body: 'Navixa is operated by Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden. For support, feedback, or privacy and legal enquiries, use the support form at https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Privacy and legal requests',
-          body: 'For data-protection requests you can use the in-app tools (export and delete) or write to [SUPPORT_EMAIL]. You also have the right to contact your local data protection supervisory authority — in Sweden this is the Swedish Authority for Privacy Protection (IMY).',
+          body: 'For data-protection requests you can use the in-app tools (export and delete) or reach us via the support form at https://sanka-skepp.replit.app/support. You also have the right to contact your local data protection supervisory authority — in Sweden this is the Swedish Authority for Privacy Protection (IMY).',
         },
       },
 
@@ -285,7 +286,7 @@ export default {
         },
         s3: {
           heading: 'Full license texts',
-          body: 'The complete licence texts for all dependencies are available in the project’s source repository and can also be provided on request by emailing [SUPPORT_EMAIL].',
+          body: 'The complete licence texts for all dependencies are available in the project’s source repository and can also be provided on request via the support form at https://sanka-skepp.replit.app/support.',
         },
       },
     },
@@ -302,7 +303,7 @@ export default {
         sectionCount: '11',
         s1: {
           heading: 'Vilka vi är',
-          body: 'Navixa är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är [COMPANY_NAME], [COMPANY_ADDRESS]. Vid frågor om integritet når du oss på [SUPPORT_EMAIL].',
+          body: 'Navixa är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige. Vid frågor om integritet når du oss via supportformuläret på https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Konton och inloggning',
@@ -334,15 +335,15 @@ export default {
         },
         s9: {
           heading: 'Dina rättigheter',
-          body: 'Enligt GDPR och liknande lagar har du rätt till tillgång, rättelse, radering, begränsning och att invända mot behandlingen av dina personuppgifter, samt rätt till dataportabilitet. De viktigaste rättigheterna kan du utöva själv i appen: använd Inställningar → Exportera data för att ladda ner en kopia av dina uppgifter som JSON, och Inställningar → Konto → Radera konto för att radera dem. För övriga önskemål, kontakta [SUPPORT_EMAIL]. Du har även rätt att lämna in ett klagomål till en tillsynsmyndighet — i Sverige är detta Integritetsskyddsmyndigheten (IMY).',
+          body: 'Enligt GDPR och liknande lagar har du rätt till tillgång, rättelse, radering, begränsning och att invända mot behandlingen av dina personuppgifter, samt rätt till dataportabilitet. De viktigaste rättigheterna kan du utöva själv i appen: använd Inställningar → Exportera data för att ladda ner en kopia av dina uppgifter som JSON, och Inställningar → Konto → Radera konto för att radera dem. För övriga önskemål, kontakta oss via supportformuläret på https://sanka-skepp.replit.app/support. Du har även rätt att lämna in ett klagomål till en tillsynsmyndighet — i Sverige är detta Integritetsskyddsmyndigheten (IMY).',
         },
         s10: {
           heading: 'Barn',
-          body: 'Navixa är ett strategispel som passar en bred publik. Det innehåller ingen riktad annonsering och inget innehåll riktat till barn. Om du tror att ett barn har lämnat personuppgifter till oss på ett sätt som kräver åtgärd, kontakta oss på [SUPPORT_EMAIL] så åtgärdar vi det.',
+          body: 'Navixa är ett strategispel som passar en bred publik. Det innehåller ingen riktad annonsering och inget innehåll riktat till barn. Om du tror att ett barn har lämnat personuppgifter till oss på ett sätt som kräver åtgärd, kontakta oss via supportformuläret på https://sanka-skepp.replit.app/support så åtgärdar vi det.',
         },
         s11: {
           heading: 'Ändringar och kontakt',
-          body: 'Vi kan uppdatera denna policy i takt med att appen utvecklas; datumet "Senast uppdaterad" ovan speglar alltid den aktuella versionen, och väsentliga ändringar markeras i appen. Frågor eller önskemål: [SUPPORT_EMAIL], [COMPANY_NAME], [COMPANY_ADDRESS].',
+          body: 'Vi kan uppdatera denna policy i takt med att appen utvecklas; datumet "Senast uppdaterad" ovan speglar alltid den aktuella versionen, och väsentliga ändringar markeras i appen. Frågor eller önskemål: använd supportformuläret på https://sanka-skepp.replit.app/support, eller skriv till Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige.',
         },
       },
 
@@ -355,7 +356,7 @@ export default {
         sectionCount: '10',
         s1: {
           heading: 'Godkännande',
-          body: 'Genom att ladda ner, öppna eller spela Navixa godkänner du dessa användarvillkor. Om du inte godkänner dem ska du inte använda appen. Villkoren utgör ett juridiskt avtal mellan dig och [COMPANY_NAME], [COMPANY_ADDRESS].',
+          body: 'Genom att ladda ner, öppna eller spela Navixa godkänner du dessa användarvillkor. Om du inte godkänner dem ska du inte använda appen. Villkoren utgör ett juridiskt avtal mellan dig och Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige.',
         },
         s2: {
           heading: 'Licens att använda appen',
@@ -387,11 +388,11 @@ export default {
         },
         s9: {
           heading: 'Ansvarsbegränsning',
-          body: 'I den utsträckning lagen tillåter ansvarar [COMPANY_NAME] inte för indirekta skador, följdskador eller särskilda skador, eller för förlust av data, framsteg eller virtuella föremål, som uppstår genom din användning av appen. Inget i dessa villkor begränsar ansvar som inte kan begränsas enligt lag, inklusive dina lagstadgade konsumenträttigheter.',
+          body: 'I den utsträckning lagen tillåter ansvarar Sandnell Holding inte för indirekta skador, följdskador eller särskilda skador, eller för förlust av data, framsteg eller virtuella föremål, som uppstår genom din användning av appen. Inget i dessa villkor begränsar ansvar som inte kan begränsas enligt lag, inklusive dina lagstadgade konsumenträttigheter.',
         },
         s10: {
           heading: 'Tillämplig lag och ändringar',
-          body: 'Dessa villkor regleras av lagen i [COUNTRY], utan hänsyn till lagvalsregler och med förbehåll för tvingande konsumentskydd i ditt hemland. Vi kan uppdatera villkoren när appen förändras; datumet "Senast uppdaterad" speglar den aktuella versionen och fortsatt användning efter en uppdatering innebär att du godkänner de reviderade villkoren. Frågor: [SUPPORT_EMAIL].',
+          body: 'Dessa villkor regleras av lagen i Sverige, utan hänsyn till lagvalsregler och med förbehåll för tvingande konsumentskydd i ditt hemland. Vi kan uppdatera villkoren när appen förändras; datumet "Senast uppdaterad" speglar den aktuella versionen och fortsatt användning efter en uppdatering innebär att du godkänner de reviderade villkoren. Frågor: använd supportformuläret på https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -424,7 +425,7 @@ export default {
         },
         s6: {
           heading: 'Moderering',
-          body: 'Att bryta mot dessa regler kan leda till borttaget innehåll, en varning, tillfällig avstängning eller permanent avstängning, beroende på hur allvarligt det är och tidigare händelser. Vi strävar efter att vara rättvisa och proportionerliga. Om du tror att ett beslut var felaktigt, kontakta oss på [SUPPORT_EMAIL].',
+          body: 'Att bryta mot dessa regler kan leda till borttaget innehåll, en varning, tillfällig avstängning eller permanent avstängning, beroende på hur allvarligt det är och tidigare händelser. Vi strävar efter att vara rättvisa och proportionerliga. Om du tror att ett beslut var felaktigt, kontakta oss via supportformuläret på https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -457,7 +458,7 @@ export default {
         },
         s6: {
           heading: 'Överklagande',
-          body: 'Om du tror att en åtgärd vidtogs felaktigt kan du överklaga genom att kontakta supporten på [SUPPORT_EMAIL]. Ange gärna ditt visningsnamn och relevanta detaljer så att vi kan granska ditt ärende.',
+          body: 'Om du tror att en åtgärd vidtogs felaktigt kan du överklaga via supportformuläret på https://sanka-skepp.replit.app/support. Ange gärna ditt visningsnamn och relevanta detaljer så att vi kan granska ditt ärende.',
         },
       },
 
@@ -490,7 +491,7 @@ export default {
         },
         s6: {
           heading: 'Exportera dina uppgifter',
-          body: 'Innan du raderar kan du ladda ner en kopia av dina uppgifter via Inställningar → Exportera data. Frågor: [SUPPORT_EMAIL].',
+          body: 'Innan du raderar kan du ladda ner en kopia av dina uppgifter via Inställningar → Exportera data. Frågor: använd supportformuläret på https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -503,7 +504,7 @@ export default {
         sectionCount: '4',
         s1: {
           heading: 'Så får du hjälp',
-          body: 'Behöver du hjälp? Mejla oss på [SUPPORT_EMAIL] så gör vi vårt bästa för att hjälpa till. Många frågor om konton, uppgifter och rent spel besvaras redan i dokumenten Integritetspolicy, Användarvillkor, Communityregler och Policy för rent spel i det här avsnittet.',
+          body: 'Behöver du hjälp? Kontakta oss via supportformuläret på https://sanka-skepp.replit.app/support så gör vi vårt bästa för att hjälpa till. Många frågor om konton, uppgifter och rent spel besvaras redan i dokumenten Integritetspolicy, Användarvillkor, Communityregler och Policy för rent spel i det här avsnittet.',
         },
         s2: {
           heading: 'Vad du bör ta med',
@@ -515,7 +516,7 @@ export default {
         },
         s4: {
           heading: 'Konto- och datauppgifter',
-          body: 'Du kan exportera dina uppgifter (Inställningar → Exportera data) eller radera ditt konto (Inställningar → Konto → Radera konto) själv. För övrigt, kontakta [SUPPORT_EMAIL].',
+          body: 'Du kan exportera dina uppgifter (Inställningar → Exportera data) eller radera ditt konto (Inställningar → Konto → Radera konto) själv. För övrigt, kontakta oss via supportformuläret på https://sanka-skepp.replit.app/support.',
         },
       },
 
@@ -528,11 +529,11 @@ export default {
         sectionCount: '2',
         s1: {
           heading: 'Kontakta oss',
-          body: 'Navixa drivs av [COMPANY_NAME], [COMPANY_ADDRESS]. För support, återkoppling eller frågor om integritet och juridik, mejla oss på [SUPPORT_EMAIL].',
+          body: 'Navixa drivs av Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige. För support, återkoppling eller frågor om integritet och juridik, använd supportformuläret på https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Integritets- och juridiska ärenden',
-          body: 'För dataskyddsärenden kan du använda verktygen i appen (export och radering) eller skriva till [SUPPORT_EMAIL]. Du har även rätt att kontakta din lokala tillsynsmyndighet för dataskydd — i Sverige är detta Integritetsskyddsmyndigheten (IMY).',
+          body: 'För dataskyddsärenden kan du använda verktygen i appen (export och radering) eller nå oss via supportformuläret på https://sanka-skepp.replit.app/support. Du har även rätt att kontakta din lokala tillsynsmyndighet för dataskydd — i Sverige är detta Integritetsskyddsmyndigheten (IMY).',
         },
       },
 
@@ -553,7 +554,7 @@ export default {
         },
         s3: {
           heading: 'Fullständiga licenstexter',
-          body: 'De fullständiga licenstexterna för alla beroenden finns i projektets källkodsförråd och kan även tillhandahållas på begäran genom att mejla [SUPPORT_EMAIL].',
+          body: 'De fullständiga licenstexterna för alla beroenden finns i projektets källkodsförråd och kan även tillhandahållas på begäran via supportformuläret på https://sanka-skepp.replit.app/support.',
         },
       },
     },

@@ -139,7 +139,6 @@ export default {
       placeholderNote:
         'Company name, address and contact details (shown as [PLACEHOLDER] tokens) must be filled in before store submission.',
       openExternal: 'Open full document',
-      contactEmailLabel: 'Email us',
     },
     push: {
       enableTitle: 'Stay in the game',
@@ -299,7 +298,6 @@ export default {
       placeholderNote:
         'Företagsnamn, adress och kontaktuppgifter (visas som [PLACEHOLDER]-taggar) måste fyllas i före inlämning till butiken.',
       openExternal: 'Öppna hela dokumentet',
-      contactEmailLabel: 'Mejla oss',
     },
     push: {
       enableTitle: 'Håll dig i spelet',
