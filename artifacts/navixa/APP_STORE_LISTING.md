@@ -9,6 +9,9 @@ Sjöslag. Rank. Vänner.
 ## Kampanjtext (max 170 tecken, kan ändras utan ny version)
 Nyhet: Dagliga matcher! Spela flera sjöslag samtidigt och få en notis när det är din tur. Utmana vännerna — vem tar rank 1?
 
+## Promotional text (English, max 170 chars)
+New: Daily matches! Play several sea battles at once and get notified when it's your turn. Challenge your friends — who takes rank 1?
+
 ## Beskrivning (svenska)
 SÄNK SKEPP. KLÄTTRA I RANK. BLI AMIRAL.
 
@@ -78,8 +81,10 @@ battleship,sea battle,board game,strategy,online,multiplayer,ranked,tournament,f
 ## Länkar (App Store Connect)
 - Support-URL: https://sanka-skepp.replit.app/support
 - Marknadsförings-URL: https://sanka-skepp.replit.app
-- Integritetspolicy: https://sanka-skepp.replit.app/legal/privacy
-- Användarvillkor: https://sanka-skepp.replit.app/legal/terms
+- Integritetspolicy (svenska): https://sanka-skepp.replit.app/legal/privacy?lang=sv
+- Privacy policy (English): https://sanka-skepp.replit.app/legal/privacy?lang=en
+- Användarvillkor (svenska): https://sanka-skepp.replit.app/legal/terms?lang=sv
+- Terms of service (English): https://sanka-skepp.replit.app/legal/terms?lang=en
 
 ## Övrigt
 - Kategori: Spel > Brädspel (sekundär: Strategi)
