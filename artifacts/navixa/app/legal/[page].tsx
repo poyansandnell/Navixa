@@ -72,9 +72,15 @@ const PAGES: Record<LegalPage, PageConfig> = {
 };
 
 export default function LegalPageScreen() {
-  const { page } = useLocalSearchParams<{ page: string }>();
-  const { t } = useTranslation();
+  const { page, lang } = useLocalSearchParams<{ page: string; lang?: string }>();
+  const { t: tDefault, i18n } = useTranslation();
   const colors = useColors();
+
+  // Allow forcing the language via ?lang=sv / ?lang=en (needed so App Store
+  // reviewers get a stable Swedish/English policy URL regardless of browser
+  // locale).
+  const forcedLang = lang === 'sv' || lang === 'en' ? lang : null;
+  const t = forcedLang ? i18n.getFixedT(forcedLang) : tDefault;
 
   // The old support/contact pages now live in the dedicated /support portal
   // (FAQ + contact form). Redirect so existing links keep working.
