@@ -115,6 +115,17 @@ const server = http.createServer((req, res) => {
     pathname = pathname.slice(basePath.length) || '/';
   }
 
+  if (pathname === '/qr-code-styling.js') {
+    const content = fs.readFileSync(
+      path.resolve(__dirname, 'templates', 'qr-code-styling.js'),
+    );
+    res.writeHead(200, {
+      'content-type': 'application/javascript; charset=utf-8',
+      'cache-control': 'public, max-age=86400',
+    });
+    return res.end(content);
+  }
+
   if (pathname === '/' || pathname === '/manifest') {
     const platform = req.headers['expo-platform'];
     if (platform === 'ios' || platform === 'android') {
