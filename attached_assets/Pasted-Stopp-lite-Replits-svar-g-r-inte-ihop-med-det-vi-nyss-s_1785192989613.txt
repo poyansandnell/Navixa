@@ -1,0 +1,82 @@
+Stopp lite — Replits svar går inte ihop med det vi nyss såg i din terminal.
+
+I din lokala Navixa-mapp finns bevisligen:
+
+lib/supabase.ts
+
+och minst 15 filer importerar:
+
+import { supabase } from '@/lib/supabase';
+
+Replit säger samtidigt att det inte finns någon Supabase-kod alls. Det betyder nästan säkert att Replit har analyserat en annan version, gren eller projektmapp än den du byggde från.
+
+Bygg därför inte ännu och lägg inte in en platshållare i eas.json.
+
+Skicka detta till Replit:
+
+⸻
+
+Kontrollera att du arbetar i rätt Navixa-projekt
+
+Ditt svar motsäger den kod som finns lokalt i projektet som användes för EAS-bygget.
+
+Den lokala projektmappen är:
+
+artifacts/navixa
+
+I den versionen finns:
+
+lib/supabase.ts
+
+Filen importeras bland annat av:
+
+app/devtools.tsx
+app/online/result.tsx
+features/auth/AuthContext.tsx
+features/auth/authService.ts
+features/onlineMatch/client.ts
+features/onlineMatch/realtime.ts
+features/tournaments/service.ts
+features/social/api.ts
+features/shop/service.ts
+features/history/api.ts
+features/notifications/push.ts
+
+Gör nu följande innan fler ändringar görs:
+
+1. Skriv ut exakt repository, branch, projektmapp och senaste commit-hash som du analyserar.
+2. Kör:
+
+pwd
+git branch --show-current
+git rev-parse HEAD
+find . -path "*/lib/supabase.ts"
+grep -R "@/lib/supabase" -n . --exclude-dir=node_modules --exclude-dir=.git
+grep -R "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY\|EXPO_PUBLIC_DOMAIN" -n . --exclude-dir=node_modules --exclude-dir=.git
+
+3. Förklara varför du säger att Supabase inte finns när den finns i den lokala versionen som byggts.
+4. Kontrollera om dina ändringar har commitats och pushats till samma GitHub-repository och branch som EAS bygger från.
+5. Kontrollera att domänen sanka-skepp.replit.app verkligen är rätt produktionsserver och inte en gammal eller påhittad fallback.
+6. Lägg inte en riktig Clerk-nyckel eller en platshållare direkt i eas.json. Ändra i stället konfigurationen så att nyckeln hämtas från EAS Production Environment Variables.
+7. Återkom med:
+    * repository-URL
+    * branch
+    * commit-hash
+    * fullständig lista över ändrade filer
+    * den exakta EAS-projektidentifieraren
+    * vilka environment variables som krävs
+    * korrekt produktionsdomän
+
+Gör inga ytterligare kodändringar förrän versionsskillnaden är utredd.
+
+⸻
+
+Det säkraste upplägget är sedan att lägga Clerk-nyckeln i EAS, inte direkt i filen:
+
+eas env:create --environment production --name EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+och domänen:
+
+eas env:create --environment production --name EXPO_PUBLIC_DOMAIN
+
+Men först måste vi säkerställa att Replit och din terminal verkligen arbetar med samma Navixa-version. Just nu verkar de inte göra det.
