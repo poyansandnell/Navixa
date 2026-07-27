@@ -34,6 +34,7 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+const CLERK_PROXY_URL = process.env.EXPO_PUBLIC_CLERK_PROXY_URL ?? '';
 
 /**
  * Rendered instead of the app when the Clerk publishable key is missing
@@ -206,7 +207,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      proxyUrl={CLERK_PROXY_URL || undefined}
+      tokenCache={tokenCache}
+    >
       <ClerkLoaded>
         <SafeAreaProvider>
           <ErrorBoundary>
