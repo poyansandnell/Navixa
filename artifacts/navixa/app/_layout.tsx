@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { StyleSheet, Text as RNText, View } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -33,6 +34,50 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '';
+
+/**
+ * Rendered instead of the app when the Clerk publishable key is missing
+ * (e.g. an EAS build produced without the required env vars). A standalone
+ * build must never hard-crash at startup over configuration — surface a
+ * clear, user-friendly error instead.
+ */
+function MissingConfigScreen() {
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
+  return (
+    <View style={missingConfigStyles.container}>
+      <RNText style={missingConfigStyles.title}>Navixa</RNText>
+      <RNText style={missingConfigStyles.body}>
+        The app could not start because it is missing its sign-in
+        configuration. Please update to the latest version, or contact support
+        at https://sanka-skepp.replit.app/support if the problem persists.
+      </RNText>
+    </View>
+  );
+}
+
+const missingConfigStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0b1220',
+    padding: 32,
+  },
+  title: {
+    color: '#ffffff',
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  body: {
+    color: '#94a3b8',
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+});
 
 /**
  * Registers the Clerk session-token getter with the REST + Socket clients so
@@ -150,6 +195,15 @@ export default function RootLayout() {
   }, [isDark]);
 
   if (!fontsLoaded && !fontError) return null;
+
+  if (!CLERK_PUBLISHABLE_KEY) {
+    console.error(
+      '[startup] EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY is missing — this build was ' +
+        'produced without the required env vars. Rendering config-error screen ' +
+        'instead of crashing.',
+    );
+    return <MissingConfigScreen />;
+  }
 
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>

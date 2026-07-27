@@ -12,7 +12,11 @@
  * which is unwrapped here into a thrown `ApiError`.
  */
 
-const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
+// In development the Replit workflow injects EXPO_PUBLIC_DOMAIN. Standalone
+// builds (EAS / TestFlight) have no such env, so fall back to the production
+// domain instead of producing "https://undefined" and failing every request.
+const PRODUCTION_DOMAIN = 'sanka-skepp.replit.app';
+const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN || PRODUCTION_DOMAIN}`;
 
 export class ApiError extends Error {
   code: string;

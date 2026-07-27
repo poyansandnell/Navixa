@@ -13,7 +13,10 @@
  */
 import { io, type Socket } from 'socket.io-client';
 
-const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN}`;
+// Same fallback rule as lib/api.ts: dev workflow injects EXPO_PUBLIC_DOMAIN,
+// standalone builds (EAS / TestFlight) fall back to the production domain.
+const PRODUCTION_DOMAIN = 'sanka-skepp.replit.app';
+const BASE_URL = `https://${process.env.EXPO_PUBLIC_DOMAIN || PRODUCTION_DOMAIN}`;
 
 type TokenGetter = () => Promise<string | null> | string | null;
 

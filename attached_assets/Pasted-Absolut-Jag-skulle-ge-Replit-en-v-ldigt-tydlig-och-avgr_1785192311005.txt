@@ -1,0 +1,82 @@
+Absolut. Jag skulle ge Replit en väldigt tydlig och avgränsad uppgift så att den inte börjar skriva om appen, utan bara felsöker.
+
+⸻
+
+Instruktion till Replit
+
+Du ska INTE bygga om appen eller ändra funktionalitet. Endast analysera och åtgärda orsaken till att iOS-versionen kraschar direkt vid uppstart i TestFlight.
+
+Fakta
+
+* Appen fungerar i Expo Go.
+* iOS-builden via EAS installeras korrekt.
+* Appen kraschar direkt när den öppnas i TestFlight.
+* Android fungerar.
+* EAS Production har inga environment variables.
+* lib/supabase.ts innehåller:
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    "Missing Supabase configuration..."
+  );
+}
+
+Projektet använder supabase i bland annat:
+
+* AuthContext
+* authService
+* onlineMatch
+* tournaments
+* social
+* notifications
+* history
+* admin
+* shop
+
+Det finns däremot inga riktiga Supabase-nycklar kvar i projektet och inga EAS Environment Variables.
+
+Din uppgift
+
+1. Undersök om projektet fortfarande använder Supabase eller om det tidigare migrerades till en egen backend.
+2. Om Supabase inte längre används:
+    * ta bort beroendet på ett säkert sätt
+    * ersätt alla importer
+    * använd den nya backend som redan finns i projektet
+    * ta inte bort någon funktionalitet.
+3. Om Supabase fortfarande används:
+    * identifiera var de riktiga credentials ska hämtas ifrån
+    * konfigurera projektet så att EAS Production fungerar
+    * använd inte hårdkodade nycklar.
+4. Säkerställ att appen aldrig kraschar endast för att environment variables saknas.
+
+Istället för:
+
+throw new Error(...)
+
+ska appen:
+
+* logga ett tydligt fel
+* visa ett användarvänligt felmeddelande
+* eller använda en fallback
+
+Appen får inte avslutas direkt.
+
+5. Kontrollera hela uppstartsflödet och identifiera alla andra ställen som kan orsaka en omedelbar krasch innan första skärmen visas.
+6. Förklara exakt varför TestFlight kraschar men Expo Go fungerar.
+
+Viktigt
+
+* Ändra inte UI.
+* Ändra inte design.
+* Ändra inte spelregler.
+* Ändra inte databasstruktur.
+* Uppdatera endast den kod som krävs för att eliminera uppstartskraschen.
+
+När analysen är klar vill jag ha:
+
+* den exakta orsaken till kraschen
+* vilka filer som ändrats
+* varför ändringen löser problemet
+* en bedömning av hur säker du är på lösningen innan något commitas.
