@@ -19,6 +19,7 @@
       "bundleIdentifier": "com.navixa.app",
       "buildNumber": "1",
       "associatedDomains": [
+        "applinks:sanka-skepp.replit.app",
         "applinks:sanka-skepp.replit.app"
       ],
       "infoPlist": {
@@ -49,7 +50,28 @@
             "BROWSABLE",
             "DEFAULT"
           ]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "sanka-skepp.replit.app",
+              "pathPrefix": "/join"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
+      ],
+      "permissions": [
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS"
       ]
     },
     "web": {
@@ -81,6 +103,12 @@
       "eas": {
         "projectId": "1bd39e84-5f09-44b9-b3f5-c7e30a6b8b92"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1bd39e84-5f09-44b9-b3f5-c7e30a6b8b92"
     }
   }
 }
