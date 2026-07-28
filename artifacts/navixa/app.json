@@ -18,9 +18,12 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.navixa.app",
       "buildNumber": "1",
-      "associatedDomains": ["applinks:sanka-skepp.replit.app"],
+      "associatedDomains": [
+        "applinks:sanka-skepp.replit.app"
+      ],
       "infoPlist": {
-        "NSContactsUsageDescription": "Navixa använder dina kontakter för att hitta vänner som redan spelar. Adresserna hashas på din enhet och lämnar den aldrig i klartext. / Navixa uses your contacts to find friends who already play. Addresses are hashed on your device and never leave it in plain text."
+        "NSContactsUsageDescription": "Navixa använder dina kontakter för att hitta vänner som redan spelar. Adresserna hashas på din enhet och lämnar den aldrig i klartext. / Navixa uses your contacts to find friends who already play. Addresses are hashed on your device and never leave it in plain text.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -42,7 +45,10 @@
               "pathPrefix": "/join"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -70,6 +76,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1bd39e84-5f09-44b9-b3f5-c7e30a6b8b92"
+      }
     }
   }
 }
