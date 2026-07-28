@@ -9,7 +9,9 @@
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "expo lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -72,6 +74,23 @@
     "i18next": "^26.3.6",
     "react-i18next": "^17.0.10",
     "socket.io-client": "^4.8.3",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.14",
+    "expo": "~54.0.36",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "@clerk/expo"
+        ]
+      },
+      "android": {
+        "exclude": [
+          "@clerk/expo"
+        ]
+      }
+    }
   }
 }
