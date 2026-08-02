@@ -13,8 +13,13 @@
 export default {
   en: {
     support: {
-      title: 'Support & help',
+      title: 'Navixa Battle Support',
       subtitle: 'Find answers fast, or send us a message — we read every ticket.',
+      directEmailIntro: 'You can also email us directly at',
+      companyLine: 'Navixa Battle is operated by Catch Me AB (publ).',
+      legalHeading: 'Legal',
+      privacyLink: 'Privacy Policy',
+      termsLink: 'Terms of Service',
       faqHeading: 'Frequently asked questions',
       contactHeading: 'Contact us',
       contactIntro:
@@ -73,8 +78,13 @@ export default {
   },
   sv: {
     support: {
-      title: 'Support & hjälp',
+      title: 'Navixa Battle Support',
       subtitle: 'Hitta svar snabbt, eller skicka ett meddelande — vi läser varje ärende.',
+      directEmailIntro: 'Du kan också mejla oss direkt på',
+      companyLine: 'Navixa Battle drivs av Catch Me AB (publ).',
+      legalHeading: 'Juridik',
+      privacyLink: 'Integritetspolicy',
+      termsLink: 'Användarvillkor',
       faqHeading: 'Vanliga frågor',
       contactHeading: 'Kontakta oss',
       contactIntro:

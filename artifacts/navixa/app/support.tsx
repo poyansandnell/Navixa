@@ -13,9 +13,9 @@
  * accepts the ticket with the supplied email.
  */
 import React from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { useColors } from '@/hooks/useColors';
@@ -25,6 +25,9 @@ import { TextField } from '@/features/auth';
 import { apiFetch } from '@/lib/api';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Public support email shown on the page (App Review requirement). */
+const SUPPORT_EMAIL = 'poyan.sandnell@catchme.se';
 
 /** UI category (drives the label); mapped to the server enum on submit. */
 type Category = 'account' | 'gameplay' | 'billing' | 'bug' | 'privacy' | 'other';
@@ -313,6 +316,44 @@ export default function SupportScreen() {
             />
           </Card>
         )}
+
+        <Spacer size="xl" />
+
+        {/* Direct email + company + legal links (App Review requirements) */}
+        <Card>
+          <Text variant="body" color="muted">
+            {t('support.directEmailIntro')}{' '}
+            <Text
+              variant="bodyMedium"
+              color="primary"
+              onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}`)}
+              accessibilityRole="link"
+            >
+              {SUPPORT_EMAIL}
+            </Text>
+          </Text>
+          <Spacer size="sm" />
+          <Text variant="body" color="muted">
+            {t('support.companyLine')}
+          </Text>
+          <Spacer size="md" />
+          <View style={styles.legalRow}>
+            <Link href="/legal/privacy" asChild>
+              <Pressable accessibilityRole="link">
+                <Text variant="bodyMedium" color="primary">
+                  {t('support.privacyLink')}
+                </Text>
+              </Pressable>
+            </Link>
+            <Link href="/legal/terms" asChild>
+              <Pressable accessibilityRole="link">
+                <Text variant="bodyMedium" color="primary">
+                  {t('support.termsLink')}
+                </Text>
+              </Pressable>
+            </Link>
+          </View>
+        </Card>
       </View>
     </Screen>
   );
@@ -354,6 +395,10 @@ const styles = StyleSheet.create({
     minHeight: 120,
     textAlignVertical: 'top',
     ...typography.body,
+  },
+  legalRow: {
+    flexDirection: 'row',
+    gap: spacing.xl,
   },
   errorRow: {
     flexDirection: 'row',
