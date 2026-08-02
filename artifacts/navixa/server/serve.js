@@ -14,6 +14,10 @@ const fs = require('fs');
 const path = require('path');
 
 const STATIC_ROOT = path.resolve(__dirname, '..', 'static-build');
+const WEB_ROOT = path.join(STATIC_ROOT, 'web');
+// Expo Router web routes that must be reachable in production (App Review:
+// support page + legal pages). Served as the SPA's index.html.
+const WEB_ROUTE_PREFIXES = ['/support', '/legal'];
 const TEMPLATE_PATH = path.resolve(__dirname, 'templates', 'landing-page.html');
 const basePath = (process.env.BASE_PATH || '/').replace(/\/+$/, '');
 
@@ -83,25 +87,32 @@ function serveLandingPage(req, res, landingPageTemplate, appName) {
 
 function serveStaticFile(urlPath, res) {
   const safePath = path.normalize(urlPath).replace(/^(\.\.(\/|\\|$))+/, '');
-  const filePath = path.join(STATIC_ROOT, safePath);
 
-  if (!filePath.startsWith(STATIC_ROOT)) {
-    res.writeHead(403);
-    res.end('Forbidden');
+  // Try the Expo Go build root first, then the web export (JS/assets for the
+  // support/legal web pages live under static-build/web).
+  for (const root of [STATIC_ROOT, WEB_ROOT]) {
+    const filePath = path.join(root, safePath);
+
+    if (!filePath.startsWith(root)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
+
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+      continue;
+    }
+
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const content = fs.readFileSync(filePath);
+    res.writeHead(200, { 'content-type': contentType });
+    res.end(content);
     return;
   }
 
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    res.writeHead(404);
-    res.end('Not Found');
-    return;
-  }
-
-  const ext = path.extname(filePath).toLowerCase();
-  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-  const content = fs.readFileSync(filePath);
-  res.writeHead(200, { 'content-type': contentType });
-  res.end(content);
+  res.writeHead(404);
+  res.end('Not Found');
 }
 
 const landingPageTemplate = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
@@ -124,6 +135,21 @@ const server = http.createServer((req, res) => {
       'cache-control': 'public, max-age=86400',
     });
     return res.end(content);
+  }
+
+  // Web SPA routes (support/legal pages)
+  if (
+    WEB_ROUTE_PREFIXES.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    )
+  ) {
+    const indexPath = path.join(WEB_ROOT, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      return res.end(fs.readFileSync(indexPath));
+    }
+    res.writeHead(404);
+    return res.end('Not Found');
   }
 
   if (pathname === '/' || pathname === '/manifest') {

@@ -521,6 +521,32 @@ function updateManifests(manifests, timestamp, baseUrl, assetsByHash) {
   console.log('Manifests updated');
 }
 
+function exportWebBuild(expoPublicDomain, expoPublicReplId) {
+  console.log('Exporting web build (support/legal pages)...');
+  const outDir = path.join(projectRoot, 'static-build', 'web');
+  const result = require('child_process').spawnSync(
+    'pnpm',
+    ['exec', 'expo', 'export', '--platform', 'web', '--output-dir', outDir],
+    {
+      stdio: 'inherit',
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        CI: '1',
+        EXPO_PUBLIC_DOMAIN: expoPublicDomain,
+        EXPO_PUBLIC_REPL_ID: expoPublicReplId,
+      },
+    },
+  );
+  if (result.status !== 0) {
+    exitWithError(`Web export failed with exit code ${result.status}`);
+  }
+  if (!fs.existsSync(path.join(outDir, 'index.html'))) {
+    exitWithError('Web export produced no index.html');
+  }
+  console.log('Web build exported');
+}
+
 async function main() {
   console.log('Building static Expo Go deployment...');
 
@@ -533,6 +559,10 @@ async function main() {
 
   prepareDirectories(timestamp);
   clearMetroCache();
+
+  // Web export runs its own in-process bundler (no port needed) and must
+  // finish before the Expo Go Metro server starts.
+  exportWebBuild(domain, expoPublicReplId);
 
   await startMetro(domain, expoPublicReplId);
 
