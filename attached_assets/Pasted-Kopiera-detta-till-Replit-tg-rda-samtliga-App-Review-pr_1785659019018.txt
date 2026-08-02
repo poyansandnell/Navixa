@@ -1,0 +1,144 @@
+Kopiera detta till Replit:
+
+⸻
+
+Åtgärda samtliga App Review-problem för Navixa Battle
+
+Apple har avvisat Navixa Battle 1.0 (Build 6) enligt:
+
+* Guideline 4.8 – Login Services
+* Guideline 2.1 – Demo account fungerar inte
+* Guideline 1.5 – Support URL fungerar inte
+
+Åtgärda allt nedan i den aktuella produktionsversionen. Ändra inte spelregler, design eller annan funktionalitet utöver det som krävs.
+
+1. Implementera Sign in with Apple korrekt
+
+Appen använder Clerk. Lägg till Continue with Apple som ett likvärdigt inloggningsalternativ på samma inloggningsskärm som övriga alternativ.
+
+Krav:
+
+* Använd Clerks befintliga autentisering och produktionsmiljö.
+* Implementera Apples OAuth-flöde på ett sätt som fungerar i Expo/EAS och TestFlight.
+* Stöd Hide My Email.
+* Kontot ska kopplas till samma profil- och användarsystem som vanliga konton.
+* Knappen ska följa Apples designkrav och vara minst lika synlig som övriga sociala inloggningsalternativ.
+* Säkerställ att återgången från Apple-inloggningen öppnar appen korrekt.
+* Aktivera nödvändiga iOS-capabilities och redirect-/callback-adresser.
+* Förstör inte den tidigare iOS-fixen där @clerk/expo exkluderas från native autolinking. Använd ett JS-/OAuth-baserat flöde som inte återintroducerar ClerkKit, ClerkKitUI eller CocoaPods/SPM-felet.
+* Kör lokal expo prebuild och pod install och verifiera att inga ClerkKit-SPM-beroenden läggs till.
+* Kontrollera att pod install avslutas med lyckat resultat.
+
+2. Skapa ett permanent Apple Review-konto i produktionen
+
+Skapa kontot direkt i produktionsmiljön, server-side via Clerk/backendens säkra administrationsfunktion. Kontot får inte skapas i mobilen eller genom en publik oskyddad endpoint.
+
+Använd:
+
+E-post: apple.review@catchme.se
+Lösenord: NavixaReview2026!
+
+Krav:
+
+* Kontot ska finnas i Clerks live-/produktionsmiljö, inte development.
+* E-postadressen ska vara verifierad.
+* Ingen e-postkod, 2FA, CAPTCHA eller ytterligare onboarding får krävas vid Apples inloggning.
+* Kontot ska kunna logga in direkt med e-post och lösenord.
+* Det ska ha full tillgång till alla funktioner som en vanlig användare har.
+* Skapa tillhörande profil/post i Replit-produktionsdatabasen om systemet kräver det.
+* Lägg gärna in exempeldata, exempelvis slutförd onboarding, statistik och matchhistorik, men ge inte administratörsbehörighet.
+* Skapa inte dubbletter om kontot redan finns.
+* Testa kontot mot den publicerade produktionsservern från en ren session.
+* Rapportera uttryckligen att inloggningen har testats och fungerar.
+
+Använd inte ett personligt konto eller tidigare uppgifter. Lägg aldrig Clerk secret key eller annan serverhemlighet i mobilappen, GitHub eller klientkod.
+
+3. Skapa en fungerande publik supportsida
+
+Säkerställ att denna exakta adress fungerar utan inloggning:
+
+https://sanka-skepp.replit.app/support
+
+Sidan ska:
+
+* svara med HTTP 200
+* fungera både på mobil och dator
+* inte visa 404, serverfel eller kräva autentisering
+* visa rubriken Navixa Battle Support
+* innehålla supportadress: poyan.sandnell@catchme.se
+* innehålla kort information om hur användare får hjälp
+* länka till fungerande Privacy Policy och Terms of Service
+* visa företaget Catch Me AB (publ)
+
+Verifiera även att länkarna till integritetspolicy och villkor returnerar HTTP 200.
+
+4. Produktionskontroll
+
+Verifiera hela flödet mot:
+
+https://sanka-skepp.replit.app
+
+Kontrollera:
+
+* e-post/lösenordsinloggning
+* Sign in with Apple
+* Clerk-proxy
+* API-anrop
+* websockets/realtime
+* profilskapande
+* utloggning och ny inloggning
+* support-, privacy- och terms-sidor
+* att appen inte kraschar om ett externt autentiseringsanrop misslyckas
+* att inga utvecklingsnycklar, localhost-adresser eller pk_test_ används i produktionen
+
+5. Tester och releasekontroller
+
+Kör minst:
+
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm test
+npx expo-doctor
+npx expo prebuild --clean --platform ios
+cd ios && pod install
+
+Verifiera särskilt att loggen inte innehåller:
+
+ClerkKit
+ClerkKitUI
+undefined method 'package_product_dependencies'
+
+Återställ eller ignorera genererade native-mappar enligt projektets befintliga strategi efter kontrollen.
+
+6. GitHub
+
+När allt är testat:
+
+* committa ändringarna
+* pusha endast till poyansandnell/Navixa
+* branch main
+* inkludera inga hemligheter, produktionslösenord eller servernycklar i Git
+
+7. Slutrapport
+
+Rapportera:
+
+1. Exakt vilka filer som ändrades.
+2. Hur Sign in with Apple implementerades.
+3. Vilka Apple-/Clerk-inställningar som fortfarande kräver ett manuellt klick från mig, om några.
+4. Att review-kontot skapades i produktionen och testades.
+5. Vilken produktionsprofil som skapades för kontot.
+6. HTTP-status för:
+    * /support
+    * integritetspolicyn
+    * användarvillkoren
+7. Resultatet av typecheck, tester, Expo Doctor, prebuild och pod install.
+8. Senaste commit-hash.
+9. Exakta kommandon för nästa EAS Build och Submit.
+10. En färdig engelsk text att svara Apple i Resolution Center.
+
+Gör inte bara en analys. Genomför alla möjliga ändringar och produktionskontroller nu. Om Replits behörigheter förhindrar skapandet av kontot eller aktiveringen av Apple-inloggning, stanna vid just den punkten och visa exakt vad jag måste klicka på och vilket värde jag ska ange.
+
+⸻
+
+Viktigt: Lösenordet ligger med i instruktionen till Replit för att kontot ska kunna skapas. När Apple har godkänt appen bör vi byta det till ett nytt unikt lösenord.
