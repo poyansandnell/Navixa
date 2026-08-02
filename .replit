@@ -26,6 +26,7 @@ EXPO_PUBLIC_SUPABASE_URL = "https://dzvliczifopxkwpcikzf.supabase.co"
 
 [userenv.production]
 APP_PUBLIC_URL = "https://sanka-skepp.replit.app"
+REVIEW_SETUP_TOKEN = "40bcf769593891c40840da96c2f9d7fc68bbcd5bbfed1c05aded1aa7f95fb5d2"
 
 [nix]
 channel = "stable-25_05"
