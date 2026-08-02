@@ -142,6 +142,7 @@ async function startMetro(expoPublicDomain, expoPublicReplId) {
     ...process.env,
     EXPO_PUBLIC_DOMAIN: expoPublicDomain,
     EXPO_PUBLIC_REPL_ID: expoPublicReplId,
+    EXPO_PUBLIC_CLERK_PROXY_URL: getClerkProxyUrl(expoPublicDomain),
   };
 
   if (expoPublicReplId) {
@@ -521,6 +522,15 @@ function updateManifests(manifests, timestamp, baseUrl, assetsByHash) {
   console.log('Manifests updated');
 }
 
+function getClerkProxyUrl(expoPublicDomain) {
+  // Clerk must load through the app's proxy in production — the standalone
+  // clerk.<domain> subdomain derived from the publishable key does not exist.
+  return (
+    process.env.EXPO_PUBLIC_CLERK_PROXY_URL ||
+    `https://${expoPublicDomain}/api/__clerk`
+  );
+}
+
 function exportWebBuild(expoPublicDomain, expoPublicReplId) {
   console.log('Exporting web build (support/legal pages)...');
   const outDir = path.join(projectRoot, 'static-build', 'web');
@@ -535,6 +545,7 @@ function exportWebBuild(expoPublicDomain, expoPublicReplId) {
         CI: '1',
         EXPO_PUBLIC_DOMAIN: expoPublicDomain,
         EXPO_PUBLIC_REPL_ID: expoPublicReplId,
+        EXPO_PUBLIC_CLERK_PROXY_URL: getClerkProxyUrl(expoPublicDomain),
       },
     },
   );
