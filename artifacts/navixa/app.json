@@ -19,7 +19,6 @@
       "bundleIdentifier": "com.navixa.app",
       "buildNumber": "1",
       "associatedDomains": [
-        "applinks:sanka-skepp.replit.app",
         "applinks:sanka-skepp.replit.app"
       ],
       "infoPlist": {
@@ -36,21 +35,6 @@
         "backgroundColor": "#0A1628"
       },
       "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "https",
-              "host": "sanka-skepp.replit.app",
-              "pathPrefix": "/join"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        },
         {
           "action": "VIEW",
           "autoVerify": true,
