@@ -153,7 +153,36 @@ router.post(
       );
     }
 
-    res.json({ ok: true, status: resp.status });
+    // Also set bypass_client_trust on the review user itself — the
+    // documented, per-user escape hatch in Clerk's Backend API. This is the
+    // reliable fix: the instance-level PATCH above may be ignored.
+    const users = await clerkClient.users.getUserList({
+      emailAddress: [REVIEW_EMAIL],
+    });
+    let bypassSet = false;
+    if (users.data.length > 0) {
+      const userResp = await fetch(
+        `https://api.clerk.com/v1/users/${users.data[0].id}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${secretKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ bypass_client_trust: true }),
+        },
+      );
+      if (!userResp.ok) {
+        const text = await userResp.text().catch(() => "");
+        throw appError(
+          "INTERNAL",
+          `Clerk user PATCH failed: ${userResp.status} ${text.slice(0, 200)}`,
+        );
+      }
+      bypassSet = true;
+    }
+
+    res.json({ ok: true, status: resp.status, bypassSet });
   }),
 );
 
