@@ -115,4 +115,47 @@ router.post(
   }),
 );
 
+/**
+ * POST /api/review-account/disable-client-trust
+ *
+ * One-off, token-guarded call that disables Clerk's "Client Trust"
+ * (new-device email verification) on THIS server's Clerk instance, so the
+ * Apple review account can sign in with only email + password on a fresh
+ * device. Same security model as /bootstrap: inert without REVIEW_SETUP_TOKEN.
+ */
+router.post(
+  "/disable-client-trust",
+  asyncHandler(async (req, res) => {
+    const expected = process.env.REVIEW_SETUP_TOKEN;
+    if (!expected) throw appError("NOT_FOUND", "Route not found");
+    if (!tokenMatches(req.header("x-setup-token"), expected)) {
+      throw appError("UNAUTHORIZED", "Invalid setup token");
+    }
+
+    const secretKey = process.env.CLERK_SECRET_KEY;
+    if (!secretKey) throw appError("INTERNAL", "CLERK_SECRET_KEY missing");
+
+    const resp = await fetch("https://api.clerk.com/v1/instance", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        auth_password: { device_trust: { enabled: false } },
+      }),
+    });
+    if (!resp.ok && resp.status !== 204) {
+      const text = await resp.text().catch(() => "");
+      throw appError(
+        "INTERNAL",
+        `Clerk instance PATCH failed: ${resp.status} ${text.slice(0, 200)}`,
+      );
+    }
+
+    res.json({ ok: true, status: resp.status });
+  }),
+);
+
 export default router;
+
