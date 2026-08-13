@@ -8,7 +8,6 @@
  * GDPR export / account deletion (both proxied to the api-server).
  */
 import { apiFetch } from '@/lib/api';
-import type { ServerProfile } from '@/lib/normalize';
 
 /** Metadata collected during onboarding for the profile bootstrap call. */
 export interface ProfileBootstrap {
@@ -22,18 +21,19 @@ export interface ProfileBootstrap {
 }
 
 /**
- * Check whether a username is available. Usernames are case-insensitive and
- * unique among non-deleted profiles. We reuse the search endpoint and look for
- * an exact (case-insensitive) match.
+ * Check whether a username is available. The server applies the canonical
+ * normalisation (NFC, trim, collapse spaces) and compares case-insensitively
+ * against non-deleted profiles, so suggestions/candidates shown as available
+ * are confirmed free server-side.
  */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
   const trimmed = username.trim();
   if (!trimmed) return false;
-  const res = await apiFetch<{ users: ServerProfile[] }>('/profile/search', {
-    query: { q: trimmed, limit: 10 },
-  });
-  const lower = trimmed.toLowerCase();
-  return !res.users.some((u) => u.username.toLowerCase() === lower);
+  const res = await apiFetch<{ available: boolean }>(
+    '/profile/username-available',
+    { query: { username: trimmed } },
+  );
+  return res.available;
 }
 
 /**

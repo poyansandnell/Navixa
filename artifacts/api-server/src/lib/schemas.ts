@@ -38,7 +38,9 @@ export const TEMPO_TURN_SECONDS: Record<"blitz" | "daily", number> = {
 
 // --- Profile ---------------------------------------------------------------
 export const bootstrapProfileSchema = z.object({
-  username: z.string().trim().min(3).max(24),
+  // Length/format rules are enforced on the *normalised* value in the route
+  // (see lib/username.ts); the raw string only gets a sanity bound here.
+  username: z.string().min(1).max(100),
   displayName: z.string().trim().min(1).max(48).optional(),
   locale: z.string().trim().min(2).max(8).optional(),
   // Optional; when omitted the server reads it from the Clerk session claims.

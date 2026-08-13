@@ -49,8 +49,10 @@ export const profilesTable = pgTable(
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
-    uniqueIndex("profiles_username_key")
-      .on(t.username)
+    // Case-insensitive uniqueness among non-deleted profiles. The app stores
+    // the user's pretty original spelling; lower() is the uniqueness key.
+    uniqueIndex("profiles_username_lower_key")
+      .on(sql`lower(${t.username})`)
       .where(sql`${t.deletedAt} is null`),
     uniqueIndex("profiles_email_hash_key")
       .on(t.emailHash)
@@ -61,9 +63,12 @@ export const profilesTable = pgTable(
       "profiles_username_len_chk",
       sql`char_length(${t.username}) between 3 and 24`,
     ),
+    // Unicode letters (å/ä/ö, é, …), digits, underscore and single internal
+    // spaces are allowed; the precise charset is enforced app-side. The DB
+    // guarantees: no leading/trailing whitespace, no control characters.
     check(
       "profiles_username_fmt_chk",
-      sql`${t.username} ~ '^[a-zA-Z0-9_]+$'`,
+      sql`${t.username} !~ '^\\s' and ${t.username} !~ '\\s$' and ${t.username} !~ '[[:cntrl:]]'`,
     ),
     check(
       "profiles_country_chk",

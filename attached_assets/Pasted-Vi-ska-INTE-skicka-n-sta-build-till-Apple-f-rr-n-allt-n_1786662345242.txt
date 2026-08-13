@@ -1,0 +1,299 @@
+Vi ska INTE skicka nästa build till Apple förrän allt nedan är synligt och verifierat på en fysisk iPhone/TestFlight.
+
+Apple kräver att account deletion, report user och block user går att hitta och använda. Just nu kan jag som vanlig användare inte hitta Delete Account eller var jag blockerar en annan användare.
+
+Gör en full end-to-end-granskning av detta i Navixa och implementera/fixa allt nedan.
+
+## 1. DELETE ACCOUNT MÅSTE VARA TYDLIGT SYNLIGT
+
+Apple kräver permanent account deletion direkt i appen.
+
+Som vanlig inloggad användare ska jag kunna gå:
+
+`Profile → Settings → Account → Delete Account`
+
+Placera `Delete Account` tydligt i Account-sektionen.
+
+Det får inte:
+- endast finnas i kod
+- endast finnas i admin
+- vara dolt bakom ett ovanligt flöde
+- kräva supportkontakt
+
+Det ska fungera för vanliga användare i iOS-appen.
+
+UI:
+
+English:
+- Delete account
+- Permanently delete account
+- This will permanently delete your account and associated personal data. This action cannot be undone.
+- Cancel
+- Delete account
+
+Swedish:
+- Radera konto
+- Radera konto permanent
+- Detta raderar ditt konto och tillhörande personuppgifter permanent. Åtgärden kan inte ångras.
+- Avbryt
+- Radera konto
+
+Efter bekräftelse:
+- radera användarens konto permanent
+- radera/anonymisera relevant data
+- radera Clerk-user
+- rensa session/token
+- logga ut användaren
+- visa login/startskärmen
+
+Verifiera detta i den riktiga iOS-appen, inte bara genom kodinspektion.
+
+## 2. REPORT + BLOCK SKA VARA LÄTTA ATT HITTA
+
+Jag kan inte hitta var man blockerar en användare.
+
+På varje annan spelares profil ska det finnas en tydlig meny, exempelvis `•••`, med:
+
+- Report player
+- Block player
+
+Alternativt kan knapparna ligga direkt på profilen, men de måste vara lätta att hitta.
+
+Jag ska kunna göra:
+
+`Other player's profile → ••• → Report player`
+
+och:
+
+`Other player's profile → ••• → Block player`
+
+### Report player
+
+Visa kategorier:
+- Abusive or offensive behavior
+- Harassment
+- Inappropriate username/profile
+- Cheating
+- Spam
+- Other
+
+Tillåt valfri fritext.
+
+Efter submit:
+- visa tydlig confirmation
+- skapa moderation/report-record server-side
+
+### Block player
+
+Visa confirmation:
+
+`Block [name]?`
+
+Förklara att personen inte längre ska kunna interagera med användaren.
+
+Efter blockering ska ändringen märkas direkt.
+
+Den blockerade användaren ska bland annat:
+- inte kunna skicka friend requests
+- inte matchas mot användaren
+- inte synas i relevanta sociala listor/sökresultat för den blockerande användaren
+- inte kunna initiera privata matcher/interaktioner där block ska gälla
+
+Blockeringen ska också skapa ett moderation-event/report så developer blir aware enligt Apples Guideline 1.2.
+
+## 3. TESTA MED REVIEW TEST PLAYER
+
+Säkerställ att det i produktion finns en stabil testprofil:
+
+`Review Test Player`
+
+Apple-review-kontot ska enkelt kunna hitta den användaren.
+
+Jag ska kunna göra:
+
+`Friends/Search → Review Test Player → Profile → Report / Block`
+
+Om Review Test Player saknas, skapa den via säker bootstrap/seed.
+
+Den får inte försvinna mellan deploys.
+
+## 4. NAMNSYSTEMET MÅSTE FIXAS
+
+Dubbelkolla hela username/display-name-flödet.
+
+### Krav
+
+Användare ska kunna använda namn med:
+
+- mellanslag
+- svenska bokstäver: å, ä, ö
+- stora och små bokstäver
+- vanliga internationella Unicode-bokstäver
+
+Exempel som ska accepteras:
+
+`Poyan Sandnell`
+
+`Åsa Lind`
+
+`Björn Öberg`
+
+`Måns`
+
+`José García`
+
+Använd inte en gammal regex som endast tillåter `[A-Za-z0-9_]`.
+
+### Unikhet
+
+Alla namnförslag som systemet automatiskt genererar måste vara LEDIGA innan de visas eller sparas.
+
+Systemet får aldrig föreslå ett namn som redan är upptaget.
+
+Kontrollera uniqueness SERVER-SIDE, inte bara i klienten.
+
+Hantera race conditions: två användare ska inte kunna få samma namn om de sparar samtidigt.
+
+Använd databasens unique constraint/index som slutlig garanti.
+
+### Normalisering
+
+Unikhetskontrollen ska vara robust.
+
+Minst:
+- trimma leading/trailing whitespace
+- kollapsa flera mellanslag till ett om det är produktbeslutet
+- Unicode-normalisera, t.ex. NFC
+- jämför namn case-insensitive för uniqueness
+
+Exempel:
+
+`Poyan Sandnell`
+
+och
+
+`poyan sandnell`
+
+ska INTE kunna bli två olika unika namn om systemet betraktar dem som samma användarnamn.
+
+På samma sätt ska Unicode-normalisering inte göra att visuellt samma `Åsa` kan registreras dubbelt genom olika Unicode-representationer.
+
+Behåll däremot användarens snygga originalstavning för visning.
+
+### Namnförslag
+
+När appen föreslår namn:
+
+1. Generera kandidat.
+2. Normalisera kandidaten.
+3. Kontrollera mot databasen.
+4. Om upptagen: generera nästa.
+5. Visa endast kandidater som är bekräftat lediga.
+
+Generera flera unika alternativ, inte samma namn med risk för krock.
+
+Om exempelvis `Poyan Sandnell` redan finns kan systemet föreslå något som:
+
+`Poyan Sandnell 2`
+
+eller annan produktmässigt bra variant, men endast efter server-side availability check.
+
+Undvik fula eller slumpmässiga suffix om bättre alternativ finns.
+
+## 5. DISPLAY NAME VS USERNAME
+
+Granska om Navixa egentligen behöver skilja på:
+
+- display name
+- unique username/handle
+
+Om nuvarande produktmodell använder ett enda namn som måste vara unikt, behåll det men implementera kraven ovan.
+
+Om det är bättre arkitekturellt att ha:
+
+`Display name: Poyan Sandnell`
+
+och
+
+`Unique handle: poyan`
+
+så föreslå det i rapporten, men gör INTE en stor modellmigration utan att först förklara konsekvenserna.
+
+För Apple-fixen prioriteras ett säkert och fungerande flöde.
+
+## 6. TESTA ALLT SOM EN VANLIG ANVÄNDARE
+
+Testa från riktig app-route och vanliga användarbehörigheter.
+
+Verifiera:
+
+- Delete Account syns.
+- Delete Account fungerar.
+- Report Player syns.
+- Report Player fungerar.
+- Block Player syns.
+- Block Player fungerar.
+- Review Test Player går att hitta.
+- Blockerad spelare försvinner på relevanta ställen.
+- Namn med mellanslag fungerar.
+- Å/Ä/Ö fungerar.
+- Unicode-namn fungerar.
+- Dubbelnamn stoppas.
+- Case-insensitive dubletter stoppas.
+- Autosuggestions är alltid lediga.
+- Race condition för duplicate names hanteras av databasen.
+
+## 7. TESTER
+
+Lägg till tester för exempelvis:
+
+`Åsa Lind`
+
+`åsa lind`
+
+`Åsa  Lind`
+
+Unicode NFC/NFD-varianter
+
+samt samtidiga försök att registrera samma namn.
+
+Testa även delete/report/block APIs.
+
+Kör:
+
+`pnpm typecheck`
+
+`pnpm test`
+
+`npx expo-doctor`
+
+## 8. VISA MIG EXAKT VAR FUNKTIONERNA FINNS
+
+När du är klar ska slutrapporten uttryckligen säga:
+
+DELETE ACCOUNT:
+`Profile → ... → ...`
+
+BLOCK USER:
+`... → ... → Block player`
+
+REPORT USER:
+`... → ... → Report player`
+
+Beskriv exakt vad jag ska trycka på på min iPhone.
+
+Jag vill inte bara höra att funktionen "finns i koden".
+
+## 9. PRODUKTION OCH NY BUILD
+
+När allt är klart:
+
+- commit
+- push till `poyansandnell/Navixa` main
+- republish backend om det krävs
+- verifiera produktion
+- säg uttryckligen om jag behöver en ny EAS build
+
+Vi skickar INTE till Apple förrän jag själv har verifierat Delete Account, Report Player och Block Player i TestFlight.
+
+Rapportera commit-hash när allt är klart.

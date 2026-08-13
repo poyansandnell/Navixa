@@ -98,7 +98,8 @@
     "account": "Konto",
     "logout": "Logga ut",
     "logoutConfirmTitle": "Logga ut?",
-    "logoutConfirmBody": "Du behöver logga in igen för att fortsätta."
+    "logoutConfirmBody": "Du behöver logga in igen för att fortsätta.",
+    "openSettings": "Inställningar"
   },
   "onboarding": {
     "skip": "Hoppa över",
@@ -189,7 +190,7 @@
       "checking": "Kontrollerar tillgänglighet…",
       "available": "Användarnamnet är ledigt",
       "taken": "Användarnamnet är upptaget",
-      "invalid": "3–24 bokstäver, siffror eller understreck",
+      "invalid": "3–24 tecken: bokstäver (å, ä, ö fungerar), siffror, mellanslag eller understreck",
       "submit": "Gå in i arenan"
     },
     "legal": {

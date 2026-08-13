@@ -98,7 +98,8 @@
     "account": "Account",
     "logout": "Log out",
     "logoutConfirmTitle": "Log out?",
-    "logoutConfirmBody": "You'll need to sign in again to continue."
+    "logoutConfirmBody": "You'll need to sign in again to continue.",
+    "openSettings": "Settings"
   },
   "onboarding": {
     "skip": "Skip",
@@ -189,7 +190,7 @@
       "checking": "Checking availability…",
       "available": "Username is available",
       "taken": "Username is already taken",
-      "invalid": "3–24 letters, numbers or underscores",
+      "invalid": "3–24 characters: letters (å, ä, ö included), numbers, spaces or underscores",
       "submit": "Enter the arena"
     },
     "legal": {

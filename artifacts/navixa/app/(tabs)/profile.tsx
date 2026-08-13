@@ -361,6 +361,15 @@ export default function ProfileScreen() {
       {/* Account */}
       <SectionHeader title={t('profile.account')} />
       <Button
+        testID="profile-open-settings"
+        label={t('profile.openSettings')}
+        icon="settings"
+        variant="ghost"
+        fullWidth
+        onPress={() => router.push('/settings')}
+      />
+      <Spacer size="sm" />
+      <Button
         testID="profile-logout"
         label={t('profile.logout')}
         icon="log-out"

@@ -22,10 +22,14 @@ import {
   idParamSchema,
 } from "../lib/schemas";
 
+import {
+  normalizeUsername,
+  usernameKey,
+  usernameProblem,
+} from "../lib/username";
+
 const router: IRouter = Router();
 router.use(requireAuth);
-
-const USERNAME_RE = /^[a-zA-Z0-9_]+$/;
 
 /** sha256 hex of a normalised (trimmed, lowercased) email. */
 export function hashEmail(email: string): string {
@@ -58,25 +62,46 @@ async function resolveEmail(
   }
 }
 
-async function assertUsernameOk(username: string): Promise<void> {
-  const u = username.trim();
-  if (u.length < 3 || u.length > 24 || !USERNAME_RE.test(u)) {
-    throw appError("USERNAME_INVALID", "3-24 chars, letters/digits/underscore");
-  }
+/**
+ * Full availability check for a normalised username: format, banned patterns,
+ * and case-insensitive uniqueness among non-deleted profiles. Note that the
+ * DB unique index on lower(username) is the final guarantee against races.
+ */
+async function usernameUnavailableReason(
+  normalized: string,
+): Promise<"USERNAME_INVALID" | "USERNAME_TAKEN" | null> {
+  if (usernameProblem(normalized)) return "USERNAME_INVALID";
   const banned = await db
     .select({ pattern: bannedUsernamesTable.pattern })
     .from(bannedUsernamesTable)
     .where(eq(bannedUsernamesTable.isActive, true));
-  const lower = u.toLowerCase();
-  if (banned.some((b) => lower.includes(b.pattern.toLowerCase()))) {
-    throw appError("USERNAME_INVALID", "Username is not allowed");
+  const key = usernameKey(normalized);
+  if (banned.some((b) => key.includes(b.pattern.toLowerCase()))) {
+    return "USERNAME_INVALID";
   }
   const [taken] = await db
     .select({ id: profilesTable.id })
     .from(profilesTable)
-    .where(and(ilike(profilesTable.username, u), isNull(profilesTable.deletedAt)))
+    .where(
+      and(
+        sql`lower(${profilesTable.username}) = ${key}`,
+        isNull(profilesTable.deletedAt),
+      ),
+    )
     .limit(1);
-  if (taken) throw appError("USERNAME_TAKEN", "Username is taken");
+  return taken ? "USERNAME_TAKEN" : null;
+}
+
+async function assertUsernameOk(normalized: string): Promise<void> {
+  const problem = usernameProblem(normalized);
+  if (problem) throw appError("USERNAME_INVALID", problem);
+  const reason = await usernameUnavailableReason(normalized);
+  if (reason === "USERNAME_INVALID") {
+    throw appError("USERNAME_INVALID", "Username is not allowed");
+  }
+  if (reason === "USERNAME_TAKEN") {
+    throw appError("USERNAME_TAKEN", "Username is taken");
+  }
 }
 
 /** POST /api/profile/bootstrap — JIT-create the profile + settings + ratings. */
@@ -108,21 +133,31 @@ router.post(
       return;
     }
 
-    await assertUsernameOk(body.username);
+    const username = normalizeUsername(body.username);
+    await assertUsernameOk(username);
 
     const email = await resolveEmail(req, userId, body.email);
     const emailHash = email ? hashEmail(email) : null;
 
-    const [profile] = await db
-      .insert(profilesTable)
-      .values({
-        id: userId,
-        username: body.username.trim(),
-        displayName: (body.displayName ?? body.username).trim(),
-        locale: body.locale ?? "en",
-        emailHash,
-      })
-      .returning();
+    let profile;
+    try {
+      [profile] = await db
+        .insert(profilesTable)
+        .values({
+          id: userId,
+          username,
+          displayName: (body.displayName ?? username).trim(),
+          locale: body.locale ?? "en",
+          emailHash,
+        })
+        .returning();
+    } catch (err) {
+      // Unique-violation on lower(username): another signup raced us.
+      if ((err as { code?: string }).code === "23505") {
+        throw appError("USERNAME_TAKEN", "Username is taken");
+      }
+      throw err;
+    }
 
     await db
       .insert(userSettingsTable)
@@ -134,6 +169,26 @@ router.post(
       .onConflictDoNothing();
 
     res.json({ created: true, profile: sanitizeProfile(profile) });
+  }),
+);
+
+/**
+ * GET /api/profile/username-available?username=… — live availability check
+ * for onboarding. Applies the same normalisation/validation as bootstrap.
+ */
+router.get(
+  "/username-available",
+  asyncHandler(async (req, res) => {
+    const raw = typeof req.query.username === "string" ? req.query.username : "";
+    const normalized = normalizeUsername(raw);
+    const reason = normalized
+      ? await usernameUnavailableReason(normalized)
+      : "USERNAME_INVALID";
+    res.json({
+      available: reason === null,
+      reason,
+      normalized,
+    });
   }),
 );
 
