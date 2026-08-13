@@ -1,0 +1,200 @@
+
+
+
+
+
+
+
+Replit Cloud
+Publish a sharable version of your App, unaffected by changes made in the project editor
+Manage custom domains for your published project
+View traffic, request metrics, resource usage, and analytics for your deployed App
+Find, fix, and monitor SEO and growth opportunities
+Stores structured data such as user profiles, game scores, and product catalogs.
+Let users log in to your App using a prebuilt login page
+Find, fix, and monitor security vulnerabilities and privacy issues
+Host and save uploads like images, videos, and documents
+Setup
+Connect to Replit-native and external services
+Version control for your App
+Store sensitive information (like API keys) securely in your App
+Manage skills that extend Agent capabilities
+Git
+
+Version control for your App
+
+Commit
+
+
+Add reproduction details and screenshot for Sign in with Apple failure
+Replit Agent
+committed
+5 minutes ago
+1 parent 
+
+Showing 2 changed files.
+
+
+
+22FD9D76-B024-4E4D-BD88-BD109927F497_1786300697294.PNG
+attached_assets
+
+Added
+
+Pasted-We-have-reproduced-the-exact-Sign-in-with-Apple-failure_1786300684504.txt
+attached_assets
+
+Added
+
+men kan du även göra den p åengelska också samt för ipda fixa zip fil
+6 days ago
+Recreating localized sign-in screens
+
+Recreating localized sign-in screens
+Jag fixar engelska + iPad-versioner genom att rendera riktiga appen (webbversionen) i rätt upplösning. Först kollar jag hur språk och onboarding-flaggan styrs så jag kan nå inloggningsskärmen direkt.
+
+17 actions
+Alla bilder klara. Nu tar jag bort de tillfälliga kodändringarna och paketerar zip-filen.
+
+Restored files
+
+App Store-skärmbilder (zip)
+File
+Concluding the final tasks
+
+Concluding the final tasks
+Klart! Zip-filen ligger ovanför med fyra publiceringsklara skärmbilder som visar den nya inloggningen med Sign in with Apple:
+
+iPhone 6,9" (1320×2868): svenska (din riktiga TestFlight-bild, rensad) + engelska
+iPad 13" (2048×2732): svenska + engelska
+De engelska och iPad-versionerna renderades direkt från riktiga appen i rätt upplösning, och de tillfälliga kodändringarna jag använde för det är borttagna igen — inget i appen har ändrats.
+
+Ladda upp dem i App Store Connect under respektive skärmstorlek och språk (svenska/engelska), så minskar du risken att granskaren missar att Apple-inloggningen finns.
+
+Worked for 2 minutes
+
+Checkpoint made
+6 days ago
+
+Attached Image
+
+Attached Image
+fick detta. The dimensions of one or more screenshots are wrong. Learn More Screenshots dimensions should be: 1242 × 2688px, 2688 × 1242px, 1284 × 2778px or 2778 × 1284px
+
+--
+
+kolla de gamla bilderna så ser du hur det ser ut
+6 days ago
+Updating screenshot resolutions and styles
+
+Updating screenshot resolutions and styles
+Apple vill ha 6,5"-formatet (1284×2778) för iPhone, och dina gamla bilder har en marknadsföringsstil (rubrik + telefonram). Jag gör om inloggningsbilderna i samma stil och exakt rätt mått. Kollar först vilka typsnitt som finns.
+
+9 actions
+Bilderna sitter fint i samma stil som de gamla. Jag paketerar zip-filen med rätt mått.
+
+Deleted files
+
+App Store-skärmbilder i rätt mått (zip)
+File
+Concluding the project
+
+Concluding the project
+Klart! Zip-filen ovanför innehåller fyra bilder i samma marknadsföringsstil som dina gamla skärmbilder — mörk bakgrund, NAVIXA-märke, rubrik med orange accent och appen i en telefonram:
+
+iPhone 1284×2778 (måttet Apple efterfrågade): svenska + engelska
+iPad 2048×2732: svenska + engelska
+Ladda upp dem i App Store Connect så ska måttfelet vara borta. Vill du ha en annan rubriktext på någon av dem är det snabbt fixat.
+
+Worked for 2 minutes
+
+Checkpoint made
+6 days ago
+
+Pasted-We-have-reproduced-the-exact-Sign-in-with-Apple-failure_1786300684504.txt
+
+Attached Image
+6 minutes ago
+
+13 actions
+
+Worked for 53 seconds
+
+Checkpoint made
+5 minutes ago
+Add reproduction details and screenshot for Sign in with Apple failure
+Aug 09, 2026 at 8:39 PM
+
+Scroll to latest
+Agent has questions for you
+
+Add secrets
+To proceed with the project setup, please provide the following API secrets. Enter the required information in the designated fields and click submit to securely store them.
+CLERK_SECRET_KEY
+Enter the value for CLERK_SECRET_KEY. It will be saved as a Replit Secret.
+
+
+
+
+
+
+Loading... - Replit 
+
+Pasted-We-have-reproduced-the-exact-Sign-in-with-Apple-failure_1786300684504.txt
+We have reproduced the exact Sign in with Apple failure that App Review reported.
+
+The native app shows this Clerk error:
+
+"The current redirect URL navixa:// does not match an authorized redirect URI"
+
+Important findings:
+
+- Production app uses:
+  EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=
+  pk_live_Y2xlcmsuc2Fua2Etc2tlcHAucmVwbGl0LmFwcCQ
+
+- This decodes to the Replit-managed Clerk frontend:
+  clerk.sanka-skepp.replit.app
+
+- The app uses scheme:
+  navixa
+
+- Bundle identifier:
+  com.navixa.app
+
+- Production Clerk proxy is:
+  https://sanka-skepp.replit.app/api/__clerk
+
+This appears to be the Replit-managed Clerk instance/proxy, not a normal Clerk project that I can manage in my personal Clerk dashboard.
+
+Please fix the production authentication configuration so the native redirect URI used by Sign in with Apple is authorized.
+
+Specifically:
+
+1. Inspect the actual production Clerk/Replit Auth instance serving:
+   https://sanka-skepp.replit.app/api/__clerk
+
+2. Determine the exact redirectUrl generated by features/auth/oauth.ts for oauth_apple on iOS.
+
+3. Ensure that native redirect is authorized in the production Clerk/Replit Auth configuration.
+   The error currently identifies:
+   navixa://
+
+4. Do NOT change the app to use my unrelated personal Clerk "My Application" project.
+
+5. Verify Sign in with Apple end-to-end using the production configuration:
+   Apple sheet -> authentication -> redirect back into Navixa -> Clerk session created -> user reaches the app.
+
+6. Test from a clean native/release session, not only web/Expo Go.
+
+7. Confirm whether fixing the authorized redirect requires:
+   - a Replit Auth setting,
+   - Clerk production instance setting,
+   - code change to redirectUrl,
+   - or all of the above.
+
+8. If a code change is required, implement it, run typecheck/tests, commit and push to poyansandnell/Navixa main.
+
+9. Report the exact redirect URI now authorized and whether a new EAS build is required.
+
+Do not guess. Trace the live production auth flow and reproduce the exact redirect mismatch.

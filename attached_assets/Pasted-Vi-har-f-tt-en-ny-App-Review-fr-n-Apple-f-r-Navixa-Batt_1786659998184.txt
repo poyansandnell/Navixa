@@ -1,0 +1,417 @@
+Vi har fått en ny App Review från Apple för Navixa Battle, version 1.0 (8), med tre återstående problem. Implementera allt nedan komplett i produktion, testa det end-to-end och pusha till `poyansandnell/Navixa` på `main`.
+
+VIKTIGT: Apple har nu godkänt tidigare problem med Sign in with Apple, review-konto och support-URL. Ändra inte de fungerande delarna i onödan. Fokus är endast på de tre nya kraven nedan.
+
+## 1. Guideline 5.1.1(v) — Permanent account deletion
+
+Apple kräver att en användare som kan skapa konto också kan initiera permanent kontoradering direkt i appen.
+
+### UI
+
+På profilsidan / settings, under sektionen `Account`, där det idag finns `Log out`, lägg till en tydlig knapp:
+
+`Delete account`
+
+Den ska finnas på både svenska och engelska.
+
+Förslagsvis:
+
+Svenska:
+- Radera konto
+- Radera mitt konto permanent
+- Detta tar permanent bort ditt konto och tillhörande data. Åtgärden kan inte ångras.
+- Avbryt
+- Radera konto
+
+Engelska:
+- Delete account
+- Permanently delete my account
+- This permanently deletes your account and associated data. This action cannot be undone.
+- Cancel
+- Delete account
+
+### Flöde
+
+När användaren väljer `Delete account`:
+
+1. Visa en tydlig confirmation-modal.
+2. Förklara att kontot och tillhörande användardata tas bort permanent.
+3. Kräv ett aktivt slutligt bekräftelseklick.
+4. Kör därefter riktig permanent deletion, inte deaktivering.
+
+### Backend/data
+
+Radera eller anonymisera användarens data på ett konsekvent och säkert sätt i alla relevanta Navixa-tabeller.
+
+Inventera beroenden innan deletion. Exempel som kan beröras:
+
+- Clerk user
+- profiles
+- user settings
+- ratings
+- friends/social relations
+- friend requests
+- blocks
+- reports
+- notifications
+- quests/progress
+- matches/matchmaking references
+- tournament references
+- support records om de är kopplade till user id
+- andra user-owned records
+
+Bevara bara sådant som juridiskt/tekniskt måste behållas, och anonymisera i så fall personidentifierande fält.
+
+Se till att deletion inte bryter historiska matcher eller foreign keys.
+
+### Clerk
+
+Kontot ska också tas bort permanent från Clerk så att användaren inte längre kan logga in med samma Clerk user id.
+
+Använd serverside Clerk API om det är säkrare än klient-side deletion.
+
+Secret keys får aldrig exponeras i appen.
+
+### Efter lyckad deletion
+
+- rensa lokal session/token-cache
+- logga ut
+- navigera tillbaka till auth/startskärm
+- visa inte stale profile data
+
+### Felhantering
+
+Om deletion misslyckas:
+- radera inte bara delar tyst
+- visa begripligt fel
+- logga tekniskt fel server-side
+- säkerställ att vi inte lämnar användaren i ett halv-raderat tillstånd
+
+Gör gärna deletion via en server-endpoint/transaktion så långt databasen tillåter.
+
+---
+
+## 2. Guideline 1.2 — User Generated Content: report + block + moderation
+
+Apple klassar Navixa som en app med User-Generated Content.
+
+De kräver:
+
+1. Terms/EULA före eller i samband med registrering/inloggning.
+2. Möjlighet att rapportera objectionable content / användare.
+3. Möjlighet att blockera abusive users.
+4. Blockering ska omedelbart ta bort den användaren/innehållet ur relevanta ytor för den blockerande användaren.
+5. Blockering/rapportering ska också kunna göra utvecklaren medveten om problemet.
+6. Developer måste kunna agera på rapporter inom 24 timmar.
+
+### 2A. Terms/EULA före registrering/inloggning
+
+Apple vill se detta i en screen recording.
+
+På auth-skärmen ska det tydligt finnas information i stil med:
+
+`By continuing, you agree to our Terms of Use and Privacy Policy.`
+
+Länka direkt till fungerande:
+
+- Terms of Use
+- Privacy Policy
+
+Använd befintliga produktions-URL:er under `sanka-skepp.replit.app`.
+
+Om användaren idag kan registrera konto utan att terms överhuvudtaget visas, fixa det.
+
+Det behöver inte vara en separat kryssruta om Apples krav uppfylls med tydlig text och länkar, men användaren måste kunna se villkoren före registrering.
+
+### 2B. Report player
+
+På andra spelares profil, matchdetaljer eller annan rimlig plats där man möter en användare, lägg till:
+
+`Report player`
+
+Vid rapportering:
+
+Visa kategori, exempel:
+
+- Abusive or offensive behavior
+- Inappropriate username/profile
+- Harassment
+- Cheating
+- Spam
+- Other
+
+Valfri fritext för detaljer.
+
+När rapport skickas:
+
+- lagra reporter user id
+- reported user id
+- kategori
+- kommentar
+- timestamp
+- status, exempelvis `open`
+- relevant match id/context om sådan finns
+
+Användaren ska få bekräftelse:
+
+`Report submitted`
+
+### 2C. Block player
+
+På samma användar-yta ska finnas:
+
+`Block player`
+
+Vid block:
+
+- fråga om bekräftelse
+- skapa block relation i databasen
+- blockering ska börja gälla direkt
+
+När användare A blockerar B ska B:
+
+- inte visas som vän/förslag där det är relevant
+- inte kunna skicka nya vänförfrågningar till A
+- inte kunna matchas mot A i matchmaking
+- inte visas i sociala ytor/feed där det är relevant
+- befintligt innehåll från B ska tas bort/döljas omedelbart från A:s relevanta vyer
+
+Om tvåvägsblockering behövs för säkerhet i matchmaking/social interaktion, implementera konsekvent.
+
+### 2D. Blockering ska även notifiera utvecklaren
+
+Apple skriver uttryckligen att blockering också ska göra developer aware of inappropriate content.
+
+När en användare blockerar en annan:
+
+- skapa en moderation event/report-liknande record server-side
+- markera source t.ex. `user_block`
+- inkludera blocker och blocked user
+- timestamp
+- context om tillgängligt
+
+Det behöver inte skicka push/email till oss omedelbart om vi har ett fungerande moderation/admin-flöde, men eventet måste hamna i en kö/lista som vi faktiskt kan granska.
+
+### 2E. Moderation/admin
+
+Skapa eller färdigställ ett enkelt admin/moderationflöde där vi kan se:
+
+- open reports
+- block-generated moderation events
+- reporter
+- reported user
+- category
+- description
+- createdAt
+- match/context
+- status
+
+Admin ska kunna:
+
+- markera report som reviewed
+- dismiss
+- suspend/ban/eject user
+- gärna radera eller dölja objectionable profile content om sådant finns
+
+Vi behöver kunna uppfylla Apples krav att agera inom 24 timmar.
+
+Om admin-UI redan finns, bygg vidare där.
+
+Om separat admin-UI är för stort, skapa åtminstone säkra backend/admin-endpoints och ett enkelt internt gränssnitt.
+
+### Ban/eject
+
+Implementera en riktig möjlighet att stänga av en användare.
+
+En bannad användare ska inte kunna använda appen normalt efter att statusen ändrats.
+
+Lägg gärna till t.ex.:
+
+- `status: active | suspended | banned`
+- moderation reason
+- moderatedAt
+- moderatedBy
+
+Kontrollera status vid session/app-start och på skyddade API-flöden.
+
+---
+
+## 3. Guideline 2.3.6 — Age Rating / User-Generated Content
+
+Det här är främst en App Store Connect-inställning, men kontrollera också att appens funktionalitet faktiskt stämmer med metadata.
+
+Apple kräver att vi i App Store Connect sätter:
+
+`User-Generated Content = Yes`
+
+Detta gör jag manuellt i App Store Connect.
+
+Replit behöver därför inte automatisera detta, men skriv i slutrapporten exakt:
+
+`Manual App Store Connect step required: App Information -> Age Rating -> User-Generated Content -> Yes`
+
+---
+
+## 4. Screen recording för Apple
+
+Apple kräver en screen recording från fysisk enhet som visar följande.
+
+Gör implementationen så att jag enkelt kan spela in ett enda tydligt flöde.
+
+### Recording A — Account deletion
+
+Jag ska kunna spela in:
+
+1. Start app.
+2. Sign in med review-konto eller skapa nytt konto.
+3. Gå till Profile/Account.
+4. Visa `Delete account`.
+5. Tryck.
+6. Visa confirmation.
+7. Bekräfta.
+8. Visa att kontot tas bort och att användaren loggas ut/hamnar på login.
+
+### Recording B — UGC safety
+
+Jag ska kunna spela in:
+
+1. Login/register-skärm där Terms of Use och Privacy Policy syns.
+2. Logga in.
+3. Navigera till en annan användares profil.
+4. Visa `Report player`.
+5. Skicka en rapport.
+6. Visa `Block player`.
+7. Blockera användaren.
+8. Visa att användaren försvinner/döljs från relevant social yta eller inte längre kan interagera.
+
+Bygg UI:t så att detta går snabbt och tydligt att demonstrera.
+
+---
+
+## 5. Review-kontot
+
+Behåll Apples permanenta review-konto fungerande.
+
+Ändra inte credentials eller lägg på 2FA/onboarding.
+
+Kontot ska kunna:
+
+- logga in direkt
+- se appens normala funktioner
+- navigera till account deletion
+- navigera till annan användare så report/block kan demonstreras
+
+Om review-kontot idag saknar någon annan användare att blockera/rapportera, skapa en stabil testanvändare i produktion som review-kontot kan hitta.
+
+Exempel:
+
+Display name:
+`Review Test Player`
+
+Använd inte fejkade real-person-identiteter.
+
+---
+
+## 6. Tester
+
+Kör efter implementation:
+
+- `pnpm typecheck`
+- `pnpm test`
+- `npx expo-doctor`
+- relevant API/server tests
+- relevanta moderation/block/delete integration tests
+
+Testa särskilt:
+
+### Account deletion
+- normal delete
+- redan raderad/idempotency
+- databasfel
+- Clerk delete failure
+- stale session efter deletion
+
+### Blocking
+- A blockerar B
+- A och B matchas inte igen
+- B kan inte skicka friend request till A
+- B försvinner från relevanta lists
+- duplicate block är idempotent
+
+### Reporting
+- report skapas korrekt
+- reporter kan inte manipulera reported user id/context
+- rate limiting eller abuse protection finns
+
+### Moderation
+- admin kan läsa reports
+- admin kan markera reviewed
+- admin kan ban user
+- bannad user blockeras från app/API
+
+---
+
+## 7. Security
+
+Kontrollera:
+
+- authorization på alla delete/report/block/admin endpoints
+- användare får bara radera sitt eget konto
+- användare får inte blockera/rapportera godtyckliga user ids genom osäker klientinput utan servervalidering
+- endast admin får moderera/ban
+- Clerk secret stannar server-side
+- inga secrets committas
+- SQL/RLS-regler uppdateras där det behövs
+
+---
+
+## 8. Production rollout
+
+När allt är klart:
+
+1. Commit.
+2. Push till `poyansandnell/Navixa` `main`.
+3. Publicera backend/webb om det krävs.
+4. Kontrollera produktion.
+5. Rapportera om ändringen kräver en ny EAS/iOS-build.
+
+Eftersom vi lägger till nya native-visible UI-funktioner i appen räknar jag med att vi behöver bygga och skicka en ny iOS-build.
+
+Ändra inte bundle identifier eller Clerk-konfiguration som nu fungerar.
+
+---
+
+## 9. Slutrapport
+
+När du är klar, ge mig:
+
+- exakt vilka filer som ändrades
+- databas/migrationer som skapades
+- hur permanent account deletion fungerar
+- vilka data som raderas/anonymiseras
+- hur report fungerar
+- hur block fungerar
+- exakt hur matchmaking respekterar blocks
+- hur moderation/admin fungerar
+- hur ban/eject fungerar
+- var Terms/EULA visas
+- testresultat
+- commit hash
+- om backend måste publiceras
+- om ny EAS-build krävs
+- exakt manuellt steg för Age Rating i App Store Connect
+
+Ge mig också en kort steg-för-steg-instruktion för hur jag spelar in de två filmer Apple efterfrågar på min fysiska iPhone.
+
+Apple Review-texten vi åtgärdar är:
+
+Guideline 5.1.1(v):
+Appen måste erbjuda permanent account deletion direkt från appen.
+
+Guideline 2.3.6:
+Age Rating måste ha User-Generated Content = Yes.
+
+Guideline 1.2:
+Appen måste ha Terms/EULA före registrering/inloggning, report mechanism, block mechanism, omedelbar removal/döljning efter block och möjlighet för developer att moderera rapporter inom 24 timmar och eject offending users.
+
+Implementera detta komplett. Stanna inte vid mockups eller UI-knappar utan fungerande backend.
