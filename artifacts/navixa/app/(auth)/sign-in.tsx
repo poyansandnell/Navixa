@@ -9,6 +9,7 @@ import {
   isValidEmail,
   SocialAuthButtons,
   SOCIAL_AUTH_ENABLED,
+  TermsNotice,
   TextField,
 } from '@/features/auth';
 import { spacing } from '@/constants/theme';
@@ -127,6 +128,7 @@ export default function SignInScreen() {
             </Text>
           </Link>
         </View>
+        <TermsNotice />
       </Screen>
     </KeyboardAvoidingView>
   );

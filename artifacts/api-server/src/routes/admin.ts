@@ -19,7 +19,11 @@ import {
   matchesTable,
   supportTicketsTable,
 } from "@workspace/db";
-import { requireAuth, requireAdmin } from "../middlewares/requireAuth";
+import {
+  requireAuth,
+  requireAdmin,
+  invalidateSuspensionCache,
+} from "../middlewares/requireAuth";
 import { asyncHandler, parseBody } from "../lib/http";
 import { appError } from "../lib/errors";
 import { annulMatch } from "../game/annul";
@@ -98,6 +102,7 @@ const handlers: Record<string, Handler> = {
       isActive: true,
     });
     await audit(adminId, "suspend_account", { userId: data.userId, permanent: data.permanent });
+    invalidateSuspensionCache(data.userId);
     return { ok: true };
   },
 
@@ -114,6 +119,7 @@ const handlers: Record<string, Handler> = {
         ),
       );
     await audit(adminId, "unsuspend_account", { userId });
+    invalidateSuspensionCache(userId);
     return { ok: true };
   },
 

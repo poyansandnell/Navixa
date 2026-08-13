@@ -99,21 +99,25 @@ router.post(
     const uid = res.locals.userId as string;
     parseBody(deleteAccountSchema, req.body);
 
-    const [profile] = await db
-      .select({ id: profilesTable.id })
-      .from(profilesTable)
-      .where(eq(profilesTable.id, uid))
-      .limit(1);
-    if (!profile) throw appError("NOT_FOUND", "Profile not found");
-
-    // Remove the DB profile (cascades own settings/ratings/inventory/etc.).
+    // Phase 1 — remove the DB profile. FK cascades remove owned rows
+    // (settings, ratings, friendships, requests, blocks, inventory, quests,
+    // notifications, push tokens); match history seats are set null so
+    // opponents keep replays. If this fails, nothing has been lost and the
+    // user can simply retry.
     await db.delete(profilesTable).where(eq(profilesTable.id, uid));
 
-    // Remove the Clerk identity (fire-and-forget errors are surfaced).
+    // Phase 2 — remove the Clerk identity. If this fails (non-404), we
+    // surface an explicit error so the user retries; the retry is idempotent
+    // (the profile is already gone, and a re-login would only create an empty
+    // bootstrap profile — all personal data was removed in phase 1).
     try {
       await clerkClient.users.deleteUser(uid);
     } catch (err) {
-      req.log.error({ err }, "clerk user deletion failed after profile removal");
+      const status = (err as { status?: number }).status;
+      if (status !== 404) {
+        req.log.error({ err }, "clerk user deletion failed after profile removal");
+        throw appError("INTERNAL", "Account deletion did not complete, please try again");
+      }
     }
 
     res.json({ ok: true });

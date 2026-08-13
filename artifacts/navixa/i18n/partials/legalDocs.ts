@@ -15,7 +15,7 @@
  * `s1 … sN`. Only `en` and `sv` are authored here; the other 12 locales fall
  * back to `en` via i18next's `fallbackLng`.
  *
- * Real, finished text. Company details are filled in (Sandnell Holding,
+ * Real, finished text. Company details are filled in (Catch Me AB (publ),
  * Bresättersvägen 23, 641 35 Katrineholm, Sweden) and all contact is routed
  * through the web support form at https://sanka-skepp.replit.app/support — there
  * is no support email address.
@@ -35,7 +35,7 @@ export default {
         sectionCount: '11',
         s1: {
           heading: 'Who we are',
-          body: 'Navixa is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden. For any privacy question you can reach us via the support form at https://sanka-skepp.replit.app/support.',
+          body: 'Navixa is a turn-based naval strategy game. This Privacy Policy explains what personal data we process when you use the app, why we process it, and the choices and rights you have. The data controller is Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sweden. For any privacy question you can reach us via the support form at https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Accounts and sign-in',
@@ -75,7 +75,7 @@ export default {
         },
         s11: {
           heading: 'Changes and contact',
-          body: 'We may update this policy as the app evolves; the "Last updated" date above always reflects the current version, and material changes will be highlighted in the app. Questions or requests: use the support form at https://sanka-skepp.replit.app/support, or write to Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden.',
+          body: 'We may update this policy as the app evolves; the "Last updated" date above always reflects the current version, and material changes will be highlighted in the app. Questions or requests: use the support form at https://sanka-skepp.replit.app/support, or write to Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sweden.',
         },
       },
 
@@ -88,7 +88,7 @@ export default {
         sectionCount: '10',
         s1: {
           heading: 'Acceptance',
-          body: 'By downloading, accessing or playing Navixa you agree to these Terms of Service. If you do not agree, please do not use the app. These Terms are a legal agreement between you and Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden.',
+          body: 'By downloading, accessing or playing Navixa you agree to these Terms of Service. If you do not agree, please do not use the app. These Terms are a legal agreement between you and Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sweden.',
         },
         s2: {
           heading: 'Licence to use the app',
@@ -120,7 +120,7 @@ export default {
         },
         s9: {
           heading: 'Limitation of liability',
-          body: 'To the maximum extent permitted by law, Sandnell Holding is not liable for indirect, incidental, special or consequential damages, or for loss of data, progress or virtual items, arising from your use of the app. Nothing in these Terms limits liability that cannot be limited by law, including your statutory consumer rights.',
+          body: 'To the maximum extent permitted by law, Catch Me AB (publ) is not liable for indirect, incidental, special or consequential damages, or for loss of data, progress or virtual items, arising from your use of the app. Nothing in these Terms limits liability that cannot be limited by law, including your statutory consumer rights.',
         },
         s10: {
           heading: 'Governing law and changes',
@@ -261,7 +261,7 @@ export default {
         sectionCount: '2',
         s1: {
           heading: 'Get in touch',
-          body: 'Navixa is operated by Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sweden. For support, feedback, or privacy and legal enquiries, use the support form at https://sanka-skepp.replit.app/support.',
+          body: 'Navixa is operated by Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sweden. For support, feedback, or privacy and legal enquiries, use the support form at https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Privacy and legal requests',
@@ -303,7 +303,7 @@ export default {
         sectionCount: '11',
         s1: {
           heading: 'Vilka vi är',
-          body: 'Navixa är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige. Vid frågor om integritet når du oss via supportformuläret på https://sanka-skepp.replit.app/support.',
+          body: 'Navixa är ett turordningsbaserat marint strategispel. Den här integritetspolicyn förklarar vilka personuppgifter vi behandlar när du använder appen, varför vi gör det och vilka val och rättigheter du har. Personuppgiftsansvarig är Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sverige. Vid frågor om integritet når du oss via supportformuläret på https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Konton och inloggning',
@@ -343,7 +343,7 @@ export default {
         },
         s11: {
           heading: 'Ändringar och kontakt',
-          body: 'Vi kan uppdatera denna policy i takt med att appen utvecklas; datumet "Senast uppdaterad" ovan speglar alltid den aktuella versionen, och väsentliga ändringar markeras i appen. Frågor eller önskemål: använd supportformuläret på https://sanka-skepp.replit.app/support, eller skriv till Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige.',
+          body: 'Vi kan uppdatera denna policy i takt med att appen utvecklas; datumet "Senast uppdaterad" ovan speglar alltid den aktuella versionen, och väsentliga ändringar markeras i appen. Frågor eller önskemål: använd supportformuläret på https://sanka-skepp.replit.app/support, eller skriv till Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sverige.',
         },
       },
 
@@ -356,7 +356,7 @@ export default {
         sectionCount: '10',
         s1: {
           heading: 'Godkännande',
-          body: 'Genom att ladda ner, öppna eller spela Navixa godkänner du dessa användarvillkor. Om du inte godkänner dem ska du inte använda appen. Villkoren utgör ett juridiskt avtal mellan dig och Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige.',
+          body: 'Genom att ladda ner, öppna eller spela Navixa godkänner du dessa användarvillkor. Om du inte godkänner dem ska du inte använda appen. Villkoren utgör ett juridiskt avtal mellan dig och Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sverige.',
         },
         s2: {
           heading: 'Licens att använda appen',
@@ -388,7 +388,7 @@ export default {
         },
         s9: {
           heading: 'Ansvarsbegränsning',
-          body: 'I den utsträckning lagen tillåter ansvarar Sandnell Holding inte för indirekta skador, följdskador eller särskilda skador, eller för förlust av data, framsteg eller virtuella föremål, som uppstår genom din användning av appen. Inget i dessa villkor begränsar ansvar som inte kan begränsas enligt lag, inklusive dina lagstadgade konsumenträttigheter.',
+          body: 'I den utsträckning lagen tillåter ansvarar Catch Me AB (publ) inte för indirekta skador, följdskador eller särskilda skador, eller för förlust av data, framsteg eller virtuella föremål, som uppstår genom din användning av appen. Inget i dessa villkor begränsar ansvar som inte kan begränsas enligt lag, inklusive dina lagstadgade konsumenträttigheter.',
         },
         s10: {
           heading: 'Tillämplig lag och ändringar',
@@ -529,7 +529,7 @@ export default {
         sectionCount: '2',
         s1: {
           heading: 'Kontakta oss',
-          body: 'Navixa drivs av Sandnell Holding, Bresättersvägen 23, 641 35 Katrineholm, Sverige. För support, återkoppling eller frågor om integritet och juridik, använd supportformuläret på https://sanka-skepp.replit.app/support.',
+          body: 'Navixa drivs av Catch Me AB (publ), Bresättersvägen 23, 641 35 Katrineholm, Sverige. För support, återkoppling eller frågor om integritet och juridik, använd supportformuläret på https://sanka-skepp.replit.app/support.',
         },
         s2: {
           heading: 'Integritets- och juridiska ärenden',

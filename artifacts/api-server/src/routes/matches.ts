@@ -4,6 +4,7 @@ import { Router, type IRouter } from "express";
 import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import {
   db,
+  blocksTable,
   matchesTable,
   matchPlayersTable,
   matchEventsTable,
@@ -164,6 +165,22 @@ router.post(
         return { id: match.id, status: match.status };
       }
       if (players.length >= 2) throw appError("MATCH_FULL");
+
+      // Bilateral block check: a blocked pair may not play together.
+      const opponentIds = players.map((p) => p.playerId).filter((id): id is string => !!id);
+      if (opponentIds.length > 0) {
+        const [blocked] = await tx
+          .select({ id: blocksTable.id })
+          .from(blocksTable)
+          .where(
+            or(
+              and(eq(blocksTable.blockerId, userId), inArray(blocksTable.blockedId, opponentIds)),
+              and(inArray(blocksTable.blockerId, opponentIds), eq(blocksTable.blockedId, userId)),
+            ),
+          )
+          .limit(1);
+        if (blocked) throw appError("INVITE_NOT_FOUND");
+      }
 
       await tx.insert(matchPlayersTable).values({
         matchId: match.id,

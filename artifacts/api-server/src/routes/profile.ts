@@ -201,6 +201,12 @@ router.get(
           ilike(profilesTable.username, `%${q.q}%`),
           isNull(profilesTable.deletedAt),
           ne(profilesTable.id, userId),
+          // Server-side block filter: hide blocked users in either direction.
+          sql`not exists (
+            select 1 from blocks bl
+            where (bl.blocker_id = ${userId} and bl.blocked_id = ${profilesTable.id})
+               or (bl.blocker_id = ${profilesTable.id} and bl.blocked_id = ${userId})
+          )`,
         ),
       )
       .limit(q.limit);

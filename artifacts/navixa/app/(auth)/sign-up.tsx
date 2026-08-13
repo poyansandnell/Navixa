@@ -10,6 +10,7 @@ import {
   isValidPassword,
   SocialAuthButtons,
   SOCIAL_AUTH_ENABLED,
+  TermsNotice,
   TextField,
 } from '@/features/auth';
 import { spacing } from '@/constants/theme';
@@ -160,6 +161,7 @@ export default function SignUpScreen() {
           disabled={!canSubmit}
           onPress={handleSubmit}
         />
+        <TermsNotice />
 
         {SOCIAL_AUTH_ENABLED ? (
           <>

@@ -191,6 +191,13 @@
       "taken": "Username is already taken",
       "invalid": "3–24 letters, numbers or underscores",
       "submit": "Enter the arena"
+    },
+    "legal": {
+      "prefix": "By continuing, you agree to our",
+      "terms": "Terms of Use",
+      "and": "and",
+      "privacy": "Privacy Policy",
+      "suffix": "."
     }
   },
   "settings": {

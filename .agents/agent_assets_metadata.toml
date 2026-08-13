@@ -78,3 +78,24 @@ id = "PI5a4uaAXIWS97uKyfDEd"
 uri = "file://appstore-assets/navixa-appstore-bilder.zip"
 type = "unspecified"
 title = "App Store-bilder i rätt format (1284×2778) – sv + en (ZIP)"
+
+[[outputs]]
+id = "5OrrJPnPpmDkYnkHo8Th5"
+uri = "file://screenshots/appstore-sign-in-1320x2868.png"
+type = "image"
+title = "App Store-skärmbild: Inloggning med Apple"
+description = "Inloggningsskärmen med Sign in with Apple, 1320×2868 (iPhone 6,9\"), rensad från statusfält och granskningskontots e-post."
+
+[[outputs]]
+id = "BM1SYByz-9SjdwHybLGZY"
+uri = "file://screenshots/appstore-screenshots.zip"
+type = "unspecified"
+title = "App Store-skärmbilder (zip)"
+description = "Inloggningsskärmen med Sign in with Apple: iPhone 6,9\" (1320×2868) på svenska och engelska samt iPad 13\" (2048×2732) på svenska och engelska."
+
+[[outputs]]
+id = "YeIbNGPXAWUva0sDS7il5"
+uri = "file://screenshots/appstore-signin-correct-dims.zip"
+type = "unspecified"
+title = "App Store-skärmbilder i rätt mått (zip)"
+description = "Inloggning med Sign in with Apple i marknadsföringsstil: iPhone 1284×2778 (sv + en) och iPad 2048×2732 (sv + en)."

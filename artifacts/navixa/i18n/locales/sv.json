@@ -191,6 +191,13 @@
       "taken": "Användarnamnet är upptaget",
       "invalid": "3–24 bokstäver, siffror eller understreck",
       "submit": "Gå in i arenan"
+    },
+    "legal": {
+      "prefix": "Genom att fortsätta godkänner du våra",
+      "terms": "användarvillkor",
+      "and": "och vår",
+      "privacy": "integritetspolicy",
+      "suffix": "."
     }
   },
   "settings": {

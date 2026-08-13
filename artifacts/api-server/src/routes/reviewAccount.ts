@@ -111,7 +111,38 @@ router.post(
       createdProfile = true;
     }
 
-    res.json({ ok: true, userId, createdClerkUser, createdProfile, emailVerified });
+    // 4) Stable companion profile so the review account always has another
+    // user to demonstrate Report/Block against (App Store Guideline 1.2).
+    // DB-only (no Clerk identity — it never signs in). Idempotent.
+    const TEST_PLAYER_ID = "review_test_player";
+    const [testPlayer] = await db
+      .select({ id: profilesTable.id })
+      .from(profilesTable)
+      .where(eq(profilesTable.id, TEST_PLAYER_ID))
+      .limit(1);
+    let createdTestPlayer = false;
+    if (!testPlayer) {
+      await db.insert(profilesTable).values({
+        id: TEST_PLAYER_ID,
+        username: "ReviewTestPlayer",
+        displayName: "Review Test Player",
+        locale: "en",
+      });
+      await db
+        .insert(ratingsTable)
+        .values({ playerId: TEST_PLAYER_ID, mode: "ranked" })
+        .onConflictDoNothing();
+      createdTestPlayer = true;
+    }
+
+    res.json({
+      ok: true,
+      userId,
+      createdClerkUser,
+      createdProfile,
+      createdTestPlayer,
+      emailVerified,
+    });
   }),
 );
 

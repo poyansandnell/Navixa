@@ -137,6 +137,18 @@ router.post(
     const uid = res.locals.userId as string;
     const body = parseBody(sendFriendRequestSchema, req.body);
     if (body.receiverId === uid) throw appError("INVALID_PAYLOAD", "Cannot friend yourself");
+    // Bilateral block check: neither side may initiate contact.
+    const [blocked] = await db
+      .select({ id: blocksTable.id })
+      .from(blocksTable)
+      .where(
+        or(
+          and(eq(blocksTable.blockerId, uid), eq(blocksTable.blockedId, body.receiverId)),
+          and(eq(blocksTable.blockerId, body.receiverId), eq(blocksTable.blockedId, uid)),
+        ),
+      )
+      .limit(1);
+    if (blocked) throw appError("FORBIDDEN", "Cannot send a friend request to this user");
     const [request] = await db
       .insert(friendRequestsTable)
       .values({
@@ -167,6 +179,19 @@ router.post(
       if (!reqRow) throw appError("NOT_FOUND", "Friend request not found");
       if (reqRow.receiverId !== uid) throw appError("FORBIDDEN", "Only the receiver may accept");
       if (reqRow.status !== "pending") throw appError("CONFLICT", "Request is not pending");
+      // Re-check bilateral blocks inside the transaction: a block placed after
+      // the request was sent must prevent the friendship from forming.
+      const [blockedPair] = await tx
+        .select({ id: blocksTable.id })
+        .from(blocksTable)
+        .where(
+          or(
+            and(eq(blocksTable.blockerId, reqRow.senderId), eq(blocksTable.blockedId, reqRow.receiverId)),
+            and(eq(blocksTable.blockerId, reqRow.receiverId), eq(blocksTable.blockedId, reqRow.senderId)),
+          ),
+        )
+        .limit(1);
+      if (blockedPair) throw appError("FORBIDDEN", "Cannot accept this request");
       await tx
         .update(friendRequestsTable)
         .set({ status: "accepted", respondedAt: new Date() })
@@ -254,15 +279,49 @@ router.post(
     const uid = res.locals.userId as string;
     const body = parseBody(blockUserSchema, req.body);
     if (body.blockedId === uid) throw appError("INVALID_PAYLOAD", "Cannot block yourself");
-    await db
-      .insert(blocksTable)
-      .values({ blockerId: uid, blockedId: body.blockedId, reason: body.reason ?? null })
-      .onConflictDoNothing();
-    const a = uid < body.blockedId ? uid : body.blockedId;
-    const b = uid < body.blockedId ? body.blockedId : uid;
-    await db
-      .delete(friendshipsTable)
-      .where(and(eq(friendshipsTable.userA, a), eq(friendshipsTable.userB, b)));
+    await db.transaction(async (tx) => {
+      const [target] = await tx
+        .select({ id: profilesTable.id })
+        .from(profilesTable)
+        .where(eq(profilesTable.id, body.blockedId))
+        .limit(1);
+      if (!target) throw appError("NOT_FOUND", "User not found");
+      const inserted = await tx
+        .insert(blocksTable)
+        .values({ blockerId: uid, blockedId: body.blockedId, reason: body.reason ?? null })
+        .onConflictDoNothing()
+        .returning({ id: blocksTable.id });
+      const a = uid < body.blockedId ? uid : body.blockedId;
+      const b = uid < body.blockedId ? body.blockedId : uid;
+      await tx
+        .delete(friendshipsTable)
+        .where(and(eq(friendshipsTable.userA, a), eq(friendshipsTable.userB, b)));
+      // Cancel any pending friend requests in either direction. Row-locked so
+      // a concurrent accept cannot slip through mid-block.
+      await tx
+        .update(friendRequestsTable)
+        .set({ status: "cancelled", respondedAt: new Date() })
+        .where(
+          and(
+            eq(friendRequestsTable.status, "pending"),
+            or(
+              and(eq(friendRequestsTable.senderId, uid), eq(friendRequestsTable.receiverId, body.blockedId)),
+              and(eq(friendRequestsTable.senderId, body.blockedId), eq(friendRequestsTable.receiverId, uid)),
+            ),
+          ),
+        );
+      // Moderation visibility (App Store Guideline 1.2): every *new* block also
+      // creates an open report-style moderation event so the team can review it.
+      if (inserted.length > 0) {
+        await tx.insert(reportsTable).values({
+          reporterId: uid,
+          reportedId: body.blockedId,
+          category: "other",
+          description: `[user_block] Auto-generated moderation event: user blocked this player.${body.reason ? ` Reason: ${body.reason}` : ""}`,
+          status: "open",
+        });
+      }
+    });
     res.json({ ok: true });
   }),
 );
@@ -341,6 +400,17 @@ router.post(
     const uid = res.locals.userId as string;
     const body = parseBody(reportUserSchema, req.body);
     if (body.reportedId === uid) throw appError("INVALID_PAYLOAD", "Cannot report yourself");
+    // Abuse protection: at most 20 reports per user per 24h.
+    const [recent] = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(reportsTable)
+      .where(
+        and(
+          eq(reportsTable.reporterId, uid),
+          sql`${reportsTable.createdAt} > now() - interval '24 hours'`,
+        ),
+      );
+    if ((recent?.n ?? 0) >= 20) throw appError("RATE_LIMITED", "Too many reports, try again later");
     const [target] = await db
       .select({ id: profilesTable.id })
       .from(profilesTable)
@@ -366,6 +436,7 @@ router.post(
 router.get(
   "/leaderboard",
   asyncHandler(async (req, res) => {
+    const uid = res.locals.userId as string;
     const q = parseQuery(leaderboardQuerySchema, req.query);
     const offset = q.page * q.pageSize;
     const rows = await db
@@ -389,6 +460,12 @@ router.get(
           sql`${ratingsTable.gamesPlayed} > 0`,
           sql`${profilesTable.deletedAt} is null`,
           eq(profilesTable.isBot, false),
+          // Hide players the caller has blocked (and players who blocked the caller).
+          sql`not exists (
+            select 1 from blocks bl
+            where (bl.blocker_id = ${uid} and bl.blocked_id = ${ratingsTable.playerId})
+               or (bl.blocker_id = ${ratingsTable.playerId} and bl.blocked_id = ${uid})
+          )`,
           q.scope === "global" ? undefined : eq(profilesTable.countryCode, q.scope),
         ),
       )
