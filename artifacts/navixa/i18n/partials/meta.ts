@@ -117,6 +117,8 @@ export default {
       deleteAccountConfirmTitle: 'Delete your account?',
       deleteAccountConfirmBody:
         'This permanently erases your profile, matches and cosmetics. This cannot be undone.',
+      accountDeletedTitle: 'Account deleted',
+      accountDeletedBody: 'Your account and data have been permanently deleted.',
       logout: 'Log out',
       logoutConfirmTitle: 'Log out?',
       logoutConfirmBody: 'You can sign back in anytime.',
@@ -276,6 +278,8 @@ export default {
       deleteAccountConfirmTitle: 'Radera ditt konto?',
       deleteAccountConfirmBody:
         'Detta raderar permanent din profil, matcher och kosmetik. Kan inte ångras.',
+      accountDeletedTitle: 'Kontot raderat',
+      accountDeletedBody: 'Ditt konto och dina data har raderats permanent.',
       logout: 'Logga ut',
       logoutConfirmTitle: 'Logga ut?',
       logoutConfirmBody: 'Du kan logga in igen när som helst.',

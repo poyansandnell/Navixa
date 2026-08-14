@@ -197,6 +197,22 @@ export default function SettingsScreen() {
             setBusy('delete');
             try {
               await authService.deleteAccount();
+              disconnectSocket();
+              const finishSignOut = () => {
+                void signOut().catch(() => {
+                  // Server already deleted the account; the session is gone
+                  // regardless, so ignore local sign-out errors.
+                });
+              };
+              showAlert(
+                t('settingsScreen.accountDeletedTitle'),
+                t('settingsScreen.accountDeletedBody'),
+                [{ text: t('common.ok'), onPress: finishSignOut }],
+              );
+              // Safety net: if the alert is dismissed without tapping OK
+              // (or on platforms where buttons are unreliable), still sign
+              // out shortly after so the user lands on the sign-in screen.
+              setTimeout(finishSignOut, 4000);
             } catch (e) {
               showAlert(t('common.appName'), (e as Error).message);
             } finally {
