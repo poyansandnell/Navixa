@@ -191,7 +191,8 @@
       "available": "Username is available",
       "taken": "Username is already taken",
       "invalid": "3–24 characters: letters (å, ä, ö included), numbers, spaces or underscores",
-      "submit": "Enter the arena"
+      "submit": "Enter the arena",
+      "checkFailed": "Could not check name availability. Check your connection and try again."
     },
     "legal": {
       "prefix": "By continuing, you agree to our",

@@ -191,7 +191,8 @@
       "available": "Användarnamnet är ledigt",
       "taken": "Användarnamnet är upptaget",
       "invalid": "3–24 tecken: bokstäver (å, ä, ö fungerar), siffror, mellanslag eller understreck",
-      "submit": "Gå in i arenan"
+      "submit": "Gå in i arenan",
+      "checkFailed": "Kunde inte kontrollera om namnet är ledigt. Kontrollera din anslutning och försök igen."
     },
     "legal": {
       "prefix": "Genom att fortsätta godkänner du våra",

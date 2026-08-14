@@ -15,7 +15,13 @@ import { spacing } from '@/constants/theme';
 import { useSettingsStore } from '@/store/settings';
 import { getDeviceLanguage } from '@/i18n';
 
-type Availability = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+type Availability =
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'taken'
+  | 'invalid'
+  | 'error';
 
 export default function CompleteProfileScreen() {
   const { t } = useTranslation();
@@ -55,7 +61,7 @@ export default function CompleteProfileScreen() {
         setAvailability(available ? 'available' : 'taken');
       } catch {
         if (requestId !== requestIdRef.current) return;
-        setAvailability('idle');
+        setAvailability('error');
       }
     }, 400);
 
@@ -77,6 +83,11 @@ export default function CompleteProfileScreen() {
         return { text: t('auth.completeProfile.taken'), tone: 'destructive' as const };
       case 'invalid':
         return { text: t('auth.completeProfile.invalid'), tone: 'destructive' as const };
+      case 'error':
+        return {
+          text: t('auth.completeProfile.checkFailed'),
+          tone: 'destructive' as const,
+        };
       default:
         return null;
     }
